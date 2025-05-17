@@ -130,6 +130,22 @@
   body[data-theme='underground'] #projects {
     background-image: url('underground-project-bg.jpg');
   }
+  .bg-gray-light {
+    background-color: var(--gray-light) !important;
+  }
+  .bg-gray-medium {
+    background-color: var(--gray-medium) !important;
+  }
+  .bg-gray-dark {
+    background-color: var(--gray-dark) !important;
+  }
+  .bg-projects {
+    background-image: url('main-project-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
 </style>
 </head>
 <body class="bg-dark text-light" data-theme="main">
@@ -155,7 +171,7 @@
 
 <!-- Logo -->
 <div class="text-center">
-  <img src="k logo.jpg" alt="Logo" class="logo rounded-circle" style="height: 200px; width: 200px; object-fit: cover;">
+  <img src="assets/k logo.jpg" alt="Logo" class="logo rounded-circle" style="height: 200px; width: 200px; object-fit: cover;">
 </div>
 
 <!-- Theme Switcher -->
@@ -176,12 +192,12 @@
   <div class="container">
     <h1 class="display-3 fw-bold">Hey, I'm Krishna</h1>
     <p class="lead">Blending Code, Art & Culture</p>
-    <a href="cv.pdf" class="btn btn-danger btn-lg mt-3" download><i class="fas fa-download me-2"></i>Download CV</a>
+    <a href="assets/CV - Krishna.pdf" class="btn btn-danger btn-lg mt-3" download><i class="fas fa-download me-2"></i>Download CV</a>
   </div>
 </section>
 
 <!-- About Section -->
-<section id="about" class="py-5 border border-secondary rounded" style="background-color: var(--gray-medium);">
+<section id="about" class="py-5 border border-secondary rounded bg-gray-medium">
   <div class="container">
     <h2 class="section-heading">About Me</h2>
     <p>I’m Krishna — a creator with een passie voor stijlvolle code, unieke designs en culturele invloeden. Ik laat me inspireren door Japanse discipline, Indiase spiritualiteit, Arabische elegantie en games als Tekken, Mortal Kombat en Call of Duty. Anime zoals Solo Leveling en Naruto zitten in mijn DNA.</p>
@@ -189,7 +205,7 @@
 </section>
 
 <!-- Skills Section -->
-<section id="skills" class="py-5 border border-secondary rounded" style="background-color: var(--gray-light);">
+<section id="skills" class="py-5 border border-secondary rounded bg-gray-light">
   <div class="container">
     <h2 class="section-heading">Skills</h2>
     <div class="row">
@@ -216,13 +232,13 @@
 </section>
 
 <!-- Projects Section -->
-<section id="projects" class="py-5 border border-secondary rounded text-light" style="background-color: var(--gray-medium); background-image: url('main-project-bg.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+<section id="projects" class="py-5 border border-secondary rounded text-light bg-gray-medium bg-projects">
   <div class="container">
     <h2 class="section-heading">Projects</h2>
     <div class="row">
       <!-- Example Project Card -->
       <div class="col-md-4 mb-4">
-        <div class="card text-light border border-secondary rounded" style="background-color: var(--gray-dark);">
+        <div class="card text-light border border-secondary rounded bg-gray-dark">
           <img src="project1.jpg" class="card-img-top" alt="Project 1">
           <div class="card-body">
             <h5 class="card-title">Racing Dashboard</h5>
@@ -237,7 +253,7 @@
 </section>
 
 <!-- Contact Section -->
-<section id="contact" class="py-5 border border-secondary rounded" style="background-color: var(--gray-light);">
+<section id="contact" class="py-5 border border-secondary rounded bg-gray-light">
   <div class="container">
     <h2 class="section-heading">Contact Me</h2>
     <p>Stuur me een bericht of volg me via social media:</p>
@@ -257,10 +273,10 @@
       <button type="submit" class="btn btn-danger">Send</button>
     </form>
     <div class="mt-4">
-      <a href="https://instagram.com" class="me-3 text-white"><i class="fab fa-instagram fa-lg"></i></a>
-      <a href="https://linkedin.com" class="me-3 text-white"><i class="fab fa-linkedin fa-lg"></i></a>
-      <a href="https://github.com" class="me-3 text-white"><i class="fab fa-github fa-lg"></i></a>
-      <a href="mailto:krishna@example.com" class="text-white"><i class="fas fa-envelope fa-lg"></i></a>
+      <a href="https://www.instagram.com/_kr.shna_/" class="me-3 text-white"><i class="fab fa-instagram fa-lg"></i></a>
+      <a href="https://www.linkedin.com/in/k-b-098124339/" class="me-3 text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+      <a href="https://github.com/KrishnaBihari04" class="me-3 text-white"><i class="fab fa-github fa-lg"></i></a>
+      <a href="mailto:kas.bihari@gmail.com" class="text-white"><i class="fas fa-envelope fa-lg"></i></a>
     </div>
   </div>
 </section>
