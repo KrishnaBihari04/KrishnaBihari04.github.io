@@ -7,144 +7,400 @@
   <link rel="shortcut icon" href="assets/k logo.jpg" type="image/x-icon">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Kiwi+Maru&family=MedievalSharp&family=Bangers&family=Bebas+Neue&family=Orbitron&family=Staatliches&family=Black+Ops+One&family=Amiri&family=Noto+Serif+JP&display=swap" rel="stylesheet" />
+  
   <style>
-  :root {
-    --main-red: #7f1d1d;
-    --gray-light: #2a2a2a;
-    --gray-medium: #1f1f1f;
-    --gray-dark: #121212;
-    --gray-darker: #0d0d0d;
-    --text-light: #eaeaea;
-  }
+    :root {
+      --main-red: #7f1d1d;
+      --gray-light: #2a2a2a;
+      --gray-medium: #1f1f1f;
+      --gray-dark: #121212;
+      --gray-darker: #0d0d0d;
+      --text-light: #eaeaea;
+    }
 
-  body {
-    font-family: 'Playfair Display', serif;
-    background-color: var(--gray-darker);
-    color: var(--text-light);
-  }
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: var(--gray-darker);
+      color: var(--text-light);
+    }
 
-  .navbar {
-    background-color: var(--main-red);
-  }
+    .navbar {
+      background-color: var(--main-red);
+    }
 
-  .navbar-toggler {
-    border: none;
-  }
+    .navbar-toggler {
+      border: none;
+    }
 
-  .navbar-toggler:focus {
-    outline: none;
-    box-shadow: none;
-  }
+    .navbar-toggler:focus {
+      outline: none;
+      box-shadow: none;
+    }
 
-  .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-  }
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    }
 
-  .navbar .nav-link,
-  .navbar .navbar-brand {
-    color: white !important;
-  }
+    .navbar .nav-link,
+    .navbar .navbar-brand {
+      color: white !important;
+    }
 
-  .logo {
-    height: 200px;
-    width: 200px;
-    object-fit: cover;
-    display: block;
-    margin: 0 auto 20px;
-  }
+    .logo {
+      height: 200px;
+      width: 200px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 20px;
+    }
 
-  .section-heading {
-    border-left: 6px solid var(--main-red);
-    padding-left: 12px;
-    margin-bottom: 1rem;
-    font-weight: bold;
-    color: var(--text-light);
-  }
+    .section-heading {
+      border-left: 6px solid var(--main-red);
+      padding-left: 12px;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      color: var(--text-light);
+    }
 
-  .theme-switcher {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    z-index: 1030;
-  }
+    .theme-switcher {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 1030;
+    }
 
-  .theme-switcher .btn {
-    transition: all 0.3s ease;
-  }
+    .theme-switcher .btn {
+      transition: all 0.3s ease;
+    }
 
-  footer {
-    background-color: var(--gray-dark);
-    color: #fff;
-    text-shadow: 1px 1px 3px black;
-  }
+    footer {
+      background-color: var(--gray-dark);
+      color: #fff;
+      text-shadow: 1px 1px 3px black;
+    }
 
-  /* THEME: UNDERGROUND */
-  body[data-theme='underground'] {
-    background-color: #050505;
-    color: #00f0ff;
-  }
+    /* -------- THEMES -------- */
 
-  body[data-theme='underground'] .navbar {
-    background-color: #111;
-    border-bottom: 2px solid #00f0ff;
-  }
+    /* MAIN THEME */
+    body[data-theme='main'] {
+      background-color: #1a1a1a;
+      color: #ffffff;
+      font-family: 'Playfair Display', serif;
+    }
 
-  body[data-theme='underground'] .section-heading {
-    border-left-color: #00f0ff;
-    color: #00f0ff;
-  }
+    body[data-theme='main'] .navbar {
+      background-color: #2a2a2a;
+      border-bottom: 2px solid var(--main-red);
+    }
 
-  body[data-theme='underground'] .btn-danger,
-  body[data-theme='underground'] .btn-outline-danger {
-    background-color: #00f0ff;
-    border-color: #00f0ff;
-    color: #050505;
-  }
+    body[data-theme='main'] .section-heading {
+      border-left-color: var(--main-red);
+      color: #ffffff;
+    }
 
-  body[data-theme='underground'] footer {
-    background-color: #111;
-    color: #00f0ff;
-    text-shadow: none;
-  }
+    body[data-theme='main'] .btn-danger,
+    body[data-theme='main'] .btn-outline-danger {
+      background-color: var(--main-red);
+      border-color: var(--main-red);
+      color: #ffffff;
+    }
 
-  body[data-theme='underground'] .theme-switcher .btn {
-    background-color: #0f0f0f !important;
-    border: 1px solid #00f0ff;
-    color: #00f0ff;
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
-  }
+    body[data-theme='main'] footer {
+      background-color: #2a2a2a;
+      color: #ffffff;
+      text-shadow: none;
+    }
 
-  /* THEME: MAIN */
-  body[data-theme='main'] .theme-switcher .btn {
-    background-color: #1a1a1a !important;
-    border: 1px solid var(--main-red);
-    color: var(--text-light);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  }
+    body[data-theme='main'] .theme-switcher .btn {
+      background-color: #2a2a2a !important;
+      border: 1px solid var(--main-red);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(139, 0, 0, 0.4);
+    }
 
-  .bg-gray-light {
-    background-color: var(--gray-light) !important;
-  }
-  .bg-gray-medium {
-    background-color: var(--gray-medium) !important;
-  }
-  .bg-gray-dark {
-    background-color: var(--gray-dark) !important;
-  }
-  .bg-projects {
-    background-color: var(--gray-medium) !important;
-  }
+    /* JAPAN THEME */
+    body[data-theme='japan'] {
+      background-color: #f7f0e8;
+      color: #ffffff;
+      font-family: 'Noto Serif JP', serif;
+    }
 
-</style>
+    body[data-theme='japan'] .navbar,
+    body[data-theme='japan'] footer {
+      background-color: #d9aab7;
+      color: #ffffff;
+    }
+
+    body[data-theme='japan'] .section-heading {
+      border-left-color: #5f1d1d;
+      color: #ffffff;
+    }
+
+    body[data-theme='japan'] .btn-danger,
+    body[data-theme='japan'] .btn-outline-danger {
+      background-color: #5f1d1d;
+      border-color: #5f1d1d;
+      color: #ffffff;
+    }
+
+    body[data-theme='japan'] .theme-switcher .btn {
+      background-color: #e6d0d7 !important;
+      border: 1px solid #5f1d1d;
+      color: #5f1d1d;
+      box-shadow: 0 0 8px rgba(95, 29, 29, 0.4);
+    }
+
+    /* DESERT THEME */
+    body[data-theme='desert'] {
+      background-color: #f4e3c1;
+      color: #ffffff;
+      font-family: 'Amiri', serif;
+    }
+
+    body[data-theme='desert'] .navbar,
+    body[data-theme='desert'] footer {
+      background-color: #a67b5b;
+      color: #ffffff;
+    }
+
+    body[data-theme='desert'] .section-heading {
+      border-left-color: #a67b5b;
+      color: #ffffff;
+    }
+
+    body[data-theme='desert'] .btn-danger,
+    body[data-theme='desert'] .btn-outline-danger {
+      background-color: #a67b5b;
+      border-color: #a67b5b;
+      color: #ffffff;
+    }
+
+    body[data-theme='desert'] .theme-switcher .btn {
+      background-color: #ead6b7 !important;
+      border: 1px solid #a67b5b;
+      color: #3c2c1e;
+      box-shadow: 0 0 10px rgba(166, 123, 91, 0.4);
+    }
+
+    /* 7 DEADLY SINS */
+    body[data-theme='7ds'] {
+      background-color: #1a001a;
+      color: #ffffff;
+      font-family: 'MedievalSharp', cursive;
+    }
+
+    body[data-theme='7ds'] .navbar,
+    body[data-theme='7ds'] footer {
+      background-color: #330033;
+      color: #ffffff;
+    }
+
+    body[data-theme='7ds'] .section-heading {
+      border-left-color: #ffc0cb;
+      color: #ffffff;
+    }
+
+    body[data-theme='7ds'] .btn-danger,
+    body[data-theme='7ds'] .btn-outline-danger {
+      background-color: #ffc0cb;
+      border-color: #ffc0cb;
+      color: #1a001a;
+    }
+
+    body[data-theme='7ds'] .theme-switcher .btn {
+      background-color: #240024 !important;
+      border: 1px solid #ffc0cb;
+      color: #ffc0cb;
+      box-shadow: 0 0 10px rgba(255, 192, 203, 0.5);
+    }
+
+    /* NARUTO */
+    body[data-theme='naruto'] {
+      background-color: #fef4d1;
+      color: #ffffff;
+      font-family: 'Bangers', cursive;
+    }
+
+    body[data-theme='naruto'] .navbar,
+    body[data-theme='naruto'] footer {
+      background-color: #2f2f2f;
+      color: #ffffff;
+    }
+
+    body[data-theme='naruto'] .section-heading {
+      border-left-color: #ff6a00;
+      color: #ffffff;
+    }
+
+    body[data-theme='naruto'] .btn-danger,
+    body[data-theme='naruto'] .btn-outline-danger {
+      background-color: #ff6a00;
+      border-color: #ff6a00;
+      color: #2f2f2f;
+    }
+
+    body[data-theme='naruto'] .theme-switcher .btn {
+      background-color: #3b3b3b !important;
+      border: 1px solid #ff6a00;
+      color: #ff6a00;
+      box-shadow: 0 0 10px rgba(255, 106, 0, 0.5);
+    }
+
+    /* BLEACH */
+    body[data-theme='bleach'] {
+      background-color: #ffffff;
+      color: #ffffff;
+      font-family: 'Bebas Neue', cursive;
+    }
+
+    body[data-theme='bleach'] .navbar,
+    body[data-theme='bleach'] footer {
+      background-color: #000000;
+      color: #ffffff;
+    }
+
+    body[data-theme='bleach'] .section-heading {
+      border-left-color: #ff4500;
+      color: #ffffff;
+    }
+
+    body[data-theme='bleach'] .btn-danger,
+    body[data-theme='bleach'] .btn-outline-danger {
+      background-color: #ff4500;
+      border-color: #ff4500;
+      color: #000000;
+    }
+
+    body[data-theme='bleach'] .theme-switcher .btn {
+      background-color: #111 !important;
+      border: 1px solid #ff4500;
+      color: #ff4500;
+      box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+    }
+
+    /* NEED FOR SPEED */
+    body[data-theme='nfs'] {
+      background-color: #0a0a0a;
+      color: #ffffff;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    body[data-theme='nfs'] .navbar,
+    body[data-theme='nfs'] footer {
+      background-color: #121212;
+      color: #ffffff;
+    }
+
+    body[data-theme='nfs'] .section-heading {
+      border-left-color: #00ffae;
+      color: #ffffff;
+    }
+
+    body[data-theme='nfs'] .btn-danger,
+    body[data-theme='nfs'] .btn-outline-danger {
+      background-color: #00ffae;
+      border-color: #00ffae;
+      color: #000000;
+    }
+
+    body[data-theme='nfs'] .theme-switcher .btn {
+      background-color: #1a1a1a !important;
+      border: 1px solid #00ffae;
+      color: #00ffae;
+      box-shadow: 0 0 10px rgba(0, 255, 174, 0.5);
+    }
+
+    /* MORTAL KOMBAT */
+    body[data-theme='mk'] {
+      background-color: #1e1e1e;
+      color: #ffffff;
+      font-family: 'Staatliches', cursive;
+    }
+
+    body[data-theme='mk'] .navbar,
+    body[data-theme='mk'] footer {
+      background-color: #000000;
+      color: #ffffff;
+    }
+
+    body[data-theme='mk'] .section-heading {
+      border-left-color: #ffd700;
+      color: #ffffff;
+    }
+
+    body[data-theme='mk'] .btn-danger,
+    body[data-theme='mk'] .btn-outline-danger {
+      background-color: #ffd700;
+      border-color: #ffd700;
+      color: #000;
+    }
+
+    body[data-theme='mk'] .theme-switcher .btn {
+      background-color: #2a2a2a !important;
+      border: 1px solid #ffd700;
+      color: #ffd700;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    /* CALL OF DUTY */
+    body[data-theme='cod'] {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: 'Black Ops One', cursive;
+    }
+
+    body[data-theme='cod'] .navbar,
+    body[data-theme='cod'] footer {
+      background-color: #1f1f1f;
+      color: #ffffff;
+    }
+
+    body[data-theme='cod'] .section-heading {
+      border-left-color: #4caf50;
+      color: #ffffff;
+    }
+
+    body[data-theme='cod'] .btn-danger,
+    body[data-theme='cod'] .btn-outline-danger {
+      background-color: #4caf50;
+      border-color: #4caf50;
+      color: #121212;
+    }
+
+    body[data-theme='cod'] .theme-switcher .btn {
+      background-color: #252525 !important;
+      border: 1px solid #4caf50;
+      color: #4caf50;
+      box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    }
+
+    /* Helpers */
+    .bg-gray-light {
+      background-color: var(--gray-light) !important;
+    }
+
+    .bg-gray-medium {
+      background-color: var(--gray-medium) !important;
+    }
+
+    .bg-gray-dark {
+      background-color: var(--gray-dark) !important;
+    }
+
+    .bg-projects {
+      background-color: var(--gray-medium) !important;
+    }
+  </style>
 </head>
+
 <body class="bg-dark text-light" data-theme="main">
 
-  <!-- Navbar -->
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg text-white">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="#">Krishna Bihari</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -161,7 +417,7 @@
 
 <!-- Logo -->
 <div class="text-center">
-  <img src="assets/k logo.jpg" alt="Logo" class="logo rounded-circle" style="height: 200px; width: 200px; object-fit: cover;">
+  <img src="assets/k logo.jpg" alt="Logo" class="logo rounded-circle">
 </div>
 
 <!-- Theme Switcher -->
@@ -171,30 +427,47 @@
       Theme
     </button>
     <ul class="dropdown-menu dropdown-menu-dark">
-  <li><a class="dropdown-item theme-option" data-theme="main">Main</a></li>
-  <li><a class="dropdown-item theme-option" data-theme="underground">Underground</a></li>
-</ul>
+      <li><h6 class="dropdown-header">Original</h6></li>
+      <li><a class="dropdown-item theme-option" data-theme="main">Main</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><h6 class="dropdown-header">Culture</h6></li>
+      <li><a class="dropdown-item theme-option" data-theme="japan">GW Japan</a></li>
+      <li><a class="dropdown-item theme-option" data-theme="desert">Middle East</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><h6 class="dropdown-header">Anime</h6></li>
+      <li><a class="dropdown-item theme-option" data-theme="7ds">7 Deadly Sins</a></li>
+      <li><a class="dropdown-item theme-option" data-theme="naruto">Naruto</a></li>
+      <li><a class="dropdown-item theme-option" data-theme="bleach">Bleach</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><h6 class="dropdown-header">Game</h6></li>
+      <li><a class="dropdown-item theme-option" data-theme="nfs">Need for Speed</a></li>
+      <li><a class="dropdown-item theme-option" data-theme="mk">Mortal Kombat</a></li>
+      <li><a class="dropdown-item theme-option" data-theme="cod">Call of Duty</a></li>
+    </ul>
   </div>
 </div>
 
-<!-- Home Section -->
+<!-- Home -->
 <section id="home" class="text-center py-5 border border-secondary rounded">
   <div class="container">
     <h1 class="display-3 fw-bold">Hey, I'm Krishna</h1>
     <p class="lead">Blending Code, Art & Culture</p>
-    <a href="assets/CV - Krishna.pdf" class="btn btn-danger btn-lg mt-3" download><i class="fas fa-download me-2"></i>Download CV</a>
+    <a href="assets/CV - Krishna.pdf" class="btn btn-danger btn-lg mt-3" download>
+      <i class="fas fa-download me-2"></i>Download CV
+    </a>
   </div>
 </section>
 
-<!-- About Section -->
+<!-- About -->
 <section id="about" class="py-5 border border-secondary rounded bg-gray-medium">
   <div class="container">
     <h2 class="section-heading">About Me</h2>
-    <p>I'm Krishna — a creator with een passie voor stijlvolle code, unieke designs en culturele invloeden. Ik laat me inspireren door Japanse discipline, Indiase spiritualiteit, Arabische elegantie en games als Tekken, Mortal Kombat en Call of Duty. Anime zoals Solo Leveling en Naruto zitten in mijn DNA.</p>
+    <p>I’m Krishna — a creator with een passie voor stijlvolle code, unieke designs en culturele invloeden. Ik laat me inspireren door Japanse discipline, Indiase spiritualiteit, Arabische elegantie en games als Tekken, Mortal Kombat en Call of Duty. Anime zoals Solo Leveling en Naruto zitten in mijn DNA.</p>
   </div>
 </section>
 
-<!-- Skills Section -->
+<!-- Skills -->
 <section id="skills" class="py-5 border border-secondary rounded bg-gray-light">
   <div class="container">
     <h2 class="section-heading">Skills</h2>
@@ -221,15 +494,14 @@
   </div>
 </section>
 
-<!-- Projects Section -->
-<section id="projects" class="py-5 border border-secondary rounded text-light bg-gray-medium">
+<!-- Projects -->
+<section id="projects" class="py-5 border border-secondary rounded text-light bg-gray-medium bg-projects">
   <div class="container">
     <h2 class="section-heading">Projects</h2>
     <div class="row">
-      <!-- Example Project Card -->
       <div class="col-md-4 mb-4">
         <div class="card text-light border border-secondary rounded bg-gray-dark">
-          <img src="project1.jpg" class="card-img-top" alt="Project 1">
+          <img src="assets/Project(hover).png" class="card-img-top" alt="Project 1">
           <div class="card-body">
             <h5 class="card-title">Racing Dashboard</h5>
             <p class="card-text">Realtime autosport UI inspired by NFS.</p>
@@ -237,16 +509,15 @@
           </div>
         </div>
       </div>
-      <!-- Herhaal voor 8 andere projecten -->
+      <!-- More projects-->
     </div>
   </div>
 </section>
 
-<!-- Contact Section -->
+<!-- Contact -->
 <section id="contact" class="py-5 border border-secondary rounded bg-gray-light">
   <div class="container">
     <h2 class="section-heading">Contact Me</h2>
-    <p>Stuur me een bericht of volg me via social media:</p>
     <form>
       <div class="mb-3">
         <label for="name" class="form-label">Name</label>
@@ -263,10 +534,10 @@
       <button type="submit" class="btn btn-danger">Send</button>
     </form>
     <div class="mt-4">
-      <a href="https://www.instagram.com/_kr.shna_/" class="me-3 text-white"><i class="fab fa-instagram fa-lg"></i></a>
-      <a href="https://www.linkedin.com/in/k-b-098124339/" class="me-3 text-white"><i class="fab fa-linkedin fa-lg"></i></a>
-      <a href="https://github.com/KrishnaBihari04" class="me-3 text-white"><i class="fab fa-github fa-lg"></i></a>
-      <a href="mailto:kas.bihari@gmail.com" class="text-white"><i class="fas fa-envelope fa-lg"></i></a>
+      <a href="https://instagram.com" class="me-3 text-white"><i class="fab fa-instagram fa-lg"></i></a>
+      <a href="https://linkedin.com" class="me-3 text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+      <a href="https://github.com" class="me-3 text-white"><i class="fab fa-github fa-lg"></i></a>
+      <a href="mailto:krishna@example.com" class="text-white"><i class="fas fa-envelope fa-lg"></i></a>
     </div>
   </div>
 </section>
@@ -276,21 +547,22 @@
   <small>&copy; 2025 Krishna Bihari. Built with soul, style & code.</small>
 </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    (() => {
-      document.querySelectorAll('.theme-option').forEach(option => {
-        option.addEventListener('click', () => {
-          document.body.setAttribute('data-theme', option.dataset.theme);
-          localStorage.setItem('preferred-theme', option.dataset.theme);
-        });
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (() => {
+    document.querySelectorAll('.theme-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.body.setAttribute('data-theme', option.dataset.theme);
+        localStorage.setItem('preferred-theme', option.dataset.theme);
       });
+    });
 
-      const theme = localStorage.getItem('preferred-theme');
-      if (theme) {
-        document.body.setAttribute('data-theme', theme);
-      }
-    })();
-  </script>
+    const theme = localStorage.getItem('preferred-theme');
+    if (theme) {
+      document.body.setAttribute('data-theme', theme);
+    }
+  })();
+</script>
+
 </body>
 </html>
