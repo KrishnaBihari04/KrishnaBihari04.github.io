@@ -1,4 +1,4 @@
-:root {
+  :root {
     --main-red: #7f1d1d;
     --gray-light: #2a2a2a;
     --gray-medium: #1f1f1f;
@@ -71,6 +71,13 @@
   /* -------- THEMES -------- */
 
   /* MAIN THEME */
+  body[data-theme='main'] #home {
+    background-image: url('https://images.rawpixel.com/image_800/cHJpdmF0ZS9zdGF0aWMvaW1hZ2Uvd2Vic2l0ZS8yMDIyLTA0L2xyL3BkcGVvbmllcy1iZy0xMDQtZC5qcGc.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='main'] {
     background-color: #1a1a1a;
     color: #ffffff;
@@ -108,10 +115,17 @@
   }
 
   /* JAPAN THEME */
+  body[data-theme='japan'] #home {
+    background-image: url('https://d1qfwzw6aggd4h.cloudfront.net/background-images/_headerImages/category-header-japan-in-focus.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='japan'] {
     background-color: #f7f0e8;
     color: #ffffff;
-    font-family: 'Noto Serif JP', serif;
+    font-family: 'MedievalSharp', cursive;
   }
 
   body[data-theme='japan'] .navbar,
@@ -140,6 +154,13 @@
   }
 
   /* DESERT THEME */
+  body[data-theme='desert'] #home {
+    background-image: url('https://images.unsplash.com/20/dusty-sky.JPG?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8ZGVzZXJ0JTIwbmlnaHR8ZW58MHx8MHx8fDA%3D');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='desert'] {
     background-color: #f4e3c1;
     color: #ffffff;
@@ -172,10 +193,17 @@
   }
 
   /* 7 DEADLY SINS */
+  body[data-theme='7ds'] #home {
+    background-image: url('https://wallpapercat.com/w/full/2/c/4/66758-3840x2160-desktop-4k-the-seven-deadly-sins-wallpaper-image.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='7ds'] {
     background-color: #1a001a;
     color: #ffffff;
-    font-family: 'MedievalSharp', cursive;
+    font-family: 'Noto Serif JP', serif;
   }
 
   body[data-theme='7ds'] .navbar,
@@ -204,6 +232,13 @@
   }
 
   /* NARUTO */
+  body[data-theme='naruto'] #home {
+    background-image: url('https://4kwallpapers.com/images/wallpapers/sasuke-uchiha-naruto-amoled-black-background-minimal-art-3440x1440-6498.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='naruto'] {
     background-color: #fef4d1;
     color: #ffffff;
@@ -236,6 +271,13 @@
   }
 
   /* BLEACH */
+  body[data-theme='bleach'] #home {
+    background-image: url('https://wallpapers.com/images/hd/bleach-pc-fxx3plebpc04bqxw.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='bleach'] {
     background-color: #ffffff;
     color: #ffffff;
@@ -268,6 +310,13 @@
   }
 
   /* NEED FOR SPEED */
+  body[data-theme='nfs'] #home {
+    background-image: url('https://e1.pxfuel.com/desktop-wallpaper/858/945/desktop-wallpaper-bmw-need-for-speed-most-wanted-most-wanted.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }  
+  
   body[data-theme='nfs'] {
     background-color: #0a0a0a;
     color: #ffffff;
@@ -300,6 +349,13 @@
   }
 
   /* MORTAL KOMBAT */
+  body[data-theme='mk'] #home {
+    background-image: url('https://64.media.tumblr.com/8b3c8c0956d9e7589e8d7e226b340eb4/d5e4173f7d28dd36-11/s640x960/45defdfe362c10d1d357c9c5b02862eac23212cf.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='mk'] {
     background-color: #1e1e1e;
     color: #ffffff;
@@ -332,6 +388,13 @@
   }
 
   /* CALL OF DUTY */
+  body[data-theme='cod'] #home {
+    background-image: url('https://www.gamewallpapers.com/img_script/wallpaper_dir/img.php?src=wallpaper_call_of_duty_black_ops_3_01_2560x1080.jpg&height=506&sharpen');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
   body[data-theme='cod'] {
     background-color: #121212;
     color: #ffffff;
