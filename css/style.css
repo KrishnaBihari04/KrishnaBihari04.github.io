@@ -13,6 +13,17 @@
     color: var(--text-light);
   }
 
+   
+   a {
+    text-decoration: none !important;
+  }
+  
+  
+  a:visited {
+    text-decoration: none !important;
+    color: var(--text-light); 
+  }
+
   .navbar {
     background-color: var(--main-red);
   }
