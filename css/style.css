@@ -437,8 +437,7 @@
     color: #ff6600;
     box-shadow: 0 0 10px rgba(167, 48, 1, 0.979);
   }
-
-  /* Helpers */
+  
   .bg-gray-light {
     background-color: var(--gray-light) !important;
   }
