@@ -420,22 +420,22 @@
   }
 
   body[data-theme='cod'] .section-heading {
-    border-left-color: #4caf50;
+    border-left-color: #ff6600;
     color: #ffffff;
   }
 
   body[data-theme='cod'] .btn-danger,
   body[data-theme='cod'] .btn-outline-danger {
-    background-color: #4caf50;
-    border-color: #4caf50;
+    background-color: #ff6600;
+    border-color: #ff6600;
     color: #121212;
   }
 
   body[data-theme='cod'] .theme-switcher .btn {
     background-color: #252525 !important;
-    border: 1px solid #4caf50;
-    color: #4caf50;
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    border: 1px solid #ff6600;
+    color: #ff6600;
+    box-shadow: 0 0 10px rgba(167, 48, 1, 0.979);
   }
 
   /* Helpers */
