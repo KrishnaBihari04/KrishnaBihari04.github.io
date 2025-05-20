@@ -1,51 +1,49 @@
- // Thema laden uit localStorage
- const theme = localStorage.getItem('preferred-theme');
- if (theme) {
-   document.body.setAttribute('data-theme', theme);
-   applyThemeColors(theme);
- } else {
-   applyThemeColors('main');
- }
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('enter-site').addEventListener('click', () => {
+    window.location.href = 'portfolio.html';
+  });
+});
 
- // Klik op naam = naar portfolio
- document.getElementById('enter-site').addEventListener('click', () => {
-   window.location.href = 'portfolio.html';
- });
+ (() => {
+  const theme = localStorage.getItem("preferred-theme");
 
- // Thema-kleuren toepassen (optioneel uitbreidbaar per thema)
- function applyThemeColors(theme) {
-   const themes = {
-     main: {
-       bg: '#0d0d0d',
-       text: '#eaeaea'
-     },
-     japan: {
-       bg: '#f7f0e8',
-       text: '#5f1d1d'
-     },
-     nfs: {
-       bg: '#0a0a0a',
-       text: '#00ffae'
-     }
-     // Voeg hier meer thema's toe indien gewenst
-   };
+  if (theme) {
+    document.body.setAttribute("data-theme", theme);
+    applyThemeColors(theme);
+  } else {
+    applyThemeColors("main");
+  }
 
-   if (themes[theme]) {
-     document.body.style.backgroundColor = themes[theme].bg;
-     document.body.style.color = themes[theme].text;
-   }
- }
-
-(() => {
-    document.querySelectorAll(".theme-option").forEach((option) => {
-      option.addEventListener("click", () => {
-        document.body.setAttribute("data-theme", option.dataset.theme);
-        localStorage.setItem("preferred-theme", option.dataset.theme);
-      });
+  document.querySelectorAll(".theme-option").forEach((option) => {
+    option.addEventListener("click", () => {
+      const selectedTheme = option.dataset.theme;
+      document.body.setAttribute("data-theme", selectedTheme);
+      localStorage.setItem("preferred-theme", selectedTheme);
+      applyThemeColors(selectedTheme);
     });
+  });
+})();
 
-    const theme = localStorage.getItem("preferred-theme");
-    if (theme) {
-      document.body.setAttribute("data-theme", theme);
-    }
-  })();
+// Thema-kleuren toepassen
+function applyThemeColors(theme) {
+  const themes = {
+    main: {
+      bg: "#0d0d0d",
+      text: "#eaeaea",
+    },
+    japan: {
+      bg: "#f7f0e8",
+      text: "#5f1d1d",
+    },
+    nfs: {
+      bg: "#0a0a0a",
+      text: "#00ffae",
+    },
+    // voeg extra thema's toe als je wilt
+  };
+
+  if (themes[theme]) {
+    document.body.style.backgroundColor = themes[theme].bg;
+    document.body.style.color = themes[theme].text;
+  }
+}
