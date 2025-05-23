@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('enter-site').addEventListener('click', () => {
-    window.location.href = 'portfolio.html';
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("enter-site").addEventListener("click", () => {
+    window.location.href = "portfolio.html";
   });
 });
 
