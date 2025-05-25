@@ -61,6 +61,21 @@ a:visited {
   color: var(--text-light);
 }
 
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-pic {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
 .theme-switcher {
   position: fixed;
   bottom: 1.5rem;

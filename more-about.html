@@ -28,7 +28,7 @@
 
   <body class="bg-dark text-light" data-theme="main">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg text-white">
+    <nav class="sticky-top navbar navbar-expand-lg text-white">
         <div class="container-fluid">
           <a class="navbar-brand fw-bold" href="#">Krishna Bihari</a>
           <button
@@ -112,44 +112,419 @@
       </div>
     </div>
 
-    <!-- Home -->
-    <section id="home" class="text-center py-5">
-      <div class="text-center">
-        <a href="index.html">
-          <img src="assets/k-logo.png" alt="Logo" class="logo rounded-circle" />
-        </a>
-      </div>
-      <div class="container">
-        <h1 class="display-3 fw-bold">Hey, I'm Krishna</h1>
-        <p class="lead">Blending Code, Art & Culture</p>
-        <a
-          href="assets/CV - Krishna.pdf"
-          class="btn btn-danger btn-lg mt-3"
-          download
-        >
-          <i class="fas fa-download me-2"></i>Download CV
-        </a>
-      </div>
-    </section>
-
-    <section
-      id="about"
-      class="py-5 border border-secondary rounded bg-gray-medium"
-    >
-      <div class="container">
-        <h2 class="section-heading">More About Me</h2>
-        <p>
-          <ul>
-            <li></li>
-          </ul>
-        </p>
-
+    <div class="about-container bg-main rounded-3 overflow-hidden shadow-lg">
+        <!-- Profiel Header -->
+        <div class="profile-header text-center p-4 p-md-5 bg-main text-white">
+            <img src="assets/pfp.jpeg" alt="Profielfoto" class="profile-pic rounded-circle shadow border border-5 border-main-light">
+            <h1 class="mt-3 mb-1">Krishna Bihari</h1>
+            <p class="mb-0">Creative Soul | Music Lover | Car Addict</p>
+        </div>
+        
+        <!-- Navigatiebalk -->
+        <nav class="bg-main py-3 border-bottom border-main-light">
+            <div class="container d-flex justify-content-center flex-wrap gap-3">
+                <a href="#music-section" class="btn-sm btn-outline-main-accent scroll-link">Music</a>
+                <a href="#cars-section" class="btn-sm btn-outline-main-accent scroll-link">Cars</a>
+                <!-- <a href="#food-section" class="btn-sm btn-outline-main-accent scroll-link">Food</a> -->
+                <a href="#films-section" class="btn-sm btn-outline-main-accent scroll-link">Films/Series</a>
+                <a href="#quotes-section" class="btn-sm btn-outline-main-accent scroll-link">Quotes</a>
+            </div>
+        </nav>
+        
+        <div class="p-4 p-md-5 bg-main-light text-main-dark">
+            <!-- Music Sectie -->
+            <section id="music-section" class="mb-5 pt-4">
+                <h2 class="border-start border-4 border-main-accent ps-3 mb-4">
+                    <i class="fas fa-music text-main-accent me-2"></i> Music
+                </h2>
+                
+                <!-- Genres -->
+                <div class="mb-4">
+                    <h4 class="mb-3">Favorite Genres</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-main-accent text-white p-2">
+                            <i class="fas fa-headphones me-1"></i> Hip-Hop/Rap
+                        </span>
+                        <span class="badge bg-main-accent text-white p-2">
+                            <i class="fas fa-headphones me-1"></i> Reggae/Reggaeton
+                        </span>
+                        <span class="badge bg-main-accent text-white p-2">
+                            <i class="fas fa-headphones me-1"></i> Arab/Afro
+                        </span>
+                        <span class="badge bg-main-accent text-white p-2">
+                            <i class="fas fa-headphones me-1"></i> Latin/Dancehall
+                        </span>
+                        <span class="badge bg-main-accent text-white p-2">
+                            <i class="fas fa-headphones me-1"></i> Indian Urban Fusion
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Artiesten -->
+                <div class="mb-4">
+                    <h4 class="mb-3">Favorite Artists & Songs</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Eazy E</h5>
+                                    <p class="mb-0 text-main-muted">Favorite Song: Real Muthaphuckkin' G's</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">The Weeknd</h5>
+                                    <p class="mb-0 text-main-muted">Favorite Song: The Hills</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Wisin & Yandel</h5>
+                                    <p class="mb-0 text-main-muted">Favorite Song: Rakata/p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Dystinct - Arab/Afro</h5>
+                                    <p class="mb-0 text-main-muted">Favorite Song: Salam</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Albums -->
+                <div class="mb-4">
+                    <h4 class="mb-3">Favorite Albums</h4>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="p-3 rounded shadow-sm bg-main text-center">
+                                <img src="https://www.platenzaak.nl/cdn/shop/products/0602498878965-3000px-001_1024x1024.jpg?v=1655399626" alt="Curtain Call" class="img-fluid rounded mb-2" style="height: 150px; width: 150px; object-fit: cover;">
+                                <h5 class="mb-1">Curtain Call: The Hits</h5>
+                                <p class="mb-0 text-main-muted">Eminem (2005)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded shadow-sm bg-main text-center">
+                                <img src="https://www.avalonmusic.nl/wp-content/uploads/2023/06/Dystinct_Layali_3000px_ALT-scaled.jpg" alt="Layali" class="img-fluid rounded mb-2" style="height: 150px; width: 150px; object-fit: cover;">
+                                <h5 class="mb-1">Layali</h5>
+                                <p class="mb-0 text-main-muted">Dystinct (2023)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded shadow-sm bg-main text-center">
+                                <img src="https://i.scdn.co/image/ab67616d00001e02161b7f333f8b5d8b4188ead8" alt="SDL 1" class="img-fluid rounded mb-2" style="height: 150px; width: 150px; object-fit: cover;">
+                                <h5 class="mb-1">SDL 1</h5>
+                                <p class="mb-0 text-main-muted">Ronnie Flex (2025)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Cars Sectie -->
+            <section id="cars-section" class="mb-5 pt-4">
+                <h2 class="border-start border-4 border-main-accent ps-3 mb-4">
+                    <i class="fas fa-car text-main-accent me-2"></i> Cars
+                </h2>
+                <div class="row g-4">
+                    <!-- Hypercar -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-main rounded shadow overflow-hidden h-100">
+                            <div class="ratio ratio-16x9 position-relative">
+                                <img src="https://img1.bonhams.com/image?src=Images/live/2022-06/08/25220782-1-2.jpg&top=0.105000000000&left=0.116666666666&right=0.913333333333" alt="Mclaren P1 GTR" class="img-fluid object-fit-cover">
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-main-accent bg-opacity-25"></div>
+                            </div>
+                            <div class="p-3">
+                                <h5 class="mb-2">Mclaren P1 GTR</h5>
+                                <ul class="text-main-muted mb-0 ps-0">
+                                    <li class="d-flex justify-content-between">
+                                        <span>Year:</span> <span>2015</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Power:</span> <span>1000 hp</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>0-100 km/h:</span> <span>2.4s</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Top Speed:</span> <span>350 km/h</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hypercar -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-main rounded shadow overflow-hidden h-100">
+                            <div class="ratio ratio-16x9 position-relative">
+                                <img src="https://www.lamborghini.com/sites/it-en/files/DAM/lamborghini/masterpieces/veneno_rds/over/veneno_roadster_over_01_m.jpg" alt="Lamborghini Veneno" class="img-fluid object-fit-cover">
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-main-accent bg-opacity-25"></div>
+                            </div>
+                            <div class="p-3">
+                                <h5 class="mb-2">Lamborghini Veneno</h5>
+                                <ul class="text-main-muted mb-0 ps-0">
+                                    <li class="d-flex justify-content-between">
+                                        <span>Year:</span> <span>2013</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Power:</span> <span>750 hp</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>0-100 km/h:</span> <span>2.8s</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Top Speed:</span> <span>355 km/h</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sportscar -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-main rounded shadow overflow-hidden h-100">
+                            <div class="ratio ratio-16x9 position-relative">
+                                <img src="https://www.perfectautocollection.com/imagetag/3189/2/f/Used-2021-BMW-M5-Competition-1713908801.jpg" alt="M5 Comp" class="img-fluid object-fit-cover">
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-main-accent bg-opacity-25"></div>
+                            </div>
+                            <div class="p-3">
+                                <h5 class="mb-2">BMW F90 M5 Competition</h5>
+                                <ul class="text-main-muted mb-0 ps-0">
+                                    <li class="d-flex justify-content-between">
+                                        <span>Year:</span> <span>2018</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Power:</span> <span>625 hp</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>0-100 km/h:</span> <span>3.3s</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Top Speed:</span> <span>305 km/h</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SUV -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-main rounded shadow overflow-hidden h-100">
+                            <div class="ratio ratio-16x9 position-relative">
+                                <img src="https://www.chicagomotorcars.com/imagetag/11867/main/l/Used-2023-Cadillac-Escalade-V-ESV-Supercharged-V-Series!-Forgiato-Wheels!-Super-Cruise!-Loaded!-1723292491.jpg" alt="Cadillac Escalade" class="img-fluid object-fit-cover">
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-main-accent bg-opacity-25"></div>
+                            </div>
+                            <div class="p-3">
+                                <h5 class="mb-2">Cadillac Escalade</h5>
+                                <ul class="text-main-muted mb-0 ps-0">
+                                    <li class="d-flex justify-content-between">
+                                        <span>Year:</span> <span>2024</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Power:</span> <span>682 hp</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>0-100 km/h:</span> <span>4.4s</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Top Speed:</span> <span>210 km/h</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Luxury Car -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-main rounded shadow overflow-hidden h-100">
+                            <div class="ratio ratio-16x9 position-relative">
+                                <img src="https://www.exoticcarhacks.com/wp-content/uploads/2024/10/Used-2018-Mercedes-Benz-S63-AMG-BRABUS-700-w-a-200K-MSRP-CCBs-Burmester-High-End-Audio-1711576600-2.jpg" alt="Mercedes S63" class="img-fluid object-fit-cover">
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-main-accent bg-opacity-25"></div>
+                            </div>
+                            <div class="p-3">
+                                <h5 class="mb-2">Mercedes S63 AMG</h5>
+                                <ul class="text-main-muted mb-0 ps-0">
+                                    <li class="d-flex justify-content-between">
+                                        <span>Year:</span> <span>2018</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Power:</span> <span>612 hp</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>0-100 km/h:</span> <span>3.5s</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Top Speed:</span> <span>300 km/h</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Classic -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-main rounded shadow overflow-hidden h-100">
+                            <div class="ratio ratio-16x9 position-relative">
+                                <img src="https://www.jalopnik.com/jalopnik/images/dbba55ff0b094f1b3967d32e6cbbc286.jpg" alt="Bentley Continental GT class="img-fluid object-fit-cover">
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-main-accent bg-opacity-25"></div>
+                            </div>
+                            <div class="p-3">
+                                <h5 class="mb-2">BMW 858 CSL</h5>
+                                <ul class="text-main-muted mb-0 ps-0">
+                                    <li class="d-flex justify-content-between">
+                                        <span>Year:</span> <span>2024</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Power:</span> <span>630 hp</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>0-100 km/h:</span> <span>Unknown</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Top Speed:</span> <span>300 km/h</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Food Sectie -->
+            <!-- <section id="food-section" class="mb-5 pt-4">
+                <h2 class="border-start border-4 border-main-accent ps-3 mb-4">
+                    <i class="fas fa-utensils text-main-accent me-2"></i> Food
+                </h2>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-pizza-slice"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Pizza</h5>
+                                <p class="mb-0 text-main-muted">...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-hamburger"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Burger</h5>
+                                <p class="mb-0 text-main-muted">...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-ice-cream"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Tiramisu</h5>
+                                <p class="mb-0 text-main-muted">...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-cocktail"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Mojito</h5>
+                                <p class="mb-0 text-main-muted">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section> -->
+            
+            <!-- Films/Series Sectie -->
+            <section id="films-section" class="mb-5 pt-4">
+                <h2 class="border-start border-4 border-main-accent ps-3 mb-4">
+                    <i class="fas fa-film text-main-accent me-2"></i> Films & Series
+                </h2>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-film"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Bleach</h5>
+                                <p class="mb-0 text-main-muted">Best anime ever made.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Peaky Blinders</h5>
+                                <p class="mb-0 text-main-muted">Masterpiece TV series</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-hat-wizard"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">The Hobbit & Lord of the Rings</h5>
+                                <p class="mb-0 text-main-muted">Favorite storyline.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded shadow-sm bg-main d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-main-accent text-white" style="width: 40px; height: 40px;">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Interstellar</h5>
+                                <p class="mb-0 text-main-muted">Favorite Sci-fi movie.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Quotes Sectie -->
+            <section id="quotes-section" class="mb-4 pt-4">
+                <div class="p-4 rounded shadow bg-main border-start border-4 border-main-accent">
+                    <p id="randomQuote" class="fs-3 fw-light mb-0">"Good vibes only - focus on the positive and spread kindness wherever you go."</p>
+                </div>
+            </section>
+        </div>
+    </div>
     
-      </div>
-    </section>
-
-    
-
     <!-- Footer -->
     <footer class="text-center py-5 border-top mt-5">
       <small>&copy; 2025 Krishna Bihari. Built with soul, style & code.</small>
