@@ -27,6 +27,26 @@
   </head>
 
   <body class="bg-dark text-light" data-theme="main">
+    <!-- Loader -->
+    <div
+        id="loader"
+        class="position-fixed top-0 start-0 w-100 h-100 bg-black d-flex flex-column justify-content-center align-items-center z-3"
+    >
+    <img
+        src="assets/k-logo.png"
+        alt="Logo"
+        class="mb-4"
+        style="width: 120px; height: auto"
+    />
+    <div
+        class="spinner-border text-light"
+        role="status"
+        style="width: 3rem; height: 3rem"
+    >
+  <span class="visually-hidden">Loading...</span>
+</div>
+</div>
+
     <!-- Navbar -->
     <nav class="sticky-top navbar navbar-expand-lg text-white">
         <div class="container-fluid">

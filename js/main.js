@@ -23,5 +23,5 @@ document.addEventListener("DOMContentLoaded", () => {
  window.addEventListener('load', function () {
     setTimeout(function () {
       document.body.classList.add('loaded');
-    }, 1000); // 1 seconden
+    }, 500); // 1 seconden
   });
