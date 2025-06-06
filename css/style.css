@@ -13,6 +13,10 @@ body {
   color: var(--text-light);
 }
 
+body.loaded #loader {
+  display: none !important;
+}
+
 a {
   text-decoration: none !important;
   color: var(--text-light);
