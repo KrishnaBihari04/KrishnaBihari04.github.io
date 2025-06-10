@@ -91,6 +91,27 @@ a:visited {
   transition: all 0.3s ease;
 }
 
+.bg-glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease-in-out;
+}
+
+.bg-glass:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.badge {
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s ease;
+}
+
+.badge:hover {
+  transform: scale(1.1);
+}
+
 footer {
   background-color: var(--gray-dark);
   color: #fff;
