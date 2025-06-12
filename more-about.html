@@ -114,7 +114,8 @@
                     create. My style is a blend of streetwear edge and classic elegance — bold yet refined. I believe
                     style is more than appearance; it’s character. And for me, character is always on point.
 
-                    Fluent in Dutch, English, and almost in Spanish, I move fluidly between cultures, drawing inspiration from
+                    Fluent in Dutch, English, and almost in Spanish, I move fluidly between cultures, drawing
+                    inspiration from
                     Japanese minimalism, Arabic calligraphy, and Indian symbolism. These traditions influence the way I
                     think, build, and express — with depth, purpose, and soul.
 
@@ -170,7 +171,8 @@
             <section id="music" class="mb-5">
                 <div class="bg-dark text-light rounded-4 p-4 shadow-lg">
                     <h2 class="mb-4"><i class="bi bi-music-player-fill me-2"></i> Krishna's Vibes</h2>
-                    <p class="fst-italic">A layered soundscape of who I am: grounded like a deep bassline, smooth like clean code, sharp like a chess move — mood-based, soulful, and always in flow.</p>
+                    <p class="fst-italic">A layered soundscape of who I am: grounded like a deep bassline, smooth like
+                        clean code, sharp like a chess move — mood-based, soulful, and always in flow.</p>
                     <div class="row row-cols-1 row-cols-md-3 g-4">
                         <div class="col">
                             <div class="card bg-black text-light border-0 shadow h-100">
@@ -215,28 +217,62 @@
             <!-- Featured Designs Section -->
             <section id="creative-space" class="mb-5">
                 <h2 class="mb-4"><i class="bi bi-stars me-2"></i> Featured Designs</h2>
-                <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner rounded shadow">
-                        <div class="carousel-item active">
-                            <img src="assets/design1.jpg" class="d-block w-100" alt="Design 1">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Eerste Carousel -->
+                        <div class="col-md-6 d-flex justify-content-center">
+                            <div id="featuredCarousel1" class="carousel slide w-75" data-bs-ride="carousel">
+                                <div class="carousel-inner rounded shadow">
+                                    <div class="carousel-item active">
+                                        <img src="assets/project-hover.jpg" class="d-block w-100" alt="Design 1">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="assets/project-hover.jpg" class="d-block w-100" alt="Design 2">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="assets/project-hover.jpg" class="d-block w-100" alt="Design 3">
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel1"
+                                    data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel1"
+                                    data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="carousel-item">
-                            <img src="assets/design2.jpg" class="d-block w-100" alt="Design 2">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="assets/design3.jpg" class="d-block w-100" alt="Design 3">
+
+                        <!-- Tweede Carousel -->
+                        <div class="col-md-6 d-flex justify-content-center">
+                            <div id="featuredCarousel2" class="carousel slide w-75" data-bs-ride="carousel">
+                                <div class="carousel-inner rounded shadow">
+                                    <div class="carousel-item active">
+                                        <img src="assets/project-hover.jpg" class="d-block w-100" alt="Design 1">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="assets/project-hover.jpg" class="d-block w-100" alt="Design 2">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="assets/project-hover.jpg" class="d-block w-100" alt="Design 3">
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel2"
+                                    data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel2"
+                                    data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel"
-                        data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel"
-                        data-bs-slide="next">
-                        <span class="carousel-control-next-icon"></span>
-                    </button>
                 </div>
             </section>
+
+
 
             <!-- Favorites Section -->
             <section id="favorites" class="mb-5">
@@ -303,7 +339,8 @@
             <!-- Values Section -->
             <section id="values" class="mb-5">
                 <h2 class="mb-4"><i class="bi bi-gem me-2"></i> Core Values</h2>
-                <div class="accordion accordion-flush" id="valuesAccordion">
+                <div class="accordion" id="valuesAccordion">
+                    <!-- accordion-flush verwijderd -->
                     <div class="accordion-item">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
@@ -336,6 +373,7 @@
                     </div>
                 </div>
             </section>
+
 
             <!-- Timeline Section -->
             <section id="timeline">
@@ -375,7 +413,8 @@
                     <span class="badge bg-gradient rounded-pill bg-danger">Expressive</span>
                     <span class="badge bg-gradient rounded-pill bg-success">Disciplined</span>
                 </div>
-                <p class="text-muted fst-italic mt-3 small">P.S. If you’re reading this, you’re probably just as much of a vibe curator as I am.</p>
+                <p class="text-muted fst-italic mt-3 small">P.S. If you’re reading this, you’re probably just as much of
+                    a vibe curator as I am.</p>
             </div>
         </div>
 
