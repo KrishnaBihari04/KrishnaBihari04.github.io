@@ -18,12 +18,10 @@ body.loaded #loader {
 }
 
 a {
-  text-decoration: none !important;
   color: var(--text-light);
 }
 
 a:visited {
-  text-decoration: none !important;
   color: var(--text-light);
 }
 
