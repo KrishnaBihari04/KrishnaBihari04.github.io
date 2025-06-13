@@ -7,6 +7,12 @@
   --text-light: #eaeaea;
 }
 
+html,body{
+  overflow: -moz-hidden-unscrollable;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 body {
   font-family: "Playfair Display", serif;
   background-color: var(--gray-darker);
@@ -29,13 +35,8 @@ a:visited {
   background-color: var(--main-red);
 }
 
-.navbar-toggler {
-  border: none;
-}
-
 .navbar-toggler:focus {
   outline: none;
-  box-shadow: none;
 }
 
 .navbar-toggler-icon {
@@ -44,7 +45,7 @@ a:visited {
 
 .navbar .nav-link,
 .navbar .navbar-brand {
-  color: white !important;
+ color: var(--text-light) !important;
 }
 
 .logo {
@@ -55,24 +56,13 @@ a:visited {
 .section-heading {
   border-left: 6px solid var(--main-red);
   padding-left: 12px;
-  margin-bottom: 1rem;
-  font-weight: bold;
+  margin-bottom: 16px;
   color: var(--text-light);
-}
-
-.about-container {
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 .profile-pic {
   width: 150px;
   height: 150px;
-  object-fit: cover;
-}
-
-.object-fit-cover {
-  object-fit: cover;
 }
 
 .theme-switcher {
@@ -87,14 +77,14 @@ a:visited {
 }
 
 .bg-glass {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--gray-darker);
   backdrop-filter: blur(12px);
   transition: all 0.3s ease-in-out;
 }
 
 .bg-glass:hover {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  background: var(--gray-darker);
+  box-shadow: var(--gray-darker);
 }
 
 .badge {
@@ -109,7 +99,7 @@ a:visited {
 
 footer {
   background-color: var(--gray-dark);
-  color: #fff;
+  color: var(--text-light);
   text-shadow: 1px 1px 3px black;
 }
 
