@@ -1,4 +1,8 @@
-import type { ProjectHours as ProjectHoursType } from './mockPortalData';
+type ProjectHoursType = {
+  used: number;
+  allocated: number;
+  remaining: number;
+};
 
 type ProjectHoursProps = {
   hours: ProjectHoursType;

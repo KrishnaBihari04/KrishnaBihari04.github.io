@@ -1,3 +1,12 @@
+type AdminSummary = {
+  totalClients: number;
+  totalProjects: number;
+  activeProjects: number;
+  completedProjects: number;
+  averageProgress: number;
+  totalHoursUsed: number;
+};
+
 type StatCardProps = {
   label: string;
   value: string;
@@ -36,7 +45,7 @@ function StatCard({ label, value }: StatCardProps) {
   );
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ summary }: { summary: AdminSummary }) {
   return (
     <main style={{ minHeight: '100vh', padding: '2rem 1.25rem 4rem' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -84,7 +93,7 @@ export default function AdminDashboard() {
               background: 'rgba(255,255,255,0.02)',
             }}
           >
-            Phase 5 foundation
+            Live workspace
           </div>
         </header>
 
@@ -96,10 +105,10 @@ export default function AdminDashboard() {
             marginBottom: '2rem',
           }}
         >
-          <StatCard label="Clients" value="—" />
-          <StatCard label="Projects" value="—" />
-          <StatCard label="Active projects" value="—" />
-          <StatCard label="Total hours" value="—" />
+          <StatCard label="Clients" value={String(summary.totalClients)} />
+          <StatCard label="Projects" value={String(summary.totalProjects)} />
+          <StatCard label="Active projects" value={String(summary.activeProjects)} />
+          <StatCard label="Completed" value={String(summary.completedProjects)} />
         </section>
 
         <section
@@ -126,11 +135,14 @@ export default function AdminDashboard() {
                 marginBottom: '1rem',
               }}
             >
-              Project overview
+              Delivery overview
             </div>
-            <p style={{ color: 'var(--muted)', lineHeight: 1.8, margin: 0 }}>
-              This admin area is intentionally kept minimal as the Phase 5 foundation. The next steps will add authenticated developer access, client/project management, and the operational dashboard for delivery management.
-            </p>
+            <div style={{ display: 'grid', gap: '0.9rem' }}>
+              <div style={{ color: 'var(--soft-white)', fontSize: '1.1rem' }}>Average project progress: {summary.averageProgress}%</div>
+              <div style={{ color: 'var(--muted)', lineHeight: 1.8 }}>
+                Total tracked hours: {summary.totalHoursUsed}h across the current project set.
+              </div>
+            </div>
           </div>
 
           <div
@@ -150,13 +162,11 @@ export default function AdminDashboard() {
                 marginBottom: '1rem',
               }}
             >
-              Planned modules
+              Operations
             </div>
             <ul style={{ color: 'var(--soft-white)', lineHeight: 1.9, margin: 0, paddingLeft: '1.1rem' }}>
-              <li>Client overview</li>
-              <li>Project board</li>
-              <li>Timeline management</li>
-              <li>Hours tracking</li>
+              <li><a href="/admin/clients" style={{ color: 'var(--soft-white)', textDecoration: 'none' }}>Manage clients</a></li>
+              <li><a href="/admin/projects" style={{ color: 'var(--soft-white)', textDecoration: 'none' }}>Manage projects</a></li>
             </ul>
           </div>
         </section>

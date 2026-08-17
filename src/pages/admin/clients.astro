@@ -1,0 +1,21 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import AdminClients from '../../components/admin/AdminClients';
+import { fetchAdminClients } from '../../lib/server/admin-data';
+import { getAdminSession } from '../../lib/server/session';
+
+export const prerender = false;
+
+const title = 'Clients';
+
+const activeSession = getAdminSession(Astro.cookies);
+if (!activeSession) {
+  return Astro.redirect('/admin/login');
+}
+
+const clients = await fetchAdminClients();
+---
+
+<AdminLayout title={title} description="View all clients and their projects.">
+  <AdminClients clients={clients} client:load />
+</AdminLayout>

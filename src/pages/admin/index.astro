@@ -1,12 +1,21 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import AdminDashboard from '../../components/admin/AdminDashboard';
+import { fetchAdminDashboardSummary } from '../../lib/server/admin';
+import { getAdminSession } from '../../lib/server/session';
 
 export const prerender = false;
 
 const title = 'Developer Admin';
+
+const activeSession = getAdminSession(Astro.cookies);
+if (!activeSession) {
+  return Astro.redirect('/admin/login');
+}
+
+const summary = await fetchAdminDashboardSummary();
 ---
 
 <AdminLayout title={title} description="Private developer dashboard for client and project management.">
-  <AdminDashboard client:load />
+  <AdminDashboard summary={summary} client:load />
 </AdminLayout>

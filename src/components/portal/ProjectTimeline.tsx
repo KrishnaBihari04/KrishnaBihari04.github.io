@@ -1,10 +1,15 @@
-import type { TimelineItem, TimelineStatus } from './mockPortalData';
+type TimelineItem = {
+  title: string;
+  description: string;
+  status: 'completed' | 'active' | 'upcoming';
+  date: string;
+};
 
 type ProjectTimelineProps = {
   items: TimelineItem[];
 };
 
-const statusStyles: Record<TimelineStatus, { dot: string; ring: string; label: string }> = {
+const statusStyles: Record<'completed' | 'active' | 'upcoming', { dot: string; ring: string; label: string }> = {
   completed: {
     dot: 'var(--forest-bright)',
     ring: 'rgba(74, 124, 106, 0.22)',

@@ -18,7 +18,6 @@ export default function ClientDashboard() {
     if (!session) {
       setLoading(false);
       setError('Your session expired. Please sign in again.');
-      window.location.href = '/client';
       return;
     }
 
@@ -82,7 +81,7 @@ export default function ClientDashboard() {
         <div style={{ width: '100%', maxWidth: '720px', border: '1px solid var(--border-mid)', borderRadius: '18px', background: 'rgba(10, 10, 10, 0.8)', padding: '2rem' }}>
           <div style={{ color: 'var(--soft-white)', fontSize: '1.5rem', marginBottom: '0.75rem' }}>Unable to open your workspace</div>
           <div style={{ color: 'var(--muted)', lineHeight: 1.8 }}>{error || 'Something went wrong while loading this project.'}</div>
-          <button type="button" onClick={() => window.location.href = '/client'} className="btn-secondary" style={{ marginTop: '1.25rem' }}>Back to client login</button>
+          <a href="/client" className="btn-secondary" style={{ marginTop: '1.25rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Back to client login</a>
         </div>
       </main>
     );

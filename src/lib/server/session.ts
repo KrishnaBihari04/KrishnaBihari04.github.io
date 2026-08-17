@@ -97,3 +97,96 @@ export function getClientPortalSession(cookies: AstroCookies): ClientPortalSessi
   if (!raw) return null;
   return verifySessionPayload(raw);
 }
+
+export type AdminSession = {
+  email: string;
+  role: 'admin';
+  expiresAt: number;
+};
+
+const ADMIN_SESSION_COOKIE_NAME = 'admin_workspace_session';
+const ADMIN_SESSION_TTL_MS = 1000 * 60 * 60 * 8;
+
+function getAdminSessionSecret(): string {
+  const configuredSecret = import.meta.env.ADMIN_SESSION_SECRET ?? import.meta.env.CLIENT_SESSION_SECRET;
+  if (configuredSecret && configuredSecret.length > 0) {
+    return configuredSecret;
+  }
+
+  if (import.meta.env.DEV) {
+    return 'local-dev-admin-session-secret';
+  }
+
+  throw new Error('ADMIN_SESSION_SECRET is required in production.');
+}
+
+function serializeAdminSession(session: AdminSession): string {
+  return JSON.stringify({
+    email: session.email,
+    role: session.role,
+    expiresAt: session.expiresAt,
+  });
+}
+
+export function createAdminSession(email: string): AdminSession {
+  return {
+    email: email.trim().toLowerCase(),
+    role: 'admin',
+    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
+  };
+}
+
+export function signAdminSessionPayload(session: AdminSession): string {
+  const payload = serializeAdminSession(session);
+  const signature = crypto.createHmac('sha256', getAdminSessionSecret()).update(payload).digest('hex');
+  return `${Buffer.from(payload, 'utf8').toString('base64url')}.${signature}`;
+}
+
+export function verifyAdminSessionPayload(rawValue: string): AdminSession | null {
+  if (!rawValue.includes('.')) return null;
+
+  const [payloadB64, signature] = rawValue.split('.');
+  if (!payloadB64 || !signature) return null;
+  if (signature.length !== 64) return null;
+
+  try {
+    const payloadJson = Buffer.from(payloadB64, 'base64url').toString('utf8');
+    const expectedSignature = crypto.createHmac('sha256', getAdminSessionSecret()).update(payloadJson).digest('hex');
+
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+      return null;
+    }
+
+    const parsed = JSON.parse(payloadJson) as AdminSession;
+    if (!parsed.email || parsed.role !== 'admin' || !parsed.expiresAt) return null;
+    if (parsed.expiresAt <= Date.now()) return null;
+
+    return {
+      email: parsed.email.trim().toLowerCase(),
+      role: 'admin',
+      expiresAt: parsed.expiresAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function setAdminSessionCookie(cookies: AstroCookies, session: AdminSession): void {
+  cookies.set(ADMIN_SESSION_COOKIE_NAME, signAdminSessionPayload(session), {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: import.meta.env.PROD,
+    maxAge: Math.max(1, Math.floor((session.expiresAt - Date.now()) / 1000)),
+  });
+}
+
+export function clearAdminSessionCookie(cookies: AstroCookies): void {
+  cookies.delete(ADMIN_SESSION_COOKIE_NAME, { path: '/' });
+}
+
+export function getAdminSession(cookies: AstroCookies): AdminSession | null {
+  const raw = cookies.get(ADMIN_SESSION_COOKIE_NAME)?.value;
+  if (!raw) return null;
+  return verifyAdminSessionPayload(raw);
+}

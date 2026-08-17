@@ -1,0 +1,18 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import AdminLogin from '../../components/admin/AdminLogin';
+import { getAdminSession } from '../../lib/server/session';
+
+export const prerender = false;
+
+const title = 'Admin Login';
+
+const activeSession = getAdminSession(Astro.cookies);
+if (activeSession) {
+  return Astro.redirect('/admin');
+}
+---
+
+<AdminLayout title={title} description="Secure developer sign in for the private admin workspace.">
+  <AdminLogin client:load />
+</AdminLayout>

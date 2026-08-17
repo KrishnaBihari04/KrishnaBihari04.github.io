@@ -1,7 +1,16 @@
-import type { ProjectSummary } from './mockPortalData';
+type ProjectOverviewItem = {
+  name: string;
+  client: string;
+  type: string;
+  status: string;
+  phase: string;
+  progress: number;
+  expectedLaunch: string;
+  description: string;
+};
 
 type ProjectOverviewProps = {
-  project: ProjectSummary;
+  project: ProjectOverviewItem;
 };
 
 export default function ProjectOverview({ project }: ProjectOverviewProps) {
