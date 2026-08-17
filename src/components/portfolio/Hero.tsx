@@ -219,6 +219,9 @@ export default function Hero() {
               <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
+          <a href="/client" className="btn-secondary">
+            Client portal
+          </a>
           <a href="#contact" className="btn-secondary">
             Get in touch
           </a>

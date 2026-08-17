@@ -1,10 +1,87 @@
+import { useEffect, useMemo, useState } from 'react';
 import ProjectOverview from './ProjectOverview';
 import ProjectProgress from './ProjectProgress';
 import ProjectTimeline from './ProjectTimeline';
 import ProjectHours from './ProjectHours';
-import { mockClient, mockHours, mockProject, mockTimeline } from './mockPortalData';
+import { clearClientSession, getClientSession } from '../../lib/client/auth';
+import { fetchPortalDataByClientCode } from '../../lib/client/portal';
+import type { ClientPortalData } from '../../lib/client/types';
 
 export default function ClientDashboard() {
+  const [portalData, setPortalData] = useState<ClientPortalData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const session = getClientSession();
+
+    if (!session) {
+      setLoading(false);
+      setError('Your session expired. Please sign in again.');
+      window.location.href = '/client';
+      return;
+    }
+
+    const load = async () => {
+      const data = await fetchPortalDataByClientCode(session.clientCode);
+
+      if (!data) {
+        setError('We could not load your project information at the moment.');
+        setLoading(false);
+        return;
+      }
+
+      setPortalData(data);
+      setLoading(false);
+    };
+
+    void load();
+  }, []);
+
+  const initials = useMemo(() => {
+    if (!portalData) return 'WM';
+    const name = portalData.client.name || portalData.client.company || 'Client';
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('') || 'C';
+  }, [portalData]);
+
+  const handleLogout = () => {
+    clearClientSession();
+    window.location.href = '/client';
+  };
+
+  if (loading) {
+    return (
+      <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '2rem 1.25rem' }}>
+        <div style={{ width: '100%', maxWidth: '760px', border: '1px solid var(--border-mid)', borderRadius: '18px', background: 'rgba(10, 10, 10, 0.8)', padding: '2rem' }}>
+          <div style={{ fontSize: '0.68rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--sand)', marginBottom: '1rem' }}>Loading</div>
+          <div style={{ height: '12px', borderRadius: '999px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: '1rem' }}>
+            <div style={{ width: '58%', height: '100%', background: 'linear-gradient(90deg, var(--forest-bright), var(--sand-light))' }} />
+          </div>
+          <div style={{ color: 'var(--muted)', lineHeight: 1.8 }}>Authenticating and loading your project workspace…</div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!portalData) {
+    return (
+      <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '2rem 1.25rem' }}>
+        <div style={{ width: '100%', maxWidth: '720px', border: '1px solid var(--border-mid)', borderRadius: '18px', background: 'rgba(10, 10, 10, 0.8)', padding: '2rem' }}>
+          <div style={{ color: 'var(--soft-white)', fontSize: '1.5rem', marginBottom: '0.75rem' }}>Unable to open your workspace</div>
+          <div style={{ color: 'var(--muted)', lineHeight: 1.8 }}>{error || 'Something went wrong while loading this project.'}</div>
+          <button type="button" onClick={() => window.location.href = '/client'} className="btn-secondary" style={{ marginTop: '1.25rem' }}>Back to client login</button>
+        </div>
+      </main>
+    );
+  }
+
+  const project = portalData.project;
+  const hours = portalData.hours;
+
   return (
     <main
       style={{
@@ -42,7 +119,7 @@ export default function ClientDashboard() {
                 fontWeight: 600,
               }}
             >
-              {mockClient.initials}
+              {initials}
             </div>
 
             <div>
@@ -55,7 +132,7 @@ export default function ClientDashboard() {
                   marginBottom: '0.18rem',
                 }}
               >
-                {mockClient.company}
+                {portalData.client.company}
               </div>
               <h1
                 style={{
@@ -64,16 +141,14 @@ export default function ClientDashboard() {
                   lineHeight: 1.1,
                 }}
               >
-                Welcome back, {mockClient.name}
+                Welcome back, {portalData.client.name}
               </h1>
             </div>
           </div>
 
           <button
             type="button"
-            onClick={() => {
-              window.location.href = '/client';
-            }}
+            onClick={handleLogout}
             className="btn-secondary"
             style={{
               background: 'transparent',
@@ -93,11 +168,20 @@ export default function ClientDashboard() {
             marginBottom: '1.25rem',
           }}
         >
-          <ProjectOverview project={mockProject} />
+          <ProjectOverview project={{
+            name: project.name,
+            client: portalData.client.company,
+            type: project.type,
+            status: project.status,
+            phase: project.phase,
+            progress: project.progress,
+            expectedLaunch: project.expected_launch,
+            description: project.description,
+          }} />
           <ProjectProgress
-            progress={mockProject.progress}
-            phase={mockProject.phase}
-            status={mockProject.status}
+            progress={project.progress}
+            phase={project.phase}
+            status={project.status}
           />
         </div>
 
@@ -108,8 +192,17 @@ export default function ClientDashboard() {
             gap: '1.25rem',
           }}
         >
-          <ProjectTimeline items={mockTimeline} />
-          <ProjectHours hours={mockHours} />
+          <ProjectTimeline items={portalData.timeline.map((item) => ({
+            title: item.title,
+            description: item.description,
+            status: item.status,
+            date: item.date,
+          }))} />
+          <ProjectHours hours={{
+            used: hours.hours_used,
+            allocated: hours.hours_allocated,
+            remaining: Math.max(hours.hours_allocated - hours.hours_used, 0),
+          }} />
         </div>
       </div>
     </main>

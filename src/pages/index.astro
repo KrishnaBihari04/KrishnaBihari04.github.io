@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/portfolio/Hero';
 import About from '../components/portfolio/About';
 import Projects from '../components/portfolio/Projects';
+import ClientPortalSection from '../components/portfolio/ClientPortalSection';
 import Skills from '../components/portfolio/Skills';
 import Contact from '../components/portfolio/Contact';
 import Footer from '../components/Footer';
@@ -17,6 +18,7 @@ import Footer from '../components/Footer';
     <div class="full-screen" style="height: auto; min-height: 100svh;">
       <Projects client:load />
     </div>
+    <ClientPortalSection client:load />
     <div class="full-screen" style="height: auto; min-height: 100svh;">
       <Skills client:load />
     </div>

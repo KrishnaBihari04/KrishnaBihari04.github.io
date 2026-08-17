@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { DEMO_CLIENT_CODE, mockClient } from './mockPortalData';
+import { fetchPortalDataByClientCode } from '../../lib/client/portal';
+import { saveClientSession } from '../../lib/client/auth';
+import { DEMO_CLIENT_CODE } from '../../lib/client/types';
 
 export default function ClientLogin() {
   const [clientCode, setClientCode] = useState('');
@@ -12,7 +14,7 @@ export default function ClientLogin() {
     [],
   );
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
 
@@ -26,18 +28,26 @@ export default function ClientLogin() {
 
     setIsSubmitting(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 650));
+    const clientData = await fetchPortalDataByClientCode(normalized);
 
-    if (normalized === DEMO_CLIENT_CODE) {
-      setIsValid(true);
-      setError('');
-      window.location.href = '/client/dashboard';
-    } else {
+    if (!clientData) {
+      setIsSubmitting(false);
       setIsValid(false);
       setError('That client code is invalid. Please try the demo code provided below.');
+      return;
     }
 
+    saveClientSession({
+      clientCode: normalized,
+      clientId: clientData.client.id,
+      company: clientData.client.company,
+      expiresAt: Date.now() + 1000 * 60 * 60 * 8,
+    });
+
+    setIsValid(true);
+    setError('');
     setIsSubmitting(false);
+    window.location.href = '/client/dashboard';
   };
 
   return (
@@ -243,7 +253,7 @@ export default function ClientLogin() {
                   color: 'var(--sand-light)',
                 }}
               >
-                {mockClient.initials}
+                WM
               </div>
             </div>
 
