@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
-    "@astrojs/node": "10.1.4",
     "@astrojs/react": "^5.0.5",
+    "@astrojs/vercel": "^10.0.8",
     "@formspree/react": "^3.0.0",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-slot": "^1.2.4",
