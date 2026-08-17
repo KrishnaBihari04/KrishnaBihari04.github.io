@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ClientDashboard from '../../components/portal/ClientDashboard';
+
+const title = 'Client Portal Dashboard';
+---
+
+<Layout title={title} description="Private client dashboard for project updates and milestone tracking.">
+  <ClientDashboard client:load />
+</Layout>

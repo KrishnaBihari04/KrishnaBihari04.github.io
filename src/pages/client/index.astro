@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ClientLogin from '../../components/portal/ClientLogin';
+
+const title = 'Client Portal';
+---
+
+<Layout title={title} description="Private client portal access for project updates and milestone tracking.">
+  <ClientLogin client:load />
+</Layout>

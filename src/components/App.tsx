@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Hero from './sections/Hero';
-import About from './sections/About';
-import Projects from './sections/Projects';
-import Contact from './sections/Contact';
-import Skills from './sections/Skills'; // Uncommented to fix the error
+import Hero from './portfolio/Hero';
+import About from './portfolio/About';
+import Projects from './portfolio/Projects';
+import Contact from './portfolio/Contact';
+import Skills from './portfolio/Skills';
 import FadeTransition from './FadeTransition';
 import Footer from './Footer';
 
