@@ -1,10 +1,18 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 import ClientLogin from '../../components/portal/ClientLogin';
+import { getClientPortalSession } from '../../lib/server/session';
+
+export const prerender = false;
 
 const title = 'Client Portal';
+
+const activeSession = getClientPortalSession(Astro.cookies);
+if (activeSession) {
+  return Astro.redirect('/client/dashboard');
+}
 ---
 
-<Layout title={title} description="Private client portal access for project updates and milestone tracking.">
+<PortalLayout title={title} description="Private client portal access for project updates and milestone tracking.">
   <ClientLogin client:load />
-</Layout>
+</PortalLayout>

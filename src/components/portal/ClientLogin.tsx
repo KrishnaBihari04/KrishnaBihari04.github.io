@@ -28,19 +28,27 @@ export default function ClientLogin() {
 
     setIsSubmitting(true);
 
-    const clientData = await fetchPortalDataByClientCode(normalized);
+    const response = await fetch('/api/client/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ clientCode: normalized }),
+    });
 
-    if (!clientData) {
+    const result = await response.json().catch(() => ({ success: false, message: 'Unable to validate the client code.' }));
+
+    if (!response.ok || !result?.success) {
       setIsSubmitting(false);
       setIsValid(false);
-      setError('That client code is invalid. Please try the demo code provided below.');
+      setError(result?.message || 'That client code is invalid. Please try the demo code provided below.');
       return;
     }
 
     saveClientSession({
       clientCode: normalized,
-      clientId: clientData.client.id,
-      company: clientData.client.company,
+      clientId: result.client?.id ?? 'client-id',
+      company: result.company ?? 'Client',
       expiresAt: Date.now() + 1000 * 60 * 60 * 8,
     });
 

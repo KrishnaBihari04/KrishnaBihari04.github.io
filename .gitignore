@@ -15,7 +15,10 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.local
+.env.development
 .env.production
+.env.*
 
 # macOS-specific files
 .DS_Store
@@ -23,4 +26,3 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
-.env*

@@ -40,11 +40,12 @@ export async function fetchPortalDataByClientCode(clientCode: string): Promise<C
   const normalized = clientCode.trim().toUpperCase();
   if (!normalized) return null;
 
-  if (isDemoClientCode(normalized)) {
-    return fallbackPortalData;
-  }
+  const demoEnabled = import.meta.env.DEV && import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== 'false';
 
   if (!supabase) {
+    if (demoEnabled && isDemoClientCode(normalized)) {
+      return fallbackPortalData;
+    }
     return null;
   }
 
@@ -54,44 +55,47 @@ export async function fetchPortalDataByClientCode(clientCode: string): Promise<C
     .eq('client_code', normalized)
     .maybeSingle();
 
-  if (clientError || !clientData) {
-    return null;
+  if (!clientError && clientData) {
+    const { data: projectData, error: projectError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('client_id', clientData.id)
+      .maybeSingle();
+
+    if (!projectError && projectData) {
+      const [{ data: timelineData }, { data: hoursData }] = await Promise.all([
+        supabase
+          .from('project_timeline')
+          .select('*')
+          .eq('project_id', projectData.id)
+          .order('order', { ascending: true }),
+        supabase
+          .from('project_hours')
+          .select('*')
+          .eq('project_id', projectData.id)
+          .maybeSingle(),
+      ]);
+
+      return {
+        client: clientData as ClientRecord,
+        project: projectData as ProjectRecord,
+        timeline: (timelineData ?? []) as TimelineRecord[],
+        hours: (hoursData ?? {
+          id: crypto.randomUUID(),
+          project_id: projectData.id,
+          hours_allocated: 0,
+          hours_used: 0,
+        }) as ProjectHoursRecord,
+      };
+    }
   }
 
-  const { data: projectData, error: projectError } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('client_id', clientData.id)
-    .maybeSingle();
-
-  if (projectError || !projectData) {
-    return null;
+  if (demoEnabled && isDemoClientCode(normalized)) {
+    return fallbackPortalData;
   }
 
-  const [{ data: timelineData }, { data: hoursData }] = await Promise.all([
-    supabase
-      .from('project_timeline')
-      .select('*')
-      .eq('project_id', projectData.id)
-      .order('order', { ascending: true }),
-    supabase
-      .from('project_hours')
-      .select('*')
-      .eq('project_id', projectData.id)
-      .maybeSingle(),
-  ]);
+  return null;
 
-  return {
-    client: clientData as ClientRecord,
-    project: projectData as ProjectRecord,
-    timeline: (timelineData ?? []) as TimelineRecord[],
-    hours: (hoursData ?? {
-      id: crypto.randomUUID(),
-      project_id: projectData.id,
-      hours_allocated: 0,
-      hours_used: 0,
-    }) as ProjectHoursRecord,
-  };
 }
 
 export function getFallbackPortalData(): ClientPortalData {

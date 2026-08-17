@@ -48,8 +48,17 @@ export default function ClientDashboard() {
       .join('') || 'C';
   }, [portalData]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     clearClientSession();
+
+    try {
+      await fetch('/api/client/logout', {
+        method: 'POST',
+      });
+    } catch {
+      // Ignore API errors; we still clear the local session to prevent access.
+    }
+
     window.location.href = '/client';
   };
 

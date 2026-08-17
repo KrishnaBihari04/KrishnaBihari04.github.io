@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import AdminDashboard from '../../components/admin/AdminDashboard';
+
+export const prerender = false;
+
+const title = 'Developer Admin';
+---
+
+<AdminLayout title={title} description="Private developer dashboard for client and project management.">
+  <AdminDashboard client:load />
+</AdminLayout>

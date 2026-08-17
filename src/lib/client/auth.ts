@@ -39,5 +39,7 @@ export function clearClientSession(): void {
 }
 
 export function isDemoClientCode(value: string): boolean {
-  return value.trim().toUpperCase() === DEMO_CLIENT_CODE;
+  const normalized = value.trim().toUpperCase();
+  const demoEnabled = import.meta.env.DEV && import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== 'false';
+  return demoEnabled && normalized === DEMO_CLIENT_CODE;
 }
