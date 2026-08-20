@@ -1,19 +1,21 @@
 type ProjectOverviewItem = {
-  name: string;
-  client: string;
-  type: string;
-  status: string;
-  phase: string;
-  progress: number;
-  expectedLaunch: string;
-  description: string;
+  readonly name: string;
+  readonly client: string;
+  readonly type: string;
+  readonly status: string;
+  readonly phase: string;
+  readonly progress: number;
+  readonly expectedLaunch: string;
+  readonly description: string;
 };
 
 type ProjectOverviewProps = {
-  project: ProjectOverviewItem;
+  readonly project: ProjectOverviewItem;
 };
 
-export default function ProjectOverview({ project }: ProjectOverviewProps) {
+export default function ProjectOverview({
+  project,
+}: ProjectOverviewProps) {
   return (
     <section
       data-reveal
@@ -37,7 +39,12 @@ export default function ProjectOverview({ project }: ProjectOverviewProps) {
         }}
       />
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         <div
           style={{
             display: 'flex',
@@ -60,6 +67,7 @@ export default function ProjectOverview({ project }: ProjectOverviewProps) {
             >
               Project overview
             </p>
+
             <h3
               style={{
                 fontSize: 'clamp(1.6rem, 3vw, 2.3rem)',
@@ -121,6 +129,7 @@ export default function ProjectOverview({ project }: ProjectOverviewProps) {
               >
                 {item.label}
               </div>
+
               <div
                 style={{
                   fontSize: '0.98rem',
@@ -154,6 +163,7 @@ export default function ProjectOverview({ project }: ProjectOverviewProps) {
           >
             Overall progress
           </div>
+
           <div
             style={{
               fontSize: '1.5rem',
@@ -179,7 +189,8 @@ export default function ProjectOverview({ project }: ProjectOverviewProps) {
             style={{
               width: `${project.progress}%`,
               height: '100%',
-              background: 'linear-gradient(90deg, var(--forest-bright), var(--sand-light))',
+              background:
+                'linear-gradient(90deg, var(--forest-bright), var(--sand-light))',
               borderRadius: 'inherit',
               transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
             }}

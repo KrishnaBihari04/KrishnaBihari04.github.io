@@ -1,101 +1,266 @@
 import { supabase } from './supabase';
 import { isDemoClientCode } from './auth';
-import type { ClientPortalData, ClientRecord, ProjectHoursRecord, ProjectRecord, TimelineRecord } from './types';
+
+import type {
+  ClientPortalData,
+  ClientRecord,
+  ProjectHoursRecord,
+  ProjectRecord,
+  TimelineRecord,
+} from './types';
+
 import { DEMO_CLIENT_CODE } from './types';
 
 const fallbackPortalData: ClientPortalData = {
   client: {
     id: 'demo-client-id',
-    name: 'Mila',
-    company: 'WrapMotion',
+    name: 'Demo Project',
+    company: 'Demo Workspace',
     client_code: DEMO_CLIENT_CODE,
   },
+
   project: {
     id: 'demo-project-id',
     client_id: 'demo-client-id',
     name: 'Website Redesign',
-    description: 'A strategic redesign focused on premium positioning, stronger conversion flow, and a clearer product narrative across the full client journey.',
-    type: 'Website Development',
+    description:
+      'A sanitized project demonstration showing progress, milestones, and delivery status.',
+    type: 'Web Application',
     status: 'In Development',
     phase: 'Development',
     progress: 68,
-    expected_launch: 'September 2026',
+    expected_launch: '',
   },
+
   timeline: [
-    { id: 'tl-1', project_id: 'demo-project-id', title: 'Discovery', description: 'Research, positioning, and requirements alignment.', status: 'completed', date: 'Mar 2026', order: 1 },
-    { id: 'tl-2', project_id: 'demo-project-id', title: 'Design', description: 'Wireframes, visual direction, and UX refinement.', status: 'completed', date: 'Apr 2026', order: 2 },
-    { id: 'tl-3', project_id: 'demo-project-id', title: 'Development', description: 'Build and integration of the upcoming client experience.', status: 'active', date: 'Current phase', order: 3 },
-    { id: 'tl-4', project_id: 'demo-project-id', title: 'Testing', description: 'QA, performance checks, and final polish.', status: 'upcoming', date: 'Jul 2026', order: 4 },
-    { id: 'tl-5', project_id: 'demo-project-id', title: 'Launch', description: 'Deployment, final review, and handoff.', status: 'upcoming', date: 'Sep 2026', order: 5 },
+    {
+      id: 'tl-1',
+      project_id: 'demo-project-id',
+      title: 'Discovery',
+      description:
+        'Project discovery, requirements and initial direction.',
+      status: 'completed',
+      date: '',
+      order: 1,
+    },
+    {
+      id: 'tl-2',
+      project_id: 'demo-project-id',
+      title: 'Design',
+      description:
+        'Visual direction, layout and interface design.',
+      status: 'completed',
+      date: '',
+      order: 2,
+    },
+    {
+      id: 'tl-3',
+      project_id: 'demo-project-id',
+      title: 'Development',
+      description:
+        'Implementation of the application and interactive experience.',
+      status: 'active',
+      date: '',
+      order: 3,
+    },
+    {
+      id: 'tl-4',
+      project_id: 'demo-project-id',
+      title: 'Testing',
+      description:
+        'Final testing, refinement and responsive QA.',
+      status: 'upcoming',
+      date: '',
+      order: 4,
+    },
+    {
+      id: 'tl-5',
+      project_id: 'demo-project-id',
+      title: 'Launch',
+      description:
+        'Production deployment and final delivery.',
+      status: 'upcoming',
+      date: '',
+      order: 5,
+    },
   ],
+
   hours: {
     id: 'hours-1',
     project_id: 'demo-project-id',
-    hours_allocated: 32,
-    hours_used: 21,
+    hours_allocated: 0,
+    hours_used: 0,
   },
 };
 
-export async function fetchPortalDataByClientCode(clientCode: string): Promise<ClientPortalData | null> {
-  const normalized = clientCode.trim().toUpperCase();
-  if (!normalized) return null;
+function isDemoFallbackAllowed(clientCode: string): boolean {
+  return (
+    import.meta.env.DEV &&
+    import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== 'false' &&
+    isDemoClientCode(clientCode)
+  );
+}
 
-  const demoEnabled = import.meta.env.DEV && import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== 'false';
+function getFallbackIfAllowed(
+  clientCode: string,
+): ClientPortalData | null {
+  return isDemoFallbackAllowed(clientCode)
+    ? fallbackPortalData
+    : null;
+}
 
+async function fetchClient(
+  clientCode: string,
+): Promise<ClientRecord | null> {
   if (!supabase) {
-    if (demoEnabled && isDemoClientCode(normalized)) {
-      return fallbackPortalData;
-    }
     return null;
   }
 
-  const { data: clientData, error: clientError } = await supabase
+  const { data, error } = await supabase
     .from('clients')
     .select('*')
-    .eq('client_code', normalized)
+    .eq('client_code', clientCode)
     .maybeSingle();
 
-  if (!clientError && clientData) {
-    const { data: projectData, error: projectError } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('client_id', clientData.id)
-      .maybeSingle();
-
-    if (!projectError && projectData) {
-      const [{ data: timelineData }, { data: hoursData }] = await Promise.all([
-        supabase
-          .from('project_timeline')
-          .select('*')
-          .eq('project_id', projectData.id)
-          .order('order', { ascending: true }),
-        supabase
-          .from('project_hours')
-          .select('*')
-          .eq('project_id', projectData.id)
-          .maybeSingle(),
-      ]);
-
-      return {
-        client: clientData as ClientRecord,
-        project: projectData as ProjectRecord,
-        timeline: (timelineData ?? []) as TimelineRecord[],
-        hours: (hoursData ?? {
-          id: crypto.randomUUID(),
-          project_id: projectData.id,
-          hours_allocated: 0,
-          hours_used: 0,
-        }) as ProjectHoursRecord,
-      };
-    }
+  if (error || !data) {
+    return null;
   }
 
-  if (demoEnabled && isDemoClientCode(normalized)) {
-    return fallbackPortalData;
+  return data as ClientRecord;
+}
+
+async function fetchProject(
+  clientId: string,
+): Promise<ProjectRecord | null> {
+  if (!supabase) {
+    return null;
   }
 
-  return null;
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('client_id', clientId)
+    .maybeSingle();
 
+  if (error || !data) {
+    return null;
+  }
+
+  return data as ProjectRecord;
+}
+
+function mapTimeline(
+  timelineData: Array<{
+    id: string;
+    project_id: string;
+    title: string;
+    description: string | null;
+    status: TimelineRecord['status'];
+    timeline_date: string | null;
+    sort_order: number;
+  }>,
+): TimelineRecord[] {
+  return timelineData.map((item) => ({
+    id: item.id,
+    project_id: item.project_id,
+    title: item.title,
+    description: item.description ?? '',
+    status: item.status,
+    date: item.timeline_date ?? '',
+    order: item.sort_order,
+  }));
+}
+
+async function fetchTimeline(
+  projectId: string,
+): Promise<TimelineRecord[] | null> {
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from('project_timeline')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    return null;
+  }
+
+  return mapTimeline(data ?? []);
+}
+
+async function fetchHours(
+  projectId: string,
+): Promise<ProjectHoursRecord | null> {
+  if (!supabase) {
+    return null;
+  }
+
+  const { data } = await supabase
+    .from('project_hours')
+    .select('*')
+    .eq('project_id', projectId)
+    .maybeSingle();
+
+  return (
+    (data as ProjectHoursRecord | null) ??
+    null
+  );
+}
+
+function createDefaultHours(
+  projectId: string,
+): ProjectHoursRecord {
+  return {
+    id: crypto.randomUUID(),
+    project_id: projectId,
+    hours_allocated: 0,
+    hours_used: 0,
+  };
+}
+
+export async function fetchPortalDataByClientCode(
+  clientCode: string,
+): Promise<ClientPortalData | null> {
+  const normalized = clientCode.trim().toUpperCase();
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (!supabase) {
+    return getFallbackIfAllowed(normalized);
+  }
+
+  const client = await fetchClient(normalized);
+
+  if (!client) {
+    return getFallbackIfAllowed(normalized);
+  }
+
+  const project = await fetchProject(client.id);
+
+  if (!project) {
+    return getFallbackIfAllowed(normalized);
+  }
+
+  const [timeline, hours] = await Promise.all([
+    fetchTimeline(project.id),
+    fetchHours(project.id),
+  ]);
+
+  if (!timeline) {
+    return getFallbackIfAllowed(normalized);
+  }
+
+  return {
+    client,
+    project,
+    timeline,
+    hours: hours ?? createDefaultHours(project.id),
+  };
 }
 
 export function getFallbackPortalData(): ClientPortalData {

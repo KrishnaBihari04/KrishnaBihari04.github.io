@@ -1,10 +1,14 @@
 type ProjectProgressProps = {
-  progress: number;
-  phase: string;
-  status: string;
+  readonly progress: number;
+  readonly phase: string;
+  readonly status: string;
 };
 
-export default function ProjectProgress({ progress, phase, status }: ProjectProgressProps) {
+export default function ProjectProgress({
+  progress,
+  phase,
+  status,
+}: ProjectProgressProps) {
   return (
     <section
       data-reveal
@@ -37,6 +41,7 @@ export default function ProjectProgress({ progress, phase, status }: ProjectProg
           >
             Progress
           </p>
+
           <h3
             style={{
               fontSize: '1.5rem',
@@ -91,7 +96,8 @@ export default function ProjectProgress({ progress, phase, status }: ProjectProg
             width: `${progress}%`,
             height: '100%',
             borderRadius: 'inherit',
-            background: 'linear-gradient(90deg, var(--forest-bright), var(--sand-light))',
+            background:
+              'linear-gradient(90deg, var(--forest-bright), var(--sand-light))',
             transition: 'width 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
@@ -130,6 +136,7 @@ export default function ProjectProgress({ progress, phase, status }: ProjectProg
             >
               {item.label}
             </div>
+
             <div
               style={{
                 color: 'var(--soft-white)',

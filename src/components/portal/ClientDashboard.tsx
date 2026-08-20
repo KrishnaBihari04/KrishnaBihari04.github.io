@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import ProjectOverview from './ProjectOverview';
 import ProjectProgress from './ProjectProgress';
 import ProjectTimeline from './ProjectTimeline';
 import ProjectHours from './ProjectHours';
-import { clearClientSession, getClientSession } from '../../lib/client/auth';
+
+import {
+  clearClientSession,
+  getClientSession,
+} from '../../lib/client/auth';
+
 import { fetchPortalDataByClientCode } from '../../lib/client/portal';
+
 import type { ClientPortalData } from '../../lib/client/types';
 
 export default function ClientDashboard() {
@@ -22,29 +29,47 @@ export default function ClientDashboard() {
     }
 
     const load = async () => {
-      const data = await fetchPortalDataByClientCode(session.clientCode);
+      try {
+        const data = await fetchPortalDataByClientCode(session.clientCode);
 
-      if (!data) {
-        setError('We could not load your project information at the moment.');
+        if (!data) {
+          setError(
+            'We could not load your project information at the moment.',
+          );
+          return;
+        }
+
+        setPortalData(data);
+      } catch {
+        setError(
+          'We could not load your project information at the moment.',
+        );
+      } finally {
         setLoading(false);
-        return;
       }
-
-      setPortalData(data);
-      setLoading(false);
     };
 
     void load();
   }, []);
 
   const initials = useMemo(() => {
-    if (!portalData) return 'WM';
-    const name = portalData.client.name || portalData.client.company || 'Client';
-    return name
-      .split(' ')
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? '')
-      .join('') || 'C';
+    if (!portalData) {
+      return 'DP';
+    }
+
+    const name =
+      portalData.client.name ||
+      portalData.client.company ||
+      'Client';
+
+    return (
+      name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? '')
+        .join('') || 'C'
+    );
   }, [portalData]);
 
   const handleLogout = async () => {
@@ -55,7 +80,7 @@ export default function ClientDashboard() {
         method: 'POST',
       });
     } catch {
-      // Ignore API errors; we still clear the local session to prevent access.
+      // Ignore API errors; local session is already cleared.
     }
 
     window.location.href = '/client';
@@ -63,27 +88,157 @@ export default function ClientDashboard() {
 
   if (loading) {
     return (
-      <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '2rem 1.25rem' }}>
-        <div style={{ width: '100%', maxWidth: '760px', border: '1px solid var(--border-mid)', borderRadius: '18px', background: 'rgba(10, 10, 10, 0.8)', padding: '2rem' }}>
-          <div style={{ fontSize: '0.68rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--sand)', marginBottom: '1rem' }}>Loading</div>
-          <div style={{ height: '12px', borderRadius: '999px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: '1rem' }}>
-            <div style={{ width: '58%', height: '100%', background: 'linear-gradient(90deg, var(--forest-bright), var(--sand-light))' }} />
+      <>
+        <style>{`
+          .portal-loading {
+            min-height: 100svh;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+          }
+
+          .portal-loading-card {
+            width: min(100%, 760px);
+            padding: clamp(1.25rem, 4vw, 2rem);
+            border: 1px solid var(--border-mid);
+            border-radius: 18px;
+            background: rgba(10, 10, 10, 0.8);
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.2);
+          }
+
+          .portal-loading-label {
+            margin-bottom: 1rem;
+            font-size: 0.68rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--sand);
+          }
+
+          .portal-loading-track {
+            width: 100%;
+            height: 10px;
+            margin-bottom: 1rem;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.06);
+          }
+
+          .portal-loading-fill {
+            width: 58%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(
+              90deg,
+              var(--forest-bright),
+              var(--sand-light)
+            );
+            animation: portal-loading 1.4s ease-in-out infinite;
+          }
+
+          .portal-loading-copy {
+            color: var(--muted);
+            line-height: 1.8;
+          }
+
+          @keyframes portal-loading {
+            0% {
+              transform: translateX(-12%);
+            }
+
+            50% {
+              transform: translateX(20%);
+            }
+
+            100% {
+              transform: translateX(65%);
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .portal-loading-fill {
+              animation: none;
+            }
+          }
+        `}</style>
+
+        <main className="portal-loading">
+          <div className="portal-loading-card">
+            <div className="portal-loading-label">Loading</div>
+
+            <div className="portal-loading-track">
+              <div className="portal-loading-fill" />
+            </div>
+
+            <div className="portal-loading-copy">
+              Authenticating and loading your project workspace…
+            </div>
           </div>
-          <div style={{ color: 'var(--muted)', lineHeight: 1.8 }}>Authenticating and loading your project workspace…</div>
-        </div>
-      </main>
+        </main>
+      </>
     );
   }
 
   if (!portalData) {
     return (
-      <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '2rem 1.25rem' }}>
-        <div style={{ width: '100%', maxWidth: '720px', border: '1px solid var(--border-mid)', borderRadius: '18px', background: 'rgba(10, 10, 10, 0.8)', padding: '2rem' }}>
-          <div style={{ color: 'var(--soft-white)', fontSize: '1.5rem', marginBottom: '0.75rem' }}>Unable to open your workspace</div>
-          <div style={{ color: 'var(--muted)', lineHeight: 1.8 }}>{error || 'Something went wrong while loading this project.'}</div>
-          <a href="/client" className="btn-secondary" style={{ marginTop: '1.25rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Back to client login</a>
-        </div>
-      </main>
+      <>
+        <style>{`
+          .portal-error {
+            min-height: 100svh;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+          }
+
+          .portal-error-card {
+            width: min(100%, 720px);
+            padding: clamp(1.25rem, 4vw, 2rem);
+            border: 1px solid var(--border-mid);
+            border-radius: 18px;
+            background: rgba(10, 10, 10, 0.8);
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.2);
+          }
+
+          .portal-error-title {
+            margin-bottom: 0.75rem;
+            color: var(--soft-white);
+            font-size: clamp(1.3rem, 3vw, 1.5rem);
+            line-height: 1.25;
+          }
+
+          .portal-error-copy {
+            color: var(--muted);
+            line-height: 1.8;
+          }
+
+          .portal-error-action {
+            margin-top: 1.25rem;
+            display: inline-flex;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+          }
+        `}</style>
+
+        <main className="portal-error">
+          <div className="portal-error-card">
+            <div className="portal-error-title">
+              Unable to open your workspace
+            </div>
+
+            <div className="portal-error-copy">
+              {error ||
+                'Something went wrong while loading this project.'}
+            </div>
+
+            <a
+              href="/client"
+              className="btn-secondary portal-error-action"
+            >
+              Back to client login
+            </a>
+          </div>
+        </main>
+      </>
     );
   }
 
@@ -91,128 +246,235 @@ export default function ClientDashboard() {
   const hours = portalData.hours;
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        padding: '2rem 1.25rem 4rem',
-      }}
-    >
-      <div style={{ maxWidth: '1180px', margin: '0 auto' }}>
-        <header
-          data-reveal
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '1rem',
-            border: '1px solid var(--border-mid)',
-            background: 'rgba(10, 10, 10, 0.78)',
-            borderRadius: '18px',
-            padding: '1.2rem 1.25rem',
-            marginBottom: '1.6rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
-            <div
+    <>
+      <style>{`
+        .portal-dashboard {
+          width: 100%;
+          min-height: 100svh;
+          padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 1.25rem) 4rem;
+        }
+
+        .portal-dashboard__container {
+          width: 100%;
+          max-width: 1180px;
+          margin: 0 auto;
+        }
+
+        .portal-dashboard__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+          padding: clamp(1rem, 2.5vw, 1.2rem) clamp(1rem, 2.5vw, 1.25rem);
+          border: 1px solid var(--border-mid);
+          border-radius: 18px;
+          background: rgba(10, 10, 10, 0.78);
+          box-shadow: 0 20px 45px rgba(0, 0, 0, 0.14);
+        }
+
+        .portal-dashboard__identity {
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.85rem;
+        }
+
+        .portal-dashboard__avatar {
+          width: 46px;
+          height: 46px;
+          flex: 0 0 46px;
+          display: grid;
+          place-items: center;
+          border-radius: 50%;
+          border: 1px solid var(--border-mid);
+          background: rgba(200, 184, 154, 0.08);
+          color: var(--sand-light);
+          font-weight: 600;
+        }
+
+        .portal-dashboard__identity-copy {
+          min-width: 0;
+        }
+
+        .portal-dashboard__eyebrow {
+          margin-bottom: 0.18rem;
+          overflow: hidden;
+          color: var(--sand);
+          font-size: 0.65rem;
+          letter-spacing: 0.12em;
+          text-overflow: ellipsis;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+
+        .portal-dashboard__title {
+          margin: 0;
+          color: var(--soft-white);
+          font-size: clamp(1.45rem, 4vw, 2.25rem);
+          line-height: 1.08;
+          overflow-wrap: anywhere;
+        }
+
+        .portal-dashboard__logout {
+          flex: 0 0 auto;
+          min-height: 42px;
+        }
+
+        .portal-dashboard__primary-grid,
+        .portal-dashboard__secondary-grid {
+          display: grid;
+          gap: 1.25rem;
+        }
+
+        .portal-dashboard__primary-grid {
+          grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
+          margin-bottom: 1.25rem;
+        }
+
+        .portal-dashboard__secondary-grid {
+          grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+        }
+
+        @media (max-width: 920px) {
+          .portal-dashboard__primary-grid,
+          .portal-dashboard__secondary-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .portal-dashboard {
+            padding-inline: 0.85rem;
+            padding-bottom: 2.5rem;
+          }
+
+          .portal-dashboard__header {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .portal-dashboard__identity {
+            width: 100%;
+          }
+
+          .portal-dashboard__logout {
+            width: 100%;
+          }
+
+          .portal-dashboard__primary-grid,
+          .portal-dashboard__secondary-grid {
+            gap: 0.85rem;
+          }
+        }
+
+        @media (max-width: 430px) {
+          .portal-dashboard__avatar {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+          }
+
+          .portal-dashboard__identity {
+            gap: 0.7rem;
+          }
+
+          .portal-dashboard__eyebrow {
+            font-size: 0.58rem;
+          }
+
+          .portal-dashboard__title {
+            font-size: clamp(1.3rem, 7vw, 1.75rem);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            scroll-behavior: auto !important;
+          }
+        }
+      `}</style>
+
+      <main className="portal-dashboard">
+        <div className="portal-dashboard__container">
+          <header
+            data-reveal
+            className="portal-dashboard__header"
+          >
+            <div className="portal-dashboard__identity">
+              <div className="portal-dashboard__avatar">
+                {initials}
+              </div>
+
+              <div className="portal-dashboard__identity-copy">
+                <div className="portal-dashboard__eyebrow">
+                  {portalData.client.company}
+                </div>
+
+                <h1 className="portal-dashboard__title">
+                  Welcome back, {portalData.client.name}
+                </h1>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="btn-secondary portal-dashboard__logout"
               style={{
-                width: '46px',
-                height: '46px',
-                display: 'grid',
-                placeItems: 'center',
-                borderRadius: '50%',
-                background: 'rgba(200,184,154,0.08)',
+                background: 'transparent',
                 border: '1px solid var(--border-mid)',
-                color: 'var(--sand-light)',
-                fontWeight: 600,
+                color: 'var(--soft-white)',
               }}
             >
-              {initials}
-            </div>
+              Log out
+            </button>
+          </header>
 
-            <div>
-              <div
-                style={{
-                  fontSize: '0.65rem',
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: 'var(--sand)',
-                  marginBottom: '0.18rem',
-                }}
-              >
-                {portalData.client.company}
-              </div>
-              <h1
-                style={{
-                  fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
-                  color: 'var(--soft-white)',
-                  lineHeight: 1.1,
-                }}
-              >
-                Welcome back, {portalData.client.name}
-              </h1>
-            </div>
+          <div className="portal-dashboard__primary-grid">
+            <ProjectOverview
+              project={{
+                name: project.name,
+                client: portalData.client.company,
+                type: project.type,
+                status: project.status,
+                phase: project.phase,
+                progress: project.progress,
+                expectedLaunch: project.expected_launch,
+                description: project.description,
+              }}
+            />
+
+            <ProjectProgress
+              progress={project.progress}
+              phase={project.phase}
+              status={project.status}
+            />
           </div>
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="btn-secondary"
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--border-mid)',
-              color: 'var(--soft-white)',
-            }}
-          >
-            Log out
-          </button>
-        </header>
+          <div className="portal-dashboard__secondary-grid">
+            <ProjectTimeline
+              items={portalData.timeline.map((item) => ({
+                title: item.title,
+                description: item.description,
+                status: item.status,
+                date: item.date,
+              }))}
+            />
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.4fr 0.9fr',
-            gap: '1.25rem',
-            marginBottom: '1.25rem',
-          }}
-        >
-          <ProjectOverview project={{
-            name: project.name,
-            client: portalData.client.company,
-            type: project.type,
-            status: project.status,
-            phase: project.phase,
-            progress: project.progress,
-            expectedLaunch: project.expected_launch,
-            description: project.description,
-          }} />
-          <ProjectProgress
-            progress={project.progress}
-            phase={project.phase}
-            status={project.status}
-          />
+            <ProjectHours
+              hours={{
+                used: hours.hours_used,
+                allocated: hours.hours_allocated,
+                remaining: Math.max(
+                  hours.hours_allocated - hours.hours_used,
+                  0,
+                ),
+              }}
+            />
+          </div>
         </div>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.2fr 0.8fr',
-            gap: '1.25rem',
-          }}
-        >
-          <ProjectTimeline items={portalData.timeline.map((item) => ({
-            title: item.title,
-            description: item.description,
-            status: item.status,
-            date: item.date,
-          }))} />
-          <ProjectHours hours={{
-            used: hours.hours_used,
-            allocated: hours.hours_allocated,
-            remaining: Math.max(hours.hours_allocated - hours.hours_used, 0),
-          }} />
-        </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

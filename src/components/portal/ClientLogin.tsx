@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { fetchPortalDataByClientCode } from '../../lib/client/portal';
+
 import { saveClientSession } from '../../lib/client/auth';
 import { DEMO_CLIENT_CODE } from '../../lib/client/types';
 
@@ -7,55 +7,63 @@ export default function ClientLogin() {
   const [clientCode, setClientCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [isValid, setIsValid] = useState(false);
 
   const helperText = useMemo(
     () => `Demo access code: ${DEMO_CLIENT_CODE}`,
     [],
   );
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.SubmitEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
+
     setError('');
 
     const normalized = clientCode.trim().toUpperCase();
 
     if (!normalized) {
       setError('Please enter your client code.');
-      setIsValid(false);
       return;
     }
 
     setIsSubmitting(true);
 
-    const response = await fetch('/api/client/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ clientCode: normalized }),
-    });
+    try {
+      const response = await fetch('/api/client/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ clientCode: normalized }),
+      });
 
-    const result = await response.json().catch(() => ({ success: false, message: 'Unable to validate the client code.' }));
+      const result = await response.json().catch(() => ({
+        success: false,
+        message: 'Unable to validate the client code.',
+      }));
 
-    if (!response.ok || !result?.success) {
+      if (!response.ok || !result?.success) {
+        setError(
+          result?.message ||
+            'That client code is invalid. Please try the demo code provided below.',
+        );
+        return;
+      }
+
+      saveClientSession({
+        clientCode: normalized,
+        clientId: result.client?.id ?? 'client-id',
+        company: result.company ?? 'Client',
+        expiresAt: Date.now() + 1000 * 60 * 60 * 8,
+      });
+
+      window.location.href = '/client/dashboard';
+    } catch {
+      setError('Unable to connect to the client portal. Please try again.');
+    } finally {
       setIsSubmitting(false);
-      setIsValid(false);
-      setError(result?.message || 'That client code is invalid. Please try the demo code provided below.');
-      return;
     }
-
-    saveClientSession({
-      clientCode: normalized,
-      clientId: result.client?.id ?? 'client-id',
-      company: result.company ?? 'Client',
-      expiresAt: Date.now() + 1000 * 60 * 60 * 8,
-    });
-
-    setIsValid(true);
-    setError('');
-    setIsSubmitting(false);
-    window.location.href = '/client/dashboard';
   };
 
   return (
@@ -72,8 +80,8 @@ export default function ClientLogin() {
           width: '100%',
           maxWidth: '980px',
           display: 'grid',
-          // Wijziging: Schakelt automatisch over naar 1 kolom op mobiel en 2 op desktop
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
+          gridTemplateColumns:
+            'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
           border: '1px solid var(--border-mid)',
           background: 'rgba(10, 10, 10, 0.82)',
           borderRadius: '24px',
@@ -81,7 +89,6 @@ export default function ClientLogin() {
           boxShadow: '0 24px 65px rgba(0,0,0,0.25)',
         }}
       >
-        {/* Linkerpaneel (Welkomstekst) */}
         <div
           style={{
             padding: 'clamp(2rem, 4vw, 4rem)',
@@ -125,6 +132,7 @@ export default function ClientLogin() {
               >
                 Krishna Bihari
               </div>
+
               <div
                 style={{
                   fontSize: '0.9rem',
@@ -148,6 +156,7 @@ export default function ClientLogin() {
             >
               Private access
             </p>
+
             <h1
               style={{
                 fontSize: 'clamp(2.25rem, 5vw, 4rem)',
@@ -169,7 +178,8 @@ export default function ClientLogin() {
               marginBottom: '2.25rem',
             }}
           >
-            Access your live project update, timeline, milestones, and hour tracking in one dedicated client space.
+            Access your live project update, timeline, milestones, and hour
+            tracking in one dedicated client space.
           </p>
 
           <div
@@ -201,15 +211,16 @@ export default function ClientLogin() {
                     borderRadius: '50%',
                     background: 'var(--forest-bright)',
                     boxShadow: '0 0 12px rgba(74, 124, 106, 0.7)',
+                    flexShrink: 0,
                   }}
                 />
+
                 {item}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Rechterpaneel (Inlogformulier) */}
         <div
           style={{
             padding: 'clamp(1.5rem, 3vw, 2.5rem)',
@@ -217,16 +228,22 @@ export default function ClientLogin() {
             alignItems: 'center',
             justifyContent: 'center',
             background: 'rgba(255,255,255,0.015)',
-            borderTop: '1px solid var(--border-mid)', // Subtiele scheiding op mobiel
+            borderTop: '1px solid var(--border-mid)',
           }}
         >
-          <div style={{ width: '100%', maxWidth: '420px' }}>
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '420px',
+            }}
+          >
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '2rem',
+                gap: '1rem',
               }}
             >
               <div>
@@ -241,6 +258,7 @@ export default function ClientLogin() {
                 >
                   Client access
                 </div>
+
                 <h2
                   style={{
                     fontSize: '1.65rem',
@@ -262,6 +280,7 @@ export default function ClientLogin() {
                   placeItems: 'center',
                   fontSize: '0.75rem',
                   color: 'var(--sand-light)',
+                  flexShrink: 0,
                 }}
               >
                 WM
@@ -285,9 +304,10 @@ export default function ClientLogin() {
                 id="client-code"
                 type="text"
                 value={clientCode}
-                onChange={(e) => setClientCode(e.target.value)}
+                onChange={(event) => setClientCode(event.target.value)}
                 disabled={isSubmitting}
                 placeholder="Enter code..."
+                autoComplete="off"
                 style={{
                   width: '100%',
                   padding: '0.85rem 1rem',
@@ -303,12 +323,26 @@ export default function ClientLogin() {
               />
 
               {error && (
-                <p style={{ color: '#ff6b6b', fontSize: '0.82rem', marginBottom: '1rem', marginTop: '0.25rem' }}>
+                <p
+                  role="alert"
+                  style={{
+                    color: '#ff6b6b',
+                    fontSize: '0.82rem',
+                    marginBottom: '1rem',
+                    marginTop: '0.25rem',
+                  }}
+                >
                   {error}
                 </p>
               )}
 
-              <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginBottom: '1.75rem' }}>
+              <p
+                style={{
+                  color: 'var(--muted)',
+                  fontSize: '0.8rem',
+                  marginBottom: '1.75rem',
+                }}
+              >
                 {helperText}
               </p>
 

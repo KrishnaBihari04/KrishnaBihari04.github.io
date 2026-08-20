@@ -1,25 +1,34 @@
 type TimelineItem = {
-  title: string;
-  description: string;
-  status: 'completed' | 'active' | 'upcoming';
-  date: string;
+  readonly title: string;
+  readonly description: string;
+  readonly status: 'completed' | 'active' | 'upcoming';
+  readonly date: string;
 };
 
 type ProjectTimelineProps = {
-  items: TimelineItem[];
+  readonly items: readonly TimelineItem[];
 };
 
-const statusStyles: Record<'completed' | 'active' | 'upcoming', { dot: string; ring: string; label: string }> = {
+const statusStyles: Record<
+  'completed' | 'active' | 'upcoming',
+  {
+    readonly dot: string;
+    readonly ring: string;
+    readonly label: string;
+  }
+> = {
   completed: {
     dot: 'var(--forest-bright)',
     ring: 'rgba(74, 124, 106, 0.22)',
     label: 'Completed',
   },
+
   active: {
     dot: 'var(--sand-light)',
     ring: 'rgba(200, 184, 154, 0.22)',
     label: 'In progress',
   },
+
   upcoming: {
     dot: 'rgba(255,255,255,0.2)',
     ring: 'rgba(255,255,255,0.05)',
@@ -27,7 +36,9 @@ const statusStyles: Record<'completed' | 'active' | 'upcoming', { dot: string; r
   },
 };
 
-export default function ProjectTimeline({ items }: ProjectTimelineProps) {
+export default function ProjectTimeline({
+  items,
+}: ProjectTimelineProps) {
   return (
     <section
       data-reveal
@@ -50,7 +61,12 @@ export default function ProjectTimeline({ items }: ProjectTimelineProps) {
         Timeline
       </p>
 
-      <div style={{ display: 'grid', gap: '1rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gap: '1rem',
+        }}
+      >
         {items.map((item, index) => {
           const style = statusStyles[item.status];
           const isActive = item.status === 'active';
@@ -64,9 +80,12 @@ export default function ProjectTimeline({ items }: ProjectTimelineProps) {
                 gridTemplateColumns: '20px minmax(0, 1fr) auto',
                 gap: '0.9rem',
                 alignItems: 'start',
-                paddingBottom: index === items.length - 1 ? 0 : '0.6rem',
+                paddingBottom:
+                  index === items.length - 1 ? 0 : '0.6rem',
                 borderBottom:
-                  index === items.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)',
+                  index === items.length - 1
+                    ? 'none'
+                    : '1px solid rgba(255,255,255,0.05)',
               }}
             >
               <div
@@ -83,7 +102,11 @@ export default function ProjectTimeline({ items }: ProjectTimelineProps) {
                 }}
               />
 
-              <div style={{ minWidth: 0 }}>
+              <div
+                style={{
+                  minWidth: 0,
+                }}
+              >
                 <div
                   style={{
                     display: 'flex',
@@ -97,17 +120,22 @@ export default function ProjectTimeline({ items }: ProjectTimelineProps) {
                   <h4
                     style={{
                       fontSize: '1.02rem',
-                      color: isActive ? 'var(--soft-white)' : 'var(--off-white)',
+                      color: isActive
+                        ? 'var(--soft-white)'
+                        : 'var(--off-white)',
                     }}
                   >
                     {item.title}
                   </h4>
+
                   <span
                     style={{
                       fontSize: '0.62rem',
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
-                      color: isActive ? 'var(--sand-light)' : 'var(--muted-light)',
+                      color: isActive
+                        ? 'var(--sand-light)'
+                        : 'var(--muted-light)',
                     }}
                   >
                     {style.label}

@@ -1,15 +1,18 @@
 type ProjectHoursType = {
-  used: number;
-  allocated: number;
-  remaining: number;
+  readonly used: number;
+  readonly allocated: number;
+  readonly remaining: number;
 };
 
 type ProjectHoursProps = {
-  hours: ProjectHoursType;
+  readonly hours: ProjectHoursType;
 };
 
 export default function ProjectHours({ hours }: ProjectHoursProps) {
-  const usedPct = (hours.used / hours.allocated) * 100;
+  const usedPct =
+    hours.allocated > 0
+      ? Math.min((hours.used / hours.allocated) * 100, 100)
+      : 0;
 
   return (
     <section
@@ -66,6 +69,7 @@ export default function ProjectHours({ hours }: ProjectHoursProps) {
             >
               {item.label}
             </div>
+
             <div
               style={{
                 fontSize: '1.2rem',
@@ -93,7 +97,8 @@ export default function ProjectHours({ hours }: ProjectHoursProps) {
             width: `${usedPct}%`,
             height: '100%',
             borderRadius: 'inherit',
-            background: 'linear-gradient(90deg, var(--sand-light), var(--forest-bright))',
+            background:
+              'linear-gradient(90deg, var(--sand-light), var(--forest-bright))',
             transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
