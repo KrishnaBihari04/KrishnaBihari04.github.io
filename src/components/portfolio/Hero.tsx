@@ -9,6 +9,29 @@ const ROLES = [
   "Future AI Founder",
 ];
 
+const VINYL_RECORDS = [
+  {
+    audio: "/public/audio/act ii date @ 8 (feat. Drake) [remix].mp3",
+    artwork: "/images/act ii date @ 8 (feat. Drake) [remix].jpg",
+    title: "Act II: Date @ 8",
+  },
+  {
+    audio: "/public/audio/Bryson_Tiller_-_Outside_EKANY_X_GXLDEN_BOY_EDIT_KLICKAUD.mp3",
+    artwork: "public/images/Bryson Tiller - Outside (EKANY X GXLDEN BOY EDIT).jpg",
+    title: "Outside: EKANY X GXLDEN BOY EDIT",
+  },
+  {
+    audio: "public/audio/Oukhti - أختي.mp3",
+    artwork: "public/images/Oukhti - أختي.jpg",
+    title: "Oukhti - أختي: Inez, Chirin",
+  },
+  {
+    audio: "public/audio/Swim Deep.mp3",
+    artwork: "public/images/Swim Deep - Yade Lauren.jpg",
+    title: "Swim Deep: Yade Lauren, CHO, Kevin, Jordan Wayne",
+  },
+];
+
 const TARGET_SPIN_SPEED = 120;
 const INERTIA_FRICTION_PER_SEC = 0.1;
 const FLICK_THRESHOLD = 70;
@@ -20,40 +43,67 @@ const ARM_ANGLE_REST = -24;
 const ARM_ANGLE_OUTER_GROOVE = 4;
 const ARM_ANGLE_INNER_GROOVE = 21;
 
-const TRACK_SRC = "/audio/act ii date @ 8 (feat. Drake) [remix].mp3";
-const ALBUM_ART_SRC = "/images/act ii date @ 8 (feat. Drake) [remix].jpg";
+type PlayerMode =
+  | "paused"
+  | "dragging"
+  | "inertia"
+  | "spinning";
 
-type PlayerMode = "paused" | "dragging" | "inertia" | "spinning";
+type VinylRecord = (typeof VINYL_RECORDS)[number];
 
-const clamp = (value: number, min: number, max: number): number =>
+const clamp = (
+  value: number,
+  min: number,
+  max: number,
+): number =>
   Math.min(max, Math.max(min, value));
 
-const lerp = (a: number, b: number, t: number): number =>
-  a + (b - a) * t;
+const lerp = (
+  a: number,
+  b: number,
+  t: number,
+): number => a + (b - a) * t;
 
 function createCrackleBuffer(
   ctx: AudioContext,
   durationSeconds: number,
 ): AudioBuffer {
   const sampleRate = ctx.sampleRate;
-  const length = Math.floor(sampleRate * durationSeconds);
-  const buffer = ctx.createBuffer(1, length, sampleRate);
+  const length = Math.floor(
+    sampleRate * durationSeconds,
+  );
+
+  const buffer = ctx.createBuffer(
+    1,
+    length,
+    sampleRate,
+  );
+
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < length; i++) {
-    data[i] = (Math.random() * 2 - 1) * 0.015;
+    data[i] =
+      (Math.random() * 2 - 1) *
+      0.015;
   }
 
   let i = 0;
 
   while (i < length) {
     if (Math.random() < 0.0009) {
-      const popLength = 15 + Math.floor(Math.random() * 35);
-      const amp = Math.random() * 0.55;
+      const popLength =
+        15 +
+        Math.floor(
+          Math.random() * 35,
+        );
+
+      const amp =
+        Math.random() * 0.55;
 
       for (
         let j = 0;
-        j < popLength && i + j < length;
+        j < popLength &&
+        i + j < length;
         j++
       ) {
         data[i + j] +=
@@ -71,177 +121,525 @@ function createCrackleBuffer(
   return buffer;
 }
 
+/* ----------------------------------------------------------------
+   Random record selector
+
+   We use sessionStorage only in the browser after hydration.
+   This prevents Astro SSR / React hydration mismatches.
+---------------------------------------------------------------- */
+
+function getRandomRecordIndex(
+  previousIndex: number,
+): number {
+  if (VINYL_RECORDS.length <= 1) {
+    return 0;
+  }
+
+  let nextIndex = Math.floor(
+    Math.random() *
+      VINYL_RECORDS.length,
+  );
+
+  if (nextIndex === previousIndex) {
+    nextIndex =
+      (nextIndex + 1) %
+      VINYL_RECORDS.length;
+  }
+
+  return nextIndex;
+}
+
 export default function Hero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const vinylContainerRef = useRef<HTMLDivElement>(null);
-  const shimmerRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const containerRef =
+    useRef<HTMLDivElement>(null);
 
-  const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [displayed, setDisplayed] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  const vinylContainerRef =
+    useRef<HTMLDivElement>(null);
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [needleDown, setNeedleDown] = useState(false);
-  const [trackProgress, setTrackProgress] = useState(0);
+  const shimmerRef =
+    useRef<HTMLDivElement>(null);
 
-  const rotate = useMotionValue<number>(0);
+  const glowRef =
+    useRef<HTMLDivElement>(null);
 
-  const rotationRef = useRef(0);
-  const velocityRef = useRef(0);
-  const modeRef = useRef<PlayerMode>("paused");
-  const isPlayingRef = useRef(false);
-  const wasAudibleRef = useRef(false);
-  const lastPointerAngleRef = useRef(0);
-  const lastPointerTimeRef = useRef(0);
-  const rafIdRef = useRef<number | null>(null);
-  const lastFrameTimeRef = useRef<number | null>(null);
-  const reducedMotionRef = useRef(false);
+  const audioRef =
+    useRef<HTMLAudioElement | null>(null);
 
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  const filterNodeRef = useRef<BiquadFilterNode | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const freqDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
-  const smoothedGlowRef = useRef(0);
-  const crackleGainRef = useRef<GainNode | null>(null);
+  /* ---------------------------------------------------------------
+     Random vinyl record
+
+     First render stays deterministic for hydration.
+     After mount we switch to a random record.
+  ---------------------------------------------------------------- */
+
+  const [record, setRecord] =
+    useState<VinylRecord>(
+      VINYL_RECORDS[0],
+    );
+
+  const [
+    recordIndex,
+    setRecordIndex,
+  ] = useState(0);
+
+  /* ---------------------------------------------------------------
+     General UI state
+  ---------------------------------------------------------------- */
+
+  const [
+    spotlight,
+    setSpotlight,
+  ] = useState({
+    x: 50,
+    y: 50,
+  });
+
+  const [
+    roleIndex,
+    setRoleIndex,
+  ] = useState(0);
+
+  const [
+    displayed,
+    setDisplayed,
+  ] = useState("");
+
+  const [
+    isDeleting,
+    setIsDeleting,
+  ] = useState(false);
+
+  const [
+    isPaused,
+    setIsPaused,
+  ] = useState(false);
+
+  /* ---------------------------------------------------------------
+     Player state
+  ---------------------------------------------------------------- */
+
+  const [
+    isPlaying,
+    setIsPlaying,
+  ] = useState(false);
+
+  const [
+    isDragging,
+    setIsDragging,
+  ] = useState(false);
+
+  const [
+    needleDown,
+    setNeedleDown,
+  ] = useState(false);
+
+  const [
+    trackProgress,
+    setTrackProgress,
+  ] = useState(0);
+
+  const rotate =
+    useMotionValue<number>(0);
+
+  /* ---------------------------------------------------------------
+     Physics refs
+  ---------------------------------------------------------------- */
+
+  const rotationRef =
+    useRef(0);
+
+  const velocityRef =
+    useRef(0);
+
+  const modeRef =
+    useRef<PlayerMode>(
+      "paused",
+    );
+
+  const isPlayingRef =
+    useRef(false);
+
+  const wasAudibleRef =
+    useRef(false);
+
+  const lastPointerAngleRef =
+    useRef(0);
+
+  const lastPointerTimeRef =
+    useRef(0);
+
+  const rafIdRef =
+    useRef<number | null>(null);
+
+  const lastFrameTimeRef =
+    useRef<number | null>(null);
+
+  const reducedMotionRef =
+    useRef(false);
+
+  /* ---------------------------------------------------------------
+     Audio refs
+  ---------------------------------------------------------------- */
+
+  const audioCtxRef =
+    useRef<AudioContext | null>(
+      null,
+    );
+
+  const gainNodeRef =
+    useRef<GainNode | null>(
+      null,
+    );
+
+  const filterNodeRef =
+    useRef<BiquadFilterNode | null>(
+      null,
+    );
+
+  const analyserRef =
+    useRef<AnalyserNode | null>(
+      null,
+    );
+
+  const freqDataRef =
+    useRef<
+      Uint8Array<ArrayBuffer> | null
+    >(null);
+
+  const smoothedGlowRef =
+    useRef(0);
+
+  const crackleGainRef =
+    useRef<GainNode | null>(
+      null,
+    );
+
+  /* ---------------------------------------------------------------
+     Pick random record after hydration
+  ---------------------------------------------------------------- */
+
+  useEffect(() => {
+    const storedIndex =
+      Number(
+        sessionStorage.getItem(
+          "vinyl-record-index",
+        ),
+      );
+
+    const previousIndex =
+      Number.isInteger(storedIndex) &&
+      storedIndex >= 0 &&
+      storedIndex <
+        VINYL_RECORDS.length
+        ? storedIndex
+        : 0;
+
+    const nextIndex =
+      getRandomRecordIndex(
+        previousIndex,
+      );
+
+    sessionStorage.setItem(
+      "vinyl-record-index",
+      String(nextIndex),
+    );
+
+    setRecordIndex(nextIndex);
+    setRecord(
+      VINYL_RECORDS[nextIndex],
+    );
+  }, []);
 
   /* ---------------------------------------------------------------
      Audio element
+
+     Recreated whenever the selected vinyl changes.
   ---------------------------------------------------------------- */
 
   useEffect(() => {
-    const audio = new Audio(TRACK_SRC);
+    const audio =
+      new Audio(record.audio);
 
     audio.loop = true;
     audio.preload = "auto";
+
     audioRef.current = audio;
 
-    const handleTimeUpdate = () => {
-      if (Number.isFinite(audio.duration) && audio.duration > 0) {
-        setTrackProgress(audio.currentTime / audio.duration);
-      }
-    };
+    setTrackProgress(0);
+    setIsPlaying(false);
+    setIsDragging(false);
+    setNeedleDown(false);
 
-    audio.addEventListener("timeupdate", handleTimeUpdate);
+    rotationRef.current = 0;
+    velocityRef.current = 0;
+    modeRef.current = "paused";
+    wasAudibleRef.current = false;
 
-    reducedMotionRef.current = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    rotate.set(0);
+
+    const handleTimeUpdate =
+      (): void => {
+        if (
+          Number.isFinite(
+            audio.duration,
+          ) &&
+          audio.duration > 0
+        ) {
+          setTrackProgress(
+            audio.currentTime /
+              audio.duration,
+          );
+        }
+      };
+
+    audio.addEventListener(
+      "timeupdate",
+      handleTimeUpdate,
+    );
+
+    reducedMotionRef.current =
+      window
+        .matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        )
+        .matches;
 
     return () => {
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener(
+        "timeupdate",
+        handleTimeUpdate,
+      );
+
       audio.pause();
 
-      void audioCtxRef.current?.close().catch(() => undefined);
-
-      audioRef.current = null;
+      audio.src = "";
     };
-  }, []);
+  }, [record, rotate]);
+
+  /* ---------------------------------------------------------------
+     Keep isPlaying ref synchronized
+  ---------------------------------------------------------------- */
 
   useEffect(() => {
-    isPlayingRef.current = isPlaying;
+    isPlayingRef.current =
+      isPlaying;
   }, [isPlaying]);
 
   useEffect(() => {
-    setNeedleDown(isPlaying && !isDragging);
-  }, [isPlaying, isDragging]);
+    setNeedleDown(
+      isPlaying &&
+        !isDragging,
+    );
+  }, [
+    isPlaying,
+    isDragging,
+  ]);
 
   /* ---------------------------------------------------------------
      Audio graph
+
+     IMPORTANT:
+     Only one AudioContext is created for the currently loaded track.
   ---------------------------------------------------------------- */
 
-  const ensureAudioGraph = useCallback(() => {
-    const audio = audioRef.current;
+  const ensureAudioGraph =
+    useCallback((): void => {
+      const audio =
+        audioRef.current;
 
-    if (!audio) {
-      return;
-    }
-
-    if (audioCtxRef.current) {
-      if (audioCtxRef.current.state === "suspended") {
-        void audioCtxRef.current.resume();
+      if (!audio) {
+        return;
       }
 
-      return;
-    }
+      if (audioCtxRef.current) {
+        if (
+          audioCtxRef.current
+            .state ===
+          "suspended"
+        ) {
+          void audioCtxRef.current.resume();
+        }
 
-    const ctx = new AudioContext();
-    const source = ctx.createMediaElementSource(audio);
+        return;
+      }
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 14000;
+      const ctx =
+        new AudioContext();
 
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.7;
+      const source =
+        ctx.createMediaElementSource(
+          audio,
+        );
 
-    const gain = ctx.createGain();
-    gain.gain.value = 1;
+      const filter =
+        ctx.createBiquadFilter();
 
-    source.connect(filter);
-    filter.connect(analyser);
-    analyser.connect(gain);
-    gain.connect(ctx.destination);
+      filter.type = "lowpass";
+      filter.frequency.value =
+        14000;
 
-    const crackleBuffer = createCrackleBuffer(ctx, 6);
+      const analyser =
+        ctx.createAnalyser();
 
-    const crackleSource = ctx.createBufferSource();
-    crackleSource.buffer = crackleBuffer;
-    crackleSource.loop = true;
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant =
+        0.7;
 
-    const crackleFilter = ctx.createBiquadFilter();
-    crackleFilter.type = "bandpass";
-    crackleFilter.frequency.value = 3200;
-    crackleFilter.Q.value = 0.6;
+      const gain =
+        ctx.createGain();
 
-    const crackleGain = ctx.createGain();
-    crackleGain.gain.value = 0;
+      gain.gain.value = 1;
 
-    crackleSource.connect(crackleFilter);
-    crackleFilter.connect(crackleGain);
-    crackleGain.connect(ctx.destination);
+      source.connect(filter);
+      filter.connect(analyser);
+      analyser.connect(gain);
+      gain.connect(
+        ctx.destination,
+      );
 
-    crackleSource.start(0);
+      const crackleBuffer =
+        createCrackleBuffer(
+          ctx,
+          6,
+        );
 
-    audioCtxRef.current = ctx;
-    filterNodeRef.current = filter;
-    analyserRef.current = analyser;
-    freqDataRef.current = new Uint8Array(
-      new ArrayBuffer(analyser.frequencyBinCount),
-    );
-    gainNodeRef.current = gain;
-    crackleGainRef.current = crackleGain;
-  }, []);
+      const crackleSource =
+        ctx.createBufferSource();
+
+      crackleSource.buffer =
+        crackleBuffer;
+
+      crackleSource.loop = true;
+
+      const crackleFilter =
+        ctx.createBiquadFilter();
+
+      crackleFilter.type =
+        "bandpass";
+
+      crackleFilter.frequency.value =
+        3200;
+
+      crackleFilter.Q.value =
+        0.6;
+
+      const crackleGain =
+        ctx.createGain();
+
+      crackleGain.gain.value =
+        0;
+
+      crackleSource.connect(
+        crackleFilter,
+      );
+
+      crackleFilter.connect(
+        crackleGain,
+      );
+
+      crackleGain.connect(
+        ctx.destination,
+      );
+
+      crackleSource.start(0);
+
+      audioCtxRef.current =
+        ctx;
+
+      filterNodeRef.current =
+        filter;
+
+      analyserRef.current =
+        analyser;
+
+      freqDataRef.current =
+        new Uint8Array(
+          new ArrayBuffer(
+            analyser.frequencyBinCount,
+          ),
+        );
+
+      gainNodeRef.current =
+        gain;
+
+      crackleGainRef.current =
+        crackleGain;
+    }, []);
 
   /* ---------------------------------------------------------------
-     Physics / animation loop
+     Reset / close audio graph when the record changes
   ---------------------------------------------------------------- */
 
   useEffect(() => {
-    const setEnvelope = (speedRatio: number, targetGain: number) => {
-      const gain = gainNodeRef.current;
-      const filter = filterNodeRef.current;
-      const crackle = crackleGainRef.current;
+    return () => {
+      void audioCtxRef.current
+        ?.close()
+        .catch(() => undefined);
+
+      audioCtxRef.current =
+        null;
+
+      gainNodeRef.current =
+        null;
+
+      filterNodeRef.current =
+        null;
+
+      analyserRef.current =
+        null;
+
+      freqDataRef.current =
+        null;
+
+      crackleGainRef.current =
+        null;
+    };
+  }, [record]);
+
+  /* ---------------------------------------------------------------
+     Physics loop
+  ---------------------------------------------------------------- */
+
+  useEffect(() => {
+    const setEnvelope = (
+      speedRatio: number,
+      targetGain: number,
+    ): void => {
+      const gain =
+        gainNodeRef.current;
+
+      const filter =
+        filterNodeRef.current;
+
+      const crackle =
+        crackleGainRef.current;
 
       if (!gain || !filter) {
         return;
       }
 
-      const currentTime = audioCtxRef.current?.currentTime ?? 0;
+      const currentTime =
+        audioCtxRef.current
+          ?.currentTime ?? 0;
 
-      const detuneDrop = clamp(
-        1 - Math.abs(speedRatio - 1) * 0.12,
-        0.5,
-        1,
-      );
+      const detuneDrop =
+        clamp(
+          1 -
+            Math.abs(
+              speedRatio - 1,
+            ) *
+              0.12,
+          0.5,
+          1,
+        );
 
-      const nextGain = clamp(targetGain * detuneDrop, 0, 1);
+      const nextGain =
+        clamp(
+          targetGain *
+            detuneDrop,
+          0,
+          1,
+        );
 
       gain.gain.setTargetAtTime(
         nextGain,
@@ -250,156 +648,306 @@ export default function Hero() {
       );
 
       filter.frequency.setTargetAtTime(
-        lerp(1400, 15000, clamp(speedRatio, 0, 1)),
+        lerp(
+          1400,
+          15000,
+          clamp(
+            speedRatio,
+            0,
+            1,
+          ),
+        ),
         currentTime,
         0.03,
       );
 
       if (crackle) {
         crackle.gain.setTargetAtTime(
-          0.045 * clamp(speedRatio, 0, 1),
+          0.045 *
+            clamp(
+              speedRatio,
+              0,
+              1,
+            ),
           currentTime,
           0.08,
         );
       }
     };
 
-    const updateReactiveGlow = (mode: PlayerMode) => {
-      const glow = glowRef.current;
+    const updateReactiveGlow =
+      (
+        mode: PlayerMode,
+      ): void => {
+        const glow =
+          glowRef.current;
 
-      if (!glow) {
-        return;
-      }
-
-      const analyser = analyserRef.current;
-      const freqData = freqDataRef.current;
-
-      let level = 0;
-
-      if (analyser && freqData && mode !== "paused") {
-        analyser.getByteFrequencyData(freqData);
-
-        const bandEnd = Math.min(24, freqData.length);
-
-        if (bandEnd > 0) {
-          let sum = 0;
-
-          for (let i = 0; i < bandEnd; i++) {
-            sum += freqData[i];
-          }
-
-          level = sum / bandEnd / 255;
+        if (!glow) {
+          return;
         }
-      }
 
-      const smoothing = reducedMotionRef.current ? 0.08 : 0.22;
+        const analyser =
+          analyserRef.current;
 
-      smoothedGlowRef.current = lerp(
-        smoothedGlowRef.current,
-        level,
-        smoothing,
+        const freqData =
+          freqDataRef.current;
+
+        let level = 0;
+
+        if (
+          analyser &&
+          freqData &&
+          mode !== "paused"
+        ) {
+          analyser.getByteFrequencyData(
+            freqData,
+          );
+
+          const bandEnd =
+            Math.min(
+              24,
+              freqData.length,
+            );
+
+          if (bandEnd > 0) {
+            let sum = 0;
+
+            for (
+              let i = 0;
+              i < bandEnd;
+              i++
+            ) {
+              sum +=
+                freqData[i];
+            }
+
+            level =
+              sum /
+              bandEnd /
+              255;
+          }
+        }
+
+        const smoothing =
+          reducedMotionRef.current
+            ? 0.08
+            : 0.22;
+
+        smoothedGlowRef.current =
+          lerp(
+            smoothedGlowRef.current,
+            level,
+            smoothing,
+          );
+
+        const base = 0.22;
+
+        const amount =
+          reducedMotionRef.current
+            ? 0.25
+            : 0.65;
+
+        const intensity =
+          base +
+          smoothedGlowRef.current *
+            amount;
+
+        const blur =
+          46 +
+          smoothedGlowRef.current *
+            (reducedMotionRef.current
+              ? 12
+              : 34);
+
+        glow.style.opacity =
+          intensity.toFixed(3);
+
+        glow.style.filter =
+          `blur(${blur.toFixed(
+            1,
+          )}px)`;
+      };
+
+    const tick = (
+      now: number,
+    ): void => {
+      const last =
+        lastFrameTimeRef.current ??
+        now;
+
+      const dt = clamp(
+        (now - last) /
+          1000,
+        0,
+        0.05,
       );
 
-      const base = 0.22;
-      const amount = reducedMotionRef.current ? 0.25 : 0.65;
+      lastFrameTimeRef.current =
+        now;
 
-      const intensity =
-        base + smoothedGlowRef.current * amount;
+      const mode =
+        modeRef.current;
 
-      const blur =
-        46 +
-        smoothedGlowRef.current *
-          (reducedMotionRef.current ? 12 : 34);
+      const audio =
+        audioRef.current;
 
-      glow.style.opacity = intensity.toFixed(3);
-      glow.style.filter = `blur(${blur.toFixed(1)}px)`;
-    };
-
-    const tick = (now: number) => {
-      const last = lastFrameTimeRef.current ?? now;
-
-      const dt = clamp((now - last) / 1000, 0, 0.05);
-
-      lastFrameTimeRef.current = now;
-
-      const mode = modeRef.current;
-      const audio = audioRef.current;
-
-      if (mode === "spinning") {
-        velocityRef.current = lerp(
-          velocityRef.current,
-          TARGET_SPIN_SPEED,
-          1 - Math.exp(-dt / SPIN_UP_TAU),
-        );
-
-        rotationRef.current += velocityRef.current * dt;
-
-        if (audio && wasAudibleRef.current) {
-          const ratio = clamp(
-            velocityRef.current / TARGET_SPIN_SPEED,
-            0.05,
-            1,
+      if (
+        mode === "spinning"
+      ) {
+        velocityRef.current =
+          lerp(
+            velocityRef.current,
+            TARGET_SPIN_SPEED,
+            1 -
+              Math.exp(
+                -dt /
+                  SPIN_UP_TAU,
+              ),
           );
 
-          audio.playbackRate = ratio;
-          setEnvelope(ratio, 1);
-        }
-      } else if (mode === "inertia") {
-        velocityRef.current *= Math.pow(
-          INERTIA_FRICTION_PER_SEC,
-          dt,
-        );
+        rotationRef.current +=
+          velocityRef.current *
+          dt;
 
-        rotationRef.current += velocityRef.current * dt;
+        if (
+          audio &&
+          wasAudibleRef.current
+        ) {
+          const ratio =
+            clamp(
+              velocityRef.current /
+                TARGET_SPIN_SPEED,
+              0.05,
+              1,
+            );
 
-        if (audio && wasAudibleRef.current) {
-          const ratio = clamp(
-            Math.abs(velocityRef.current) /
-              TARGET_SPIN_SPEED,
-            0,
-            3,
-          );
-
-          audio.playbackRate = clamp(ratio, 0.02, 3);
+          audio.playbackRate =
+            ratio;
 
           setEnvelope(
-            clamp(ratio, 0, 1),
-            clamp(ratio, 0, 1),
+            ratio,
+            1,
+          );
+        }
+      } else if (
+        mode === "inertia"
+      ) {
+        velocityRef.current *=
+          Math.pow(
+            INERTIA_FRICTION_PER_SEC,
+            dt,
+          );
+
+        rotationRef.current +=
+          velocityRef.current *
+          dt;
+
+        if (
+          audio &&
+          wasAudibleRef.current
+        ) {
+          const ratio =
+            clamp(
+              Math.abs(
+                velocityRef.current,
+              ) /
+                TARGET_SPIN_SPEED,
+              0,
+              3,
+            );
+
+          audio.playbackRate =
+            clamp(
+              ratio,
+              0.02,
+              3,
+            );
+
+          setEnvelope(
+            clamp(
+              ratio,
+              0,
+              1,
+            ),
+            clamp(
+              ratio,
+              0,
+              1,
+            ),
           );
         }
 
-        if (Math.abs(velocityRef.current) < STOP_EPSILON) {
-          velocityRef.current = 0;
+        if (
+          Math.abs(
+            velocityRef.current,
+          ) < STOP_EPSILON
+        ) {
+          velocityRef.current =
+            0;
 
-          if (isPlayingRef.current) {
-            modeRef.current = "spinning";
+          if (
+            isPlayingRef.current
+          ) {
+            modeRef.current =
+              "spinning";
           } else {
-            modeRef.current = "paused";
+            modeRef.current =
+              "paused";
+
             audio?.pause();
-            setEnvelope(1, 0);
+
+            setEnvelope(
+              1,
+              0,
+            );
           }
         }
-      } else if (mode === "paused") {
-        velocityRef.current = lerp(
-          velocityRef.current,
-          0,
-          1 - Math.exp(-dt / PAUSE_DECAY_TAU),
-        );
+      } else if (
+        mode === "paused"
+      ) {
+        velocityRef.current =
+          lerp(
+            velocityRef.current,
+            0,
+            1 -
+              Math.exp(
+                -dt /
+                  PAUSE_DECAY_TAU,
+              ),
+          );
 
-        rotationRef.current += velocityRef.current * dt;
+        rotationRef.current +=
+          velocityRef.current *
+          dt;
       }
 
-      rotate.set(rotationRef.current);
-      updateReactiveGlow(mode);
+      rotate.set(
+        rotationRef.current,
+      );
 
-      rafIdRef.current = requestAnimationFrame(tick);
+      updateReactiveGlow(
+        mode,
+      );
+
+      rafIdRef.current =
+        requestAnimationFrame(
+          tick,
+        );
     };
 
-    rafIdRef.current = requestAnimationFrame(tick);
+    rafIdRef.current =
+      requestAnimationFrame(
+        tick,
+      );
 
     return () => {
-      if (rafIdRef.current !== null) {
-        cancelAnimationFrame(rafIdRef.current);
+      if (
+        rafIdRef.current !==
+        null
+      ) {
+        cancelAnimationFrame(
+          rafIdRef.current,
+        );
       }
 
       rafIdRef.current = null;
@@ -407,35 +955,50 @@ export default function Hero() {
   }, [rotate]);
 
   /* ---------------------------------------------------------------
-     Pointer / vinyl
+     Calculate pointer angle
   ---------------------------------------------------------------- */
 
   const calculateAngle = (
     clientX: number,
     clientY: number,
   ): number => {
-    const vinyl = vinylContainerRef.current;
+    const vinyl =
+      vinylContainerRef.current;
 
     if (!vinyl) {
       return 0;
     }
 
-    const rect = vinyl.getBoundingClientRect();
+    const rect =
+      vinyl.getBoundingClientRect();
 
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const centerX =
+      rect.left +
+      rect.width / 2;
+
+    const centerY =
+      rect.top +
+      rect.height / 2;
 
     return (
-      Math.atan2(clientY - centerY, clientX - centerX) *
+      Math.atan2(
+        clientY - centerY,
+        clientX - centerX,
+      ) *
       (180 / Math.PI)
     );
   };
+
+  /* ---------------------------------------------------------------
+     Scratch audio
+  ---------------------------------------------------------------- */
 
   const applyScratchAudio = (
     delta: number,
     dt: number,
   ): void => {
-    const audio = audioRef.current;
+    const audio =
+      audioRef.current;
 
     if (
       !audio ||
@@ -445,24 +1008,38 @@ export default function Hero() {
       return;
     }
 
-    const gain = gainNodeRef.current;
-    const filter = filterNodeRef.current;
-    const crackle = crackleGainRef.current;
+    const gain =
+      gainNodeRef.current;
 
-    const currentTime = audioCtxRef.current.currentTime;
+    const filter =
+      filterNodeRef.current;
+
+    const crackle =
+      crackleGainRef.current;
+
+    const currentTime =
+      audioCtxRef.current
+        .currentTime;
 
     if (delta >= 0) {
-      const speedRatio = clamp(
-        (delta / dt) / TARGET_SPIN_SPEED,
-        0.15,
-        4,
-      );
+      const speedRatio =
+        clamp(
+          (delta / dt) /
+            TARGET_SPIN_SPEED,
+          0.15,
+          4,
+        );
 
-      audio.playbackRate = speedRatio;
+      audio.playbackRate =
+        speedRatio;
 
       gain?.gain.setTargetAtTime(
         clamp(
-          1 - Math.abs(speedRatio - 1) * 0.15,
+          1 -
+            Math.abs(
+              speedRatio - 1,
+            ) *
+              0.15,
           0.4,
           1,
         ),
@@ -474,20 +1051,32 @@ export default function Hero() {
         lerp(
           1200,
           9000,
-          clamp(speedRatio / 2, 0, 1),
+          clamp(
+            speedRatio / 2,
+            0,
+            1,
+          ),
         ),
         currentTime,
         0.02,
       );
     } else {
-      audio.playbackRate = 0.4;
+      audio.playbackRate =
+        0.4;
 
-      if (Number.isFinite(audio.duration)) {
-        audio.currentTime = clamp(
-          audio.currentTime - Math.abs(delta) * 0.0025,
-          0,
+      if (
+        Number.isFinite(
           audio.duration,
-        );
+        )
+      ) {
+        audio.currentTime =
+          clamp(
+            audio.currentTime -
+              Math.abs(delta) *
+                0.0025,
+            0,
+            audio.duration,
+          );
       }
 
       gain?.gain.setTargetAtTime(
@@ -510,6 +1099,10 @@ export default function Hero() {
     );
   };
 
+  /* ---------------------------------------------------------------
+     Pointer down
+  ---------------------------------------------------------------- */
+
   const handlePointerDown = (
     e: React.PointerEvent<HTMLDivElement>,
   ): void => {
@@ -519,34 +1112,52 @@ export default function Hero() {
 
     setIsDragging(true);
 
-    e.currentTarget.setPointerCapture(e.pointerId);
-
-    modeRef.current = "dragging";
-    wasAudibleRef.current = isPlayingRef.current;
-    velocityRef.current = 0;
-
-    lastPointerAngleRef.current = calculateAngle(
-      e.clientX,
-      e.clientY,
+    e.currentTarget.setPointerCapture(
+      e.pointerId,
     );
 
-    lastPointerTimeRef.current = performance.now();
+    modeRef.current =
+      "dragging";
+
+    wasAudibleRef.current =
+      isPlayingRef.current;
+
+    velocityRef.current =
+      0;
+
+    lastPointerAngleRef.current =
+      calculateAngle(
+        e.clientX,
+        e.clientY,
+      );
+
+    lastPointerTimeRef.current =
+      performance.now();
   };
+
+  /* ---------------------------------------------------------------
+     Pointer move
+  ---------------------------------------------------------------- */
 
   const handlePointerMove = (
     e: React.PointerEvent<HTMLDivElement>,
   ): void => {
-    if (modeRef.current !== "dragging") {
+    if (
+      modeRef.current !==
+      "dragging"
+    ) {
       return;
     }
 
-    const rawAngle = calculateAngle(
-      e.clientX,
-      e.clientY,
-    );
+    const rawAngle =
+      calculateAngle(
+        e.clientX,
+        e.clientY,
+      );
 
     let delta =
-      rawAngle - lastPointerAngleRef.current;
+      rawAngle -
+      lastPointerAngleRef.current;
 
     if (delta > 180) {
       delta -= 360;
@@ -556,54 +1167,95 @@ export default function Hero() {
       delta += 360;
     }
 
-    const now = performance.now();
+    const now =
+      performance.now();
 
-    const dt = Math.max(
-      (now - lastPointerTimeRef.current) / 1000,
-      1 / 240,
+    const dt =
+      Math.max(
+        (now -
+          lastPointerTimeRef.current) /
+          1000,
+        1 / 240,
+      );
+
+    const instantVelocity =
+      delta / dt;
+
+    velocityRef.current =
+      lerp(
+        velocityRef.current,
+        instantVelocity,
+        0.6,
+      );
+
+    rotationRef.current +=
+      delta;
+
+    rotate.set(
+      rotationRef.current,
     );
 
-    const instantVelocity = delta / dt;
+    lastPointerAngleRef.current =
+      rawAngle;
 
-    velocityRef.current = lerp(
-      velocityRef.current,
-      instantVelocity,
-      0.6,
+    lastPointerTimeRef.current =
+      now;
+
+    applyScratchAudio(
+      delta,
+      dt,
     );
-
-    rotationRef.current += delta;
-
-    rotate.set(rotationRef.current);
-
-    lastPointerAngleRef.current = rawAngle;
-    lastPointerTimeRef.current = now;
-
-    applyScratchAudio(delta, dt);
   };
+
+  /* ---------------------------------------------------------------
+     Pointer up
+  ---------------------------------------------------------------- */
 
   const handlePointerUp = (
     e: React.PointerEvent<HTMLDivElement>,
   ): void => {
     setIsDragging(false);
 
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
+    if (
+      e.currentTarget.hasPointerCapture(
+        e.pointerId,
+      )
+    ) {
+      e.currentTarget.releasePointerCapture(
+        e.pointerId,
+      );
     }
 
-    const flickSpeed = Math.abs(velocityRef.current);
+    const flickSpeed =
+      Math.abs(
+        velocityRef.current,
+      );
 
-    if (flickSpeed > FLICK_THRESHOLD) {
-      modeRef.current = "inertia";
-    } else if (isPlayingRef.current) {
-      modeRef.current = "spinning";
+    if (
+      flickSpeed >
+      FLICK_THRESHOLD
+    ) {
+      modeRef.current =
+        "inertia";
+    } else if (
+      isPlayingRef.current
+    ) {
+      modeRef.current =
+        "spinning";
 
-      const gain = gainNodeRef.current;
-      const filter = filterNodeRef.current;
+      const gain =
+        gainNodeRef.current;
+
+      const filter =
+        filterNodeRef.current;
+
       const currentTime =
-        audioCtxRef.current?.currentTime ?? 0;
+        audioCtxRef.current
+          ?.currentTime ?? 0;
 
       if (audioRef.current) {
-        audioRef.current.playbackRate = 1;
+        audioRef.current.playbackRate =
+          1;
       }
 
       gain?.gain.setTargetAtTime(
@@ -618,7 +1270,8 @@ export default function Hero() {
         0.05,
       );
     } else {
-      modeRef.current = "paused";
+      modeRef.current =
+        "paused";
     }
   };
 
@@ -626,85 +1279,127 @@ export default function Hero() {
      Play / pause
   ---------------------------------------------------------------- */
 
-  const togglePlay = async (): Promise<void> => {
-    const audio = audioRef.current;
+  const togglePlay =
+    async (): Promise<void> => {
+      const audio =
+        audioRef.current;
 
-    if (!audio) {
-      return;
-    }
-
-    ensureAudioGraph();
-
-    if (isPlaying) {
-      setIsPlaying(false);
-      audio.pause();
-
-      if (modeRef.current === "spinning") {
-        modeRef.current = "paused";
+      if (!audio) {
+        return;
       }
 
-      return;
-    }
+      ensureAudioGraph();
 
-    try {
-      await audioCtxRef.current?.resume();
-      await audio.play();
+      if (isPlaying) {
+        setIsPlaying(false);
 
-      wasAudibleRef.current = true;
-      setIsPlaying(true);
+        audio.pause();
 
-      if (modeRef.current !== "dragging") {
-        modeRef.current = "spinning";
+        if (
+          modeRef.current ===
+          "spinning"
+        ) {
+          modeRef.current =
+            "paused";
+        }
+
+        return;
       }
-    } catch (error) {
-      console.log("Audio play blocked:", error);
-    }
-  };
+
+      try {
+        await audioCtxRef.current?.resume();
+        await audio.play();
+
+        wasAudibleRef.current =
+          true;
+
+        setIsPlaying(true);
+
+        if (
+          modeRef.current !==
+          "dragging"
+        ) {
+          modeRef.current =
+            "spinning";
+        }
+      } catch (error) {
+        console.log(
+          "Audio play blocked:",
+          error,
+        );
+      }
+    };
 
   /* ---------------------------------------------------------------
      Mouse spotlight / shimmer
   ---------------------------------------------------------------- */
 
   useEffect(() => {
-    const container = containerRef.current;
+    const container =
+      containerRef.current;
 
     if (!container) {
       return;
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
+    const handleMouseMove =
+      (e: MouseEvent): void => {
+        const rect =
+          container.getBoundingClientRect();
 
-      const x =
-        ((e.clientX - rect.left) / rect.width) * 100;
+        const x =
+          ((e.clientX -
+            rect.left) /
+            rect.width) *
+          100;
 
-      const y =
-        ((e.clientY - rect.top) / rect.height) * 100;
+        const y =
+          ((e.clientY -
+            rect.top) /
+            rect.height) *
+          100;
 
-      setSpotlight({ x, y });
+        setSpotlight({
+          x,
+          y,
+        });
 
-      const vinyl = vinylContainerRef.current;
-      const shimmer = shimmerRef.current;
+        const vinyl =
+          vinylContainerRef.current;
 
-      if (vinyl && shimmer) {
-        const rect = vinyl.getBoundingClientRect();
+        const shimmer =
+          shimmerRef.current;
 
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
+        if (
+          vinyl &&
+          shimmer
+        ) {
+          const rect =
+            vinyl.getBoundingClientRect();
 
-        const angle =
-          Math.atan2(
-            e.clientY - centerY,
-            e.clientX - centerX,
-          ) *
-          (180 / Math.PI);
+          const centerX =
+            rect.left +
+            rect.width / 2;
 
-        shimmer.style.setProperty(
-          "--shimmer-angle",
-          `${angle}deg`,
-        );
-      }
-    };
+          const centerY =
+            rect.top +
+            rect.height / 2;
+
+          const angle =
+            Math.atan2(
+              e.clientY -
+                centerY,
+              e.clientX -
+                centerX,
+            ) *
+            (180 / Math.PI);
+
+          shimmer.style.setProperty(
+            "--shimmer-angle",
+            `${angle}deg`,
+          );
+        }
+      };
 
     container.addEventListener(
       "mousemove",
@@ -724,56 +1419,82 @@ export default function Hero() {
   ---------------------------------------------------------------- */
 
   useEffect(() => {
-    const currentRole = ROLES[roleIndex];
+    const currentRole =
+      ROLES[roleIndex];
 
     if (isPaused) {
-      const timeout = window.setTimeout(() => {
-        setIsPaused(false);
-        setIsDeleting(true);
-      }, 1800);
+      const timeout =
+        window.setTimeout(
+          () => {
+            setIsPaused(false);
+            setIsDeleting(true);
+          },
+          1800,
+        );
 
-      return () => {
-        window.clearTimeout(timeout);
-      };
+      return () =>
+        window.clearTimeout(
+          timeout,
+        );
     }
 
     if (!isDeleting) {
-      if (displayed.length < currentRole.length) {
-        const timeout = window.setTimeout(() => {
-          setDisplayed(
-            currentRole.slice(
-              0,
-              displayed.length + 1,
-            ),
+      if (
+        displayed.length <
+        currentRole.length
+      ) {
+        const timeout =
+          window.setTimeout(
+            () => {
+              setDisplayed(
+                currentRole.slice(
+                  0,
+                  displayed.length +
+                    1,
+                ),
+              );
+            },
+            60,
           );
-        }, 60);
 
-        return () => {
-          window.clearTimeout(timeout);
-        };
+        return () =>
+          window.clearTimeout(
+            timeout,
+          );
       }
 
       setIsPaused(true);
+
       return;
     }
 
     if (displayed.length > 0) {
-      const timeout = window.setTimeout(() => {
-        setDisplayed(
-          displayed.slice(0, -1),
+      const timeout =
+        window.setTimeout(
+          () => {
+            setDisplayed(
+              displayed.slice(
+                0,
+                -1,
+              ),
+            );
+          },
+          35,
         );
-      }, 35);
 
-      return () => {
-        window.clearTimeout(timeout);
-      };
+      return () =>
+        window.clearTimeout(
+          timeout,
+        );
     }
 
     setIsDeleting(false);
 
-    setRoleIndex((current) => {
-      return (current + 1) % ROLES.length;
-    });
+    setRoleIndex(
+      (current) =>
+        (current + 1) %
+        ROLES.length,
+    );
   }, [
     displayed,
     isDeleting,
@@ -781,13 +1502,22 @@ export default function Hero() {
     roleIndex,
   ]);
 
-  const armTargetAngle = needleDown
-    ? lerp(
-        ARM_ANGLE_OUTER_GROOVE,
-        ARM_ANGLE_INNER_GROOVE,
-        clamp(trackProgress, 0, 1),
-      )
-    : ARM_ANGLE_REST;
+  /* ---------------------------------------------------------------
+     Tonearm position
+  ---------------------------------------------------------------- */
+
+  const armTargetAngle =
+    needleDown
+      ? lerp(
+          ARM_ANGLE_OUTER_GROOVE,
+          ARM_ANGLE_INNER_GROOVE,
+          clamp(
+            trackProgress,
+            0,
+            1,
+          ),
+        )
+      : ARM_ANGLE_REST;
 
   return (
     <section
@@ -795,6 +1525,7 @@ export default function Hero() {
       ref={containerRef}
       className="hero-section"
     >
+      {/* Spotlight */}
       <div
         aria-hidden="true"
         className="hero-spotlight"
@@ -807,12 +1538,17 @@ export default function Hero() {
         }}
       />
 
+      {/* Grain */}
       <div
         aria-hidden="true"
         className="hero-grain"
       />
 
       <div className="hero-content">
+        {/* ---------------------------------------------------------
+            LEFT
+        ---------------------------------------------------------- */}
+
         <div className="hero-copy">
           <p className="hero-availability hero-animate hero-delay-1">
             <span className="hero-status-dot" />
@@ -820,7 +1556,8 @@ export default function Hero() {
           </p>
 
           <h1 className="hero-title hero-animate hero-delay-2">
-            Krishna Bihari — <br />
+            Krishna Bihari —
+            <br />
 
             <span className="hero-title-accent">
               Engineering software
@@ -843,7 +1580,7 @@ export default function Hero() {
 
           <div className="hero-actions hero-animate hero-delay-5">
             <a
-              href="#projects"
+              href="#work"
               className="btn-primary"
             >
               View my work
@@ -865,24 +1602,37 @@ export default function Hero() {
           </div>
         </div>
 
+        {/* ---------------------------------------------------------
+            RIGHT / VINYL
+        ---------------------------------------------------------- */}
+
         <div className="hero-player">
           <div className="vinyl-stage">
+            {/* Glow */}
             <div
               ref={glowRef}
               aria-hidden="true"
               className="vinyl-glow"
             />
 
+            {/* Tonearm */}
             <motion.div
               aria-hidden="true"
               className="tonearm"
               animate={{
-                rotate: armTargetAngle,
-                y: needleDown ? 0 : -6,
+                rotate:
+                  armTargetAngle,
+                y:
+                  needleDown
+                    ? 0
+                    : -6,
               }}
               transition={{
                 type: "spring",
-                stiffness: needleDown ? 130 : 95,
+                stiffness:
+                  needleDown
+                    ? 130
+                    : 95,
                 damping: 15,
               }}
             >
@@ -940,13 +1690,24 @@ export default function Hero() {
               </svg>
             </motion.div>
 
+            {/* Vinyl */}
             <div
-              ref={vinylContainerRef}
+              ref={
+                vinylContainerRef
+              }
               className="vinyl"
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerUp}
+              onPointerDown={
+                handlePointerDown
+              }
+              onPointerMove={
+                handlePointerMove
+              }
+              onPointerUp={
+                handlePointerUp
+              }
+              onPointerCancel={
+                handlePointerUp
+              }
             >
               <motion.div
                 className="vinyl-disc"
@@ -956,8 +1717,10 @@ export default function Hero() {
               >
                 <div className="album-art">
                   <img
-                    src={ALBUM_ART_SRC}
-                    alt="Album artwork"
+                    src={
+                      record.artwork
+                    }
+                    alt={`${record.title} album artwork`}
                     draggable={false}
                   />
 
@@ -966,45 +1729,64 @@ export default function Hero() {
               </motion.div>
             </div>
 
+            {/* Shimmer */}
             <div
-              ref={shimmerRef}
+              ref={
+                shimmerRef
+              }
               aria-hidden="true"
               className="vinyl-shimmer"
             />
           </div>
 
+          {/* Player button */}
           <button
             type="button"
             className="player-button"
-            onClick={() => void togglePlay()}
+            onClick={() =>
+              void togglePlay()
+            }
             aria-label={
               isPlaying
-                ? "Pauzeer track"
-                : "Speel track af"
+                ? "Pause track"
+                : "Play track"
             }
           >
-            {isPlaying && !isDragging ? (
+            {isPlaying &&
+            !isDragging ? (
               <Pause size={16} />
             ) : (
               <Play size={16} />
             )}
           </button>
+
+          {/* Optional track label */}
+          <span
+            className="vinyl-track-title"
+            aria-live="polite"
+          >
+            {record.title}
+          </span>
         </div>
       </div>
 
+      {/* Stats */}
       <div className="hero-stats">
         {[
           {
             value: "3+",
-            label: "Years building software",
+            label:
+              "Years building software",
           },
           {
             value: "10+",
-            label: "Projects shipped",
+            label:
+              "Projects shipped",
           },
           {
             value: "5+",
-            label: "AI & tech stacks",
+            label:
+              "AI & tech stacks",
           },
         ].map((stat) => (
           <div
@@ -1022,6 +1804,7 @@ export default function Hero() {
         ))}
       </div>
 
+      {/* Scroll */}
       <div
         aria-hidden="true"
         className="hero-scroll"
@@ -1100,13 +1883,18 @@ export default function Hero() {
           height: 6px;
           border-radius: 50%;
           background: var(--forest-bright);
-          box-shadow: 0 0 8px var(--forest-bright);
+          box-shadow:
+            0 0 8px var(--forest-bright);
         }
 
         .hero-title {
           margin: 0 0 1.25rem;
           color: var(--soft-white);
-          font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+          font-size: clamp(
+            2.2rem,
+            5.5vw,
+            4.5rem
+          );
           font-weight: 500;
           line-height: 1.08;
           letter-spacing: -0.035em;
@@ -1114,7 +1902,10 @@ export default function Hero() {
 
         .hero-title-accent {
           color: var(--sand-light);
-          font-family: "Playfair Display", Georgia, serif;
+          font-family:
+            "Playfair Display",
+            Georgia,
+            serif;
           font-style: italic;
           font-weight: 400;
         }
@@ -1125,8 +1916,14 @@ export default function Hero() {
           display: flex;
           align-items: center;
           color: var(--muted);
-          font-family: "JetBrains Mono", monospace;
-          font-size: clamp(0.95rem, 2.2vw, 1.35rem);
+          font-family:
+            "JetBrains Mono",
+            monospace;
+          font-size: clamp(
+            0.95rem,
+            2.2vw,
+            1.35rem
+          );
           letter-spacing: -0.01em;
         }
 
@@ -1137,14 +1934,22 @@ export default function Hero() {
           margin-left: 3px;
           vertical-align: text-bottom;
           background: var(--sand-light);
-          animation: heroBlink 1s step-end infinite;
+          animation:
+            heroBlink
+            1s
+            step-end
+            infinite;
         }
 
         .hero-description {
           max-width: 500px;
           margin: 0 0 2.5rem;
           color: var(--muted);
-          font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+          font-size: clamp(
+            0.9rem,
+            1.5vw,
+            1.05rem
+          );
           line-height: 1.8;
         }
 
@@ -1158,7 +1963,11 @@ export default function Hero() {
         .hero-player {
           width: 100%;
           min-width: 0;
-          min-height: clamp(320px, 48vw, 560px);
+          min-height: clamp(
+            320px,
+            48vw,
+            560px
+          );
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1168,8 +1977,16 @@ export default function Hero() {
 
         .vinyl-stage {
           position: relative;
-          width: clamp(220px, 32vw, 380px);
-          height: clamp(220px, 32vw, 380px);
+          width: clamp(
+            220px,
+            32vw,
+            380px
+          );
+          height: clamp(
+            220px,
+            32vw,
+            380px
+          );
         }
 
         .vinyl-glow {
@@ -1180,9 +1997,12 @@ export default function Hero() {
           background:
             radial-gradient(
               circle,
-              rgba(200, 170, 110, 0.35) 0%,
-              rgba(200, 170, 110, 0.08) 45%,
-              transparent 72%
+              rgba(200, 170, 110, 0.35)
+              0%,
+              rgba(200, 170, 110, 0.08)
+              45%,
+              transparent
+              72%
             );
           opacity: 0.22;
           filter: blur(46px);
@@ -1215,35 +2035,46 @@ export default function Hero() {
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          border: 1px solid rgba(38, 38, 38, 0.4);
+          border: 1px solid rgba(
+            38,
+            38,
+            38,
+            0.4
+          );
           border-radius: 50%;
           background-color: #0e0e0d;
           background-image:
             radial-gradient(
               circle,
               transparent 30%,
-              rgba(0, 0, 0, 0.9) 31%,
+              rgba(0, 0, 0, 0.9)
+              31%,
               transparent 32%
             ),
             radial-gradient(
               circle,
               transparent 45%,
-              rgba(255, 255, 255, 0.02) 46%,
+              rgba(255,255,255,0.02)
+              46%,
               transparent 47%
             ),
             radial-gradient(
               circle,
               transparent 60%,
-              rgba(0, 0, 0, 0.85) 61%,
+              rgba(0,0,0,0.85)
+              61%,
               transparent 62%
             ),
             radial-gradient(
               circle,
               transparent 75%,
-              rgba(255, 255, 255, 0.01) 76%,
+              rgba(255,255,255,0.01)
+              76%,
               transparent 77%
             );
-          box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+          box-shadow:
+            0 0 50px
+            rgba(0,0,0,0.8);
           cursor: grab;
           touch-action: none;
           user-select: none;
@@ -1265,12 +2096,23 @@ export default function Hero() {
 
         .album-art {
           position: relative;
-          width: clamp(72px, 10vw, 112px);
-          height: clamp(72px, 10vw, 112px);
+          width: clamp(
+            72px,
+            10vw,
+            112px
+          );
+          height: clamp(
+            72px,
+            10vw,
+            112px
+          );
           overflow: hidden;
           border: 4px solid #0e0e0d;
           border-radius: 50%;
-          box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+          box-shadow:
+            inset
+            0 0 20px
+            rgba(0,0,0,0.8);
         }
 
         .album-art img {
@@ -1288,11 +2130,17 @@ export default function Hero() {
           left: 50%;
           width: 10px;
           height: 10px;
-          transform: translate(-50%, -50%);
+          transform:
+            translate(
+              -50%,
+              -50%
+            );
           border: 1px solid #222;
           border-radius: 50%;
           background: #050505;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+          box-shadow:
+            0 1px 4px
+            rgba(0,0,0,0.65);
         }
 
         .vinyl-shimmer {
@@ -1303,12 +2151,17 @@ export default function Hero() {
           pointer-events: none;
           background:
             conic-gradient(
-              from var(--shimmer-angle, 0deg),
+              from var(
+                --shimmer-angle,
+                0deg
+              ),
               transparent 0deg,
-              rgba(255, 255, 255, 0.16) 6deg,
+              rgba(255,255,255,0.16)
+              6deg,
               transparent 16deg,
               transparent 344deg,
-              rgba(255, 255, 255, 0.1) 354deg,
+              rgba(255,255,255,0.1)
+              354deg,
               transparent 360deg
             );
           -webkit-mask-image:
@@ -1340,11 +2193,19 @@ export default function Hero() {
           justify-content: center;
           border: 1px solid var(--border-mid);
           border-radius: 50%;
-          background: rgba(23, 23, 23, 0.6);
+          background:
+            rgba(
+              23,
+              23,
+              23,
+              0.6
+            );
           color: #d4d4d4;
           cursor: pointer;
           backdrop-filter: blur(10px);
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+          box-shadow:
+            0 8px 25px
+            rgba(0,0,0,0.3);
           transition:
             background-color 180ms ease,
             color 180ms ease,
@@ -1352,9 +2213,29 @@ export default function Hero() {
         }
 
         .player-button:hover {
-          background: rgba(40, 40, 40, 0.8);
+          background:
+            rgba(
+              40,
+              40,
+              40,
+              0.8
+            );
           color: #ffffff;
-          transform: translateY(-1px);
+          transform:
+            translateY(-1px);
+        }
+
+        .vinyl-track-title {
+          margin-top: 0.8rem;
+          color: var(--muted);
+          font-family:
+            "JetBrains Mono",
+            monospace;
+          font-size: 0.65rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          text-align: center;
+          opacity: 0.75;
         }
 
         .hero-stats {
@@ -1362,16 +2243,36 @@ export default function Hero() {
           z-index: 3;
           width: 100%;
           max-width: 1280px;
-          margin: clamp(2.5rem, 5vw, 5rem) auto 0;
+          margin:
+            clamp(
+              2.5rem,
+              5vw,
+              5rem
+            )
+            auto 0;
           display: flex;
           flex-wrap: wrap;
-          gap: clamp(2rem, 5vw, 4rem);
+          gap:
+            clamp(
+              2rem,
+              5vw,
+              4rem
+            );
+        }
+
+        .hero-stat {
+          min-width: 0;
         }
 
         .hero-stat-value {
-          margin: 0 0 0.3rem;
+          margin:
+            0 0 0.3rem;
           color: var(--soft-white);
-          font-size: clamp(1.5rem, 3vw, 2.2rem);
+          font-size: clamp(
+            1.5rem,
+            3vw,
+            2.2rem
+          );
           font-weight: 500;
           line-height: 1;
           letter-spacing: -0.03em;
@@ -1393,7 +2294,8 @@ export default function Hero() {
           flex-direction: column;
           align-items: center;
           gap: 0.5rem;
-          transform: translateX(-50%);
+          transform:
+            translateX(-50%);
           pointer-events: none;
         }
 
@@ -1414,16 +2316,25 @@ export default function Hero() {
               transparent
             );
           animation:
-            heroScrollPulse 2.5s ease-in-out infinite;
+            heroScrollPulse
+            2.5s
+            ease-in-out
+            infinite;
         }
 
         .hero-animate {
           opacity: 0;
-          transform: translateY(18px);
+          transform:
+            translateY(18px);
           animation:
             heroReveal
             800ms
-            cubic-bezier(0.22, 1, 0.36, 1)
+            cubic-bezier(
+              0.22,
+              1,
+              0.36,
+              1
+            )
             forwards;
         }
 
@@ -1450,12 +2361,14 @@ export default function Hero() {
         @keyframes heroReveal {
           from {
             opacity: 0;
-            transform: translateY(18px);
+            transform:
+              translateY(18px);
           }
 
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform:
+              translateY(0);
           }
         }
 
@@ -1474,12 +2387,14 @@ export default function Hero() {
           0%,
           100% {
             opacity: 0.3;
-            transform: scaleY(1);
+            transform:
+              scaleY(1);
           }
 
           50% {
             opacity: 1;
-            transform: scaleY(1.15);
+            transform:
+              scaleY(1.15);
           }
         }
 
@@ -1513,24 +2428,22 @@ export default function Hero() {
             gap: 0.6rem;
           }
 
-          .hero-cta {
-            min-height: 44px;
-            padding: 0.7rem 0.95rem;
-            font-size: 0.76rem;
-          }
-
-          .hero-cta-ghost {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-          }
-
           .hero-player {
             min-height: 320px;
           }
 
+          .vinyl-track-title {
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
           .hero-stats {
             margin-top: 2rem;
-            gap: 1.75rem 2.5rem;
+            gap:
+              1.75rem
+              2.5rem;
           }
 
           .hero-scroll {
@@ -1570,7 +2483,6 @@ export default function Hero() {
             animation: none;
           }
 
-          .hero-cta,
           .player-button {
             transition: none;
           }
