@@ -26,7 +26,7 @@ const projects: Project[] = [
     title: 'Budget Buddy',
     tagline: 'Personal finance manager with a premium dashboard, smart categorisation, and a full reporting engine.',
     description:
-      'End-to-end finance platform built with Symfony 6 and Chart.js. Handles transaction management, budget categorisation, role-based user and admin access, and rich data visualisation — all delivered through a clean, premium interface. Designed with real users in mind: fast, secure, and intuitive.',
+      'End-to-end finance platform built with Symfony 6 and Chart.js. Handles transaction management, budget categorisation, role-based user and admin access, and rich data visualisation all delivered through a clean, premium interface. Designed with real users in mind: fast, secure, and intuitive.',
     outcome: 'Full production deployment with secure authentication, real-time reporting, and granular admin controls.',
     architecture: ['Symfony 6', 'Twig', 'Doctrine ORM', 'Chart.js', 'MySQL', 'REST API', 'Role-based access control'],
     stack: ['Symfony', 'PHP', 'Twig', 'Chart.js', 'MySQL', 'Doctrine ORM'],
@@ -45,7 +45,7 @@ const projects: Project[] = [
     title: 'SDG Dashboard',
     tagline: 'Real-time UN Sustainable Development Goals tracker with live KPI visualisation and an AI-powered insights engine.',
     description:
-      'Comprehensive data platform built with Next.js 14 and TypeScript. Tracks live SDG KPIs through interactive charts, integrates an OpenAI-powered chatbot for contextual analysis, includes full user authentication, and supports CSV data export — all backed by MySQL with Prisma ORM. Built to demonstrate how AI can make complex data accessible and actionable.',
+      'Comprehensive data platform built with Next.js 14 and TypeScript. Tracks live SDG KPIs through interactive charts, integrates an OpenAI-powered chatbot for contextual analysis, includes full user authentication, and supports CSV data export all backed by MySQL with Prisma ORM. Built to demonstrate how AI can make complex data accessible and actionable.',
     outcome: 'Complete full-stack system: authentication, AI chatbot, live KPI tracking, and a full data export pipeline.',
     architecture: ['Next.js 14', 'TypeScript', 'Prisma ORM', 'MySQL', 'OpenAI API', 'NextAuth', 'Recharts'],
     stack: ['Next.js', 'TypeScript', 'Prisma', 'MySQL', 'OpenAI API', 'NextAuth'],
@@ -62,7 +62,7 @@ const projects: Project[] = [
     id: '03',
     category: 'AI Voice & Outreach Automation',
     title: 'OutreachBot',
-    tagline: 'AI-driven outbound call and SMS automation — personalised at scale, powered by dynamic conversation scripts.',
+    tagline: 'AI-driven outbound call and SMS automation personalised at scale, powered by dynamic conversation scripts.',
     description:
       'Node.js and React platform that ingests contact lists from CSV and XLS files and triggers personalised outbound calls and SMS messages via MessageBird. Integrates OpenAI to generate dynamic, context-aware conversation scripts per contact. Tracks delivery rates and response metrics through a live reporting dashboard. Built to demonstrate real-world AI automation applied to sales and outreach workflows.',
     outcome: 'Automated multi-channel outreach pipeline with AI-generated scripts and delivery reporting — active development.',

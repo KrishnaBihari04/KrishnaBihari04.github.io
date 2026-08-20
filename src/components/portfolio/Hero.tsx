@@ -93,8 +93,9 @@ function getRandomUnitInterval(): number {
     return array[0] / (0xffffffff + 1);
   }
 
-  return Math.random(); // NOSONAR - cosmetic-only fallback (vinyl crackle/record pick), not security-sensitive
+  return Math.random(); // NOSONAR - Safe fallback for SSR/old browsers, cosmetic use only
 }
+
 
 function createCrackleBuffer(
   ctx: AudioContext,
@@ -1654,17 +1655,14 @@ export default function Hero() {
 
         <div className="hero-copy">
           <p className="hero-availability hero-animate hero-delay-1">
-            <span className="hero-status-dot" />
+            <span className="hero-status-dot"/>
             Available for new projects
           </p>
 
           <h1 className="hero-title hero-animate hero-delay-2">
-            {"Krishna Bihari — "}
-            <br />
-            <span className="hero-title-accent">
-              {"Engineering software "}
-            </span>
-            {"that creates value."}
+            Krishna Bihari<br />
+            <span className="hero-title-accent">Engineering software</span>{" "}
+            that creates value.
           </h1>
 
           <div className="hero-role hero-animate hero-delay-3">
@@ -1675,7 +1673,7 @@ export default function Hero() {
           </div>
 
           <p className="hero-description hero-animate hero-delay-4">
-            Full-stack developer and AI engineer from the Netherlands —
+            Full-stack developer and AI engineer from the Netherlands
             building web applications, AI-powered automations, and SaaS
             products that solve real business problems.
           </p>

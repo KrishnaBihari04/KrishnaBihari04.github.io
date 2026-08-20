@@ -72,6 +72,23 @@ const CHAR_SPEED = 28;   // ms per character
 const LINE_PAUSE = 600;  // pause after each line completes
 const CHAPTER_PAUSE = 1200;
 
+/**
+ * Resolves the visual color for a chapter tab.
+ * Extracted from a nested ternary (SonarLint S3358) into a named,
+ * independently readable function.
+ */
+function getChapterTabColor(isCurrent: boolean, isPast: boolean): string {
+  if (isCurrent) {
+    return 'var(--sand)';
+  }
+
+  if (isPast) {
+    return 'rgba(200,184,154,0.35)';
+  }
+
+  return 'var(--muted)';
+}
+
 export default function About() {
   const sectionRef    = useRef<HTMLDivElement>(null);
   const timerRef      = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,8 +104,6 @@ export default function About() {
   const [done,        setDone]        = useState(false);
   // Whether animation has started
   const [started,     setStarted]     = useState(false);
-
-  const chapter = chapters[chapterIdx];
 
   // ── Core typewriter engine ────────────────────────────────────────────────
   const typeChar = useCallback((
@@ -215,7 +230,7 @@ export default function About() {
             marginBottom: '4rem',
           }}>
             <span style={{ width: '1.5rem', height: '1px', background: 'var(--sand)', opacity: 0.5, display: 'inline-block' }} />
-            About
+            {'About'}
           </p>
 
           {/* Chapter tabs */}
@@ -235,11 +250,7 @@ export default function About() {
                     border:        isCurrent
                       ? '1px solid rgba(200,184,154,0.5)'
                       : '1px solid rgba(255,255,255,0.06)',
-                    color: isCurrent
-                      ? 'var(--sand)'
-                      : isPast
-                      ? 'rgba(200,184,154,0.35)'
-                      : 'var(--muted)',
+                    color: getChapterTabColor(isCurrent, isPast),
                     background: isCurrent ? 'rgba(200,184,154,0.06)' : 'transparent',
                     transition: 'all 0.4s ease',
                   }}
@@ -281,7 +292,7 @@ export default function About() {
 
                     return (
                       <p
-                        key={lIdx}
+                        key={`${ch.id}-${line}`}
                         style={{
                           fontSize:      'clamp(1.15rem, 2.4vw, 1.65rem)',
                           fontWeight:    400,
@@ -367,6 +378,7 @@ export default function About() {
 
             {done && (
               <button
+                type="button"
                 onClick={start}
                 aria-label="Replay story"
                 style={{
@@ -429,7 +441,7 @@ export default function About() {
                 }}
               >
                 <span style={{ width: '1.5rem', height: '1px', background: 'var(--sand)', opacity: 0.5, display: 'inline-block' }} />
-                How I work
+                {'How I work'}
               </p>
 
               <p data-reveal data-delay="100" style={{
@@ -497,7 +509,7 @@ export default function About() {
                 }}
               >
                 <span style={{ width: '1.5rem', height: '1px', background: 'var(--sand)', opacity: 0.5, display: 'inline-block' }} />
-                Timeline
+                {'Timeline'}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -556,7 +568,7 @@ export default function About() {
                   marginBottom: '1.25rem',
                 }}>
                   <span style={{ width: '1.5rem', height: '1px', background: 'var(--sand)', opacity: 0.5, display: 'inline-block' }} />
-                  Off-screen
+                  {'Off-screen'}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {[
