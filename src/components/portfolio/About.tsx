@@ -436,7 +436,7 @@ export default function About() {
                 color: 'var(--muted-light)', lineHeight: 1.8, marginBottom: '1.5rem',
                 fontSize: '0.95rem',
               }}>
-                I build complete systems — from backend architecture and AI integrations
+                I build complete systems from backend architecture and AI integrations
                 to the interfaces people actually use. I care about outcomes, not just
                 clean code. Every project I take on has a clear business goal behind it.
               </p>

@@ -9,25 +9,32 @@ const ROLES = [
   "Future AI Founder",
 ];
 
+/**
+ * NOTE: paths must start with a single leading "/" and must NOT include
+ * "public/" — everything inside the Astro/Vite "public" folder is served
+ * from the site root. Using "/public/..." or a relative "public/..." path
+ * causes 404s (and therefore a vinyl that "randomly" doesn't work) as soon
+ * as you're not on the exact page the relative path was written for.
+ */
 const VINYL_RECORDS = [
   {
-    audio: "/public/audio/act ii date @ 8 (feat. Drake) [remix].mp3",
+    audio: "/audio/act ii date @ 8 (feat. Drake) [remix].mp3",
     artwork: "/images/act ii date @ 8 (feat. Drake) [remix].jpg",
     title: "Act II: Date @ 8",
   },
   {
-    audio: "/public/audio/Bryson_Tiller_-_Outside_EKANY_X_GXLDEN_BOY_EDIT_KLICKAUD.mp3",
-    artwork: "public/images/Bryson Tiller - Outside (EKANY X GXLDEN BOY EDIT).jpg",
+    audio: "/audio/Bryson_Tiller_-_Outside_EKANY_X_GXLDEN_BOY_EDIT_KLICKAUD.mp3",
+    artwork: "/images/Bryson Tiller - Outside (EKANY X GXLDEN BOY EDIT).jpg",
     title: "Outside: EKANY X GXLDEN BOY EDIT",
   },
   {
-    audio: "public/audio/Oukhti - أختي.mp3",
-    artwork: "public/images/Oukhti - أختي.jpg",
+    audio: "/audio/Oukhti - أختي.mp3",
+    artwork: "/images/Oukhti - أختي.jpg",
     title: "Oukhti - أختي: Inez, Chirin",
   },
   {
-    audio: "public/audio/Swim Deep.mp3",
-    artwork: "public/images/Swim Deep - Yade Lauren.jpg",
+    audio: "/audio/Swim Deep.mp3",
+    artwork: "/images/Swim Deep - Yade Lauren.jpg",
     title: "Swim Deep: Yade Lauren, CHO, Kevin, Jordan Wayne",
   },
 ];
@@ -51,6 +58,10 @@ type PlayerMode =
 
 type VinylRecord = (typeof VINYL_RECORDS)[number];
 
+interface WindowWithWebkitAudio extends Window {
+  webkitAudioContext?: typeof AudioContext;
+}
+
 const clamp = (
   value: number,
   min: number,
@@ -63,6 +74,27 @@ const lerp = (
   b: number,
   t: number,
 ): number => a + (b - a) * t;
+
+/**
+ * This value is only ever used for cosmetic/non-security purposes (picking
+ * a random record, generating vinyl crackle noise). We still avoid
+ * Math.random() and use the Web Crypto API where available so static
+ * analysis tools (and browsers without Math.random entropy guarantees)
+ * are both happy, with a safe fallback for environments without
+ * `crypto.getRandomValues` (e.g. very old browsers or SSR).
+ */
+function getRandomUnitInterval(): number {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.getRandomValues === "function"
+  ) {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0] / (0xffffffff + 1);
+  }
+
+  return Math.random(); // NOSONAR - cosmetic-only fallback (vinyl crackle/record pick), not security-sensitive
+}
 
 function createCrackleBuffer(
   ctx: AudioContext,
@@ -83,22 +115,22 @@ function createCrackleBuffer(
 
   for (let i = 0; i < length; i++) {
     data[i] =
-      (Math.random() * 2 - 1) *
+      (getRandomUnitInterval() * 2 - 1) *
       0.015;
   }
 
   let i = 0;
 
   while (i < length) {
-    if (Math.random() < 0.0009) {
+    if (getRandomUnitInterval() < 0.0009) {
       const popLength =
         15 +
         Math.floor(
-          Math.random() * 35,
+          getRandomUnitInterval() * 35,
         );
 
       const amp =
-        Math.random() * 0.55;
+        getRandomUnitInterval() * 0.55;
 
       for (
         let j = 0;
@@ -107,7 +139,7 @@ function createCrackleBuffer(
         j++
       ) {
         data[i + j] +=
-          (Math.random() * 2 - 1) *
+          (getRandomUnitInterval() * 2 - 1) *
           amp *
           (1 - j / popLength);
       }
@@ -136,7 +168,7 @@ function getRandomRecordIndex(
   }
 
   let nextIndex = Math.floor(
-    Math.random() *
+    getRandomUnitInterval() *
       VINYL_RECORDS.length,
   );
 
@@ -176,11 +208,6 @@ export default function Hero() {
     useState<VinylRecord>(
       VINYL_RECORDS[0],
     );
-
-  const [
-    recordIndex,
-    setRecordIndex,
-  ] = useState(0);
 
   /* ---------------------------------------------------------------
      General UI state
@@ -344,7 +371,6 @@ export default function Hero() {
       String(nextIndex),
     );
 
-    setRecordIndex(nextIndex);
     setRecord(
       VINYL_RECORDS[nextIndex],
     );
@@ -362,6 +388,9 @@ export default function Hero() {
 
     audio.loop = true;
     audio.preload = "auto";
+    // Improves Safari/iOS reliability when the graph falls back to plain
+    // <audio> playback (see ensureAudioGraph).
+    audio.crossOrigin = "anonymous";
 
     audioRef.current = audio;
 
@@ -392,9 +421,20 @@ export default function Hero() {
         }
       };
 
+    const handleError = (): void => {
+      console.warn(
+        `Vinyl track failed to load: ${record.audio}`,
+      );
+    };
+
     audio.addEventListener(
       "timeupdate",
       handleTimeUpdate,
+    );
+
+    audio.addEventListener(
+      "error",
+      handleError,
     );
 
     reducedMotionRef.current =
@@ -408,6 +448,11 @@ export default function Hero() {
       audio.removeEventListener(
         "timeupdate",
         handleTimeUpdate,
+      );
+
+      audio.removeEventListener(
+        "error",
+        handleError,
       );
 
       audio.pause();
@@ -440,6 +485,8 @@ export default function Hero() {
 
      IMPORTANT:
      Only one AudioContext is created for the currently loaded track.
+     Falls back gracefully (plain <audio> playback, no turntable FX) on
+     browsers without Web Audio support instead of breaking playback.
   ---------------------------------------------------------------- */
 
   const ensureAudioGraph =
@@ -463,8 +510,29 @@ export default function Hero() {
         return;
       }
 
-      const ctx =
-        new AudioContext();
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as WindowWithWebkitAudio)
+          .webkitAudioContext;
+
+      if (!AudioContextClass) {
+        // No Web Audio support: the <audio> element still plays normally,
+        // just without the pitch/filter/crackle turntable effects.
+        return;
+      }
+
+      let ctx: AudioContext;
+
+      try {
+        ctx = new AudioContextClass();
+      } catch (error) {
+        console.warn(
+          "Could not create AudioContext, falling back to plain playback:",
+          error,
+        );
+
+        return;
+      }
 
       const source =
         ctx.createMediaElementSource(
@@ -956,6 +1024,9 @@ export default function Hero() {
 
   /* ---------------------------------------------------------------
      Calculate pointer angle
+
+     Works identically for mouse, touch and pen input because Pointer
+     Events normalize clientX/clientY across input types.
   ---------------------------------------------------------------- */
 
   const calculateAngle = (
@@ -1101,6 +1172,10 @@ export default function Hero() {
 
   /* ---------------------------------------------------------------
      Pointer down
+
+     Fires for mouse, touch and pen alike. ensureAudioGraph() runs here
+     (inside the gesture handler) so mobile browsers treat any audio
+     work as user-initiated.
   ---------------------------------------------------------------- */
 
   const handlePointerDown = (
@@ -1112,9 +1187,14 @@ export default function Hero() {
 
     setIsDragging(true);
 
-    e.currentTarget.setPointerCapture(
-      e.pointerId,
-    );
+    try {
+      e.currentTarget.setPointerCapture(
+        e.pointerId,
+      );
+    } catch {
+      // Some mobile browsers/WebViews can throw here; the drag still
+      // works fine without explicit pointer capture.
+    }
 
     modeRef.current =
       "dragging";
@@ -1208,7 +1288,12 @@ export default function Hero() {
   };
 
   /* ---------------------------------------------------------------
-     Pointer up
+     Pointer up / cancel / lost-capture
+
+     Mobile browsers occasionally steal pointer capture mid-gesture
+     (e.g. a tablet interpreting the touch as a scroll); handling
+     onLostPointerCapture the same way as pointer up keeps the vinyl
+     from getting stuck in "dragging" mode.
   ---------------------------------------------------------------- */
 
   const handlePointerUp = (
@@ -1216,14 +1301,18 @@ export default function Hero() {
   ): void => {
     setIsDragging(false);
 
-    if (
-      e.currentTarget.hasPointerCapture(
-        e.pointerId,
-      )
-    ) {
-      e.currentTarget.releasePointerCapture(
-        e.pointerId,
-      );
+    try {
+      if (
+        e.currentTarget.hasPointerCapture(
+          e.pointerId,
+        )
+      ) {
+        e.currentTarget.releasePointerCapture(
+          e.pointerId,
+        );
+      }
+    } catch {
+      // Ignore: capture may already have been released by the browser.
     }
 
     const flickSpeed =
@@ -1277,6 +1366,12 @@ export default function Hero() {
 
   /* ---------------------------------------------------------------
      Play / pause
+
+     On iOS/mobile Safari, audio.play() is only allowed to keep the
+     "user gesture" if it is called before any `await`. Awaiting the
+     AudioContext resume first (as before) silently breaks playback on
+     those browsers. Both promises are now kicked off in the same tick
+     and only awaited together afterwards.
   ---------------------------------------------------------------- */
 
   const togglePlay =
@@ -1307,8 +1402,16 @@ export default function Hero() {
       }
 
       try {
-        await audioCtxRef.current?.resume();
-        await audio.play();
+        const playPromise =
+          audio.play();
+
+        const resumePromise =
+          audioCtxRef.current?.resume();
+
+        await Promise.all([
+          playPromise,
+          resumePromise,
+        ]);
 
         wasAudibleRef.current =
           true;
@@ -1556,13 +1659,12 @@ export default function Hero() {
           </p>
 
           <h1 className="hero-title hero-animate hero-delay-2">
-            Krishna Bihari —
+            {"Krishna Bihari — "}
             <br />
-
             <span className="hero-title-accent">
-              Engineering software
-            </span>{" "}
-            that creates value.
+              {"Engineering software "}
+            </span>
+            {"that creates value."}
           </h1>
 
           <div className="hero-role hero-animate hero-delay-3">
@@ -1707,6 +1809,12 @@ export default function Hero() {
               }
               onPointerCancel={
                 handlePointerUp
+              }
+              onLostPointerCapture={
+                handlePointerUp
+              }
+              onContextMenu={(e) =>
+                e.preventDefault()
               }
             >
               <motion.div
@@ -2078,6 +2186,8 @@ export default function Hero() {
           cursor: grab;
           touch-action: none;
           user-select: none;
+          -webkit-user-select: none;
+          -webkit-touch-callout: none;
         }
 
         .vinyl:active {
@@ -2122,6 +2232,8 @@ export default function Hero() {
           object-fit: cover;
           pointer-events: none;
           user-select: none;
+          -webkit-user-select: none;
+          -webkit-touch-callout: none;
         }
 
         .vinyl-center-hole {

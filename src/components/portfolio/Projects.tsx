@@ -85,7 +85,7 @@ const FILTERS: { label: string; value: FilterValue }[] = [
   { label: 'In Progress', value: 'in-progress' },
 ];
 
-function StatusBadge({ status }: { status: ProjectStatus }) {
+function StatusBadge({ status }: Readonly<{ status: ProjectStatus }>) {
   const isDone = status === 'done';
 
   return (
@@ -144,6 +144,10 @@ export default function Projects() {
     }));
   };
 
+  const toggleProject = (projectId: string, isOpen: boolean) => {
+    setActiveProject(isOpen ? null : projectId);
+  };
+
   return (
     <section id="projects" className="section-padding">
       <div className="container-main">
@@ -197,6 +201,7 @@ export default function Projects() {
               return (
                 <button
                   key={value}
+                  type="button"
                   onClick={() => {
                     setFilter(value);
                     setActiveProject(null);
@@ -243,11 +248,16 @@ export default function Projects() {
                 />
 
                 <div
-                  onClick={() =>
-                    setActiveProject(
-                      isOpen ? null : project.id
-                    )
-                  }
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isOpen}
+                  onClick={() => toggleProject(project.id, isOpen)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleProject(project.id, isOpen);
+                    }
+                  }}
                   style={{
                     padding: '2rem 0',
                     cursor: 'pointer',
@@ -329,7 +339,6 @@ export default function Projects() {
                             background: 'rgba(255,255,255,0.03)',
                             marginBottom: '2rem',
                           }}
-                          onClick={(e) => e.stopPropagation()}
                         >
                           <img
                             src={project.images[currentSlide]}
@@ -344,12 +353,15 @@ export default function Projects() {
 
                           {/* Prev */}
                           <button
-                            onClick={() =>
+                            type="button"
+                            aria-label="Previous image"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               prevSlide(
                                 project.id,
                                 project.images.length
-                              )
-                            }
+                              );
+                            }}
                             style={{
                               position: 'absolute',
                               top: '50%',
@@ -371,12 +383,15 @@ export default function Projects() {
 
                           {/* Next */}
                           <button
-                            onClick={() =>
+                            type="button"
+                            aria-label="Next image"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               nextSlide(
                                 project.id,
                                 project.images.length
-                              )
-                            }
+                              );
+                            }}
                             style={{
                               position: 'absolute',
                               top: '50%',
@@ -407,15 +422,18 @@ export default function Projects() {
                               gap: '0.5rem',
                             }}
                           >
-                            {project.images.map((_, index) => (
+                            {project.images.map((image, index) => (
                               <button
-                                key={index}
-                                onClick={() =>
+                                key={`${project.id}-${image}`}
+                                type="button"
+                                aria-label={`Go to image ${index + 1}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setSlideIndexes((prev) => ({
                                     ...prev,
                                     [project.id]: index,
-                                  }))
-                                }
+                                  }));
+                                }}
                                 style={{
                                   width: '8px',
                                   height: '8px',
