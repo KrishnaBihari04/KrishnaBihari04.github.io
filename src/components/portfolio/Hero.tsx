@@ -843,7 +843,7 @@ export default function Hero() {
 
           <div className="hero-actions hero-animate hero-delay-5">
             <a
-              href="#work"
+              href="#projects"
               className="btn-primary"
             >
               View my work

@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 
 const navLinks = [
-  { label: 'Work',    href: '#projects' },
   { label: 'About',   href: '#about'    },
+  { label: 'Work',    href: '#projects' },
+  { label: 'Client',  href: '#client-portal'   },
   { label: 'Skills',  href: '#skills'   },
   { label: 'Contact', href: '#contact'  },
 ];
@@ -61,7 +62,7 @@ export default function Navbar() {
   const nameVisible = menuOpen;
 
   // FIX: omhoog van 20vh naar 12vh zodat naam ruim boven de lijn valt
-  const nameTop = menuOpen ? '12vh' : '-3rem';
+ const nameTop = menuOpen ? '16vh' : '-3rem';
 
   const nameTransitionDelay = '0s';
 
