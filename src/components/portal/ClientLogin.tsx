@@ -72,7 +72,8 @@ export default function ClientLogin() {
           width: '100%',
           maxWidth: '980px',
           display: 'grid',
-          gridTemplateColumns: '1.2fr 0.8fr',
+          // Wijziging: Schakelt automatisch over naar 1 kolom op mobiel en 2 op desktop
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
           border: '1px solid var(--border-mid)',
           background: 'rgba(10, 10, 10, 0.82)',
           borderRadius: '24px',
@@ -80,10 +81,10 @@ export default function ClientLogin() {
           boxShadow: '0 24px 65px rgba(0,0,0,0.25)',
         }}
       >
+        {/* Linkerpaneel (Welkomstekst) */}
         <div
           style={{
             padding: 'clamp(2rem, 4vw, 4rem)',
-            borderRight: '1px solid var(--border-mid)',
             background:
               'radial-gradient(110% 100% at 0% 0%, rgba(200,184,154,0.08), transparent 56%)',
           }}
@@ -208,6 +209,7 @@ export default function ClientLogin() {
           </div>
         </div>
 
+        {/* Rechterpaneel (Inlogformulier) */}
         <div
           style={{
             padding: 'clamp(1.5rem, 3vw, 2.5rem)',
@@ -215,6 +217,7 @@ export default function ClientLogin() {
             alignItems: 'center',
             justifyContent: 'center',
             background: 'rgba(255,255,255,0.015)',
+            borderTop: '1px solid var(--border-mid)', // Subtiele scheiding op mobiel
           }}
         >
           <div style={{ width: '100%', maxWidth: '420px' }}>
@@ -223,7 +226,7 @@ export default function ClientLogin() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '1rem',
+                marginBottom: '2rem',
               }}
             >
               <div>
@@ -280,63 +283,48 @@ export default function ClientLogin() {
 
               <input
                 id="client-code"
-                name="client-code"
                 type="text"
                 value={clientCode}
-                onChange={(event) => {
-                  setClientCode(event.target.value);
-                  if (error) setError('');
-                }}
-                placeholder="Enter your code"
-                autoComplete="off"
-                aria-invalid={Boolean(error)}
-                aria-describedby="client-code-helper"
+                onChange={(e) => setClientCode(e.target.value)}
+                disabled={isSubmitting}
+                placeholder="Enter code..."
                 style={{
                   width: '100%',
+                  padding: '0.85rem 1rem',
                   borderRadius: '12px',
-                  border: error ? '1px solid rgba(220, 96, 96, 0.9)' : '1px solid var(--border-mid)',
-                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid var(--border-mid)',
+                  background: 'rgba(255,255,255,0.03)',
                   color: 'var(--soft-white)',
-                  padding: '0.92rem 1rem',
                   fontSize: '1rem',
+                  marginBottom: '0.5rem',
                   outline: 'none',
-                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                  boxShadow: error ? '0 0 0 3px rgba(220,96,96,0.12)' : 'none',
+                  boxSizing: 'border-box',
                 }}
               />
 
-              <div
-                id="client-code-helper"
-                style={{
-                  minHeight: '1.5rem',
-                  marginTop: '0.6rem',
-                  fontSize: '0.78rem',
-                  color: error ? '#d7a0a0' : 'var(--muted-light)',
-                }}
-              >
-                {error || helperText}
-              </div>
+              {error && (
+                <p style={{ color: '#ff6b6b', fontSize: '0.82rem', marginBottom: '1rem', marginTop: '0.25rem' }}>
+                  {error}
+                </p>
+              )}
+
+              <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginBottom: '1.75rem' }}>
+                {helperText}
+              </p>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
+                className="btn-primary"
                 style={{
                   width: '100%',
-                  marginTop: '1.15rem',
-                  border: 'none',
+                  padding: '0.85rem',
                   borderRadius: '12px',
-                  background: isSubmitting ? 'var(--forest-mid)' : 'var(--forest-bright)',
-                  color: 'var(--soft-white)',
-                  padding: '0.95rem 1rem',
-                  fontSize: '0.96rem',
-                  fontWeight: 500,
-                  letterSpacing: '0.02em',
-                  cursor: isSubmitting ? 'wait' : 'pointer',
-                  transition: 'transform 0.2s ease, opacity 0.2s ease',
-                  opacity: isSubmitting ? 0.8 : 1,
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  border: 'none',
                 }}
               >
-                {isSubmitting ? 'Validating access...' : isValid ? 'Access granted' : 'Open dashboard'}
+                {isSubmitting ? 'Verifying...' : 'Access Workspace'}
               </button>
             </form>
           </div>

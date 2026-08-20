@@ -9,7 +9,8 @@ export default function ClientPortalSection() {
             borderRadius: '22px',
             padding: 'clamp(1.5rem, 3vw, 3rem)',
             display: 'grid',
-            gridTemplateColumns: '1.1fr 0.9fr',
+            // Wijziging: Schakelt automatisch over naar 1 kolom op mobiel en 2 kolommen op desktop
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
             gap: 'clamp(1.5rem, 4vw, 3rem)',
             alignItems: 'center',
             boxShadow: '0 18px 45px rgba(0,0,0,0.18)',
@@ -40,7 +41,7 @@ export default function ClientPortalSection() {
               review timelines, and keep up with the project status in one focused place.
             </p>
 
-            <a href="/client" className="btn-primary">
+            <a href="/client" className="btn-primary" style={{ display: 'inline-block' }}>
               Access client portal
             </a>
           </div>
@@ -51,6 +52,8 @@ export default function ClientPortalSection() {
               background: 'rgba(255,255,255,0.02)',
               borderRadius: '18px',
               padding: '1.25rem',
+              width: '100%', // Zorgt dat de kaart netjes uitlijnt op mobiel
+              boxSizing: 'border-box',
             }}
           >
             <div
@@ -94,6 +97,7 @@ export default function ClientPortalSection() {
                   fontSize: '0.64rem',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
+                  whiteSpace: 'nowrap', // Voorkomt dat de badge lelijk afbreekt
                 }}
               >
                 In development
