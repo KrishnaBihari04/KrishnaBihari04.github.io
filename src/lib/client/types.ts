@@ -1,5 +1,12 @@
-export type ClientStatus = 'active' | 'paused' | 'completed';
-export type TimelineStatus = 'completed' | 'active' | 'upcoming';
+export type ClientStatus = "active" | "paused" | "completed";
+export type TimelineStatus = "completed" | "active" | "upcoming";
+
+export type ProjectCategory =
+  | "web-development"
+  | "redesign"
+  | "saas"
+  | "ai-tool"
+  | "ai-automation";
 
 export type ClientRecord = {
   id: string;
@@ -16,6 +23,7 @@ export type ProjectRecord = {
   name: string;
   description: string;
   type: string;
+  category: ProjectCategory;
   status: ClientStatus | string;
   phase: string;
   progress: number;
@@ -45,7 +53,14 @@ export type ProjectHoursRecord = {
 
 export type ClientPortalData = {
   client: ClientRecord;
+
+  // Backwards-compatible primary project.
+  // Phase 3 will remove the need for this field.
   project: ProjectRecord;
+
+  // New scalable project collection.
+  projects: ProjectRecord[];
+
   timeline: TimelineRecord[];
   hours: ProjectHoursRecord;
 };
@@ -57,4 +72,42 @@ export type ClientSession = {
   expiresAt: number;
 };
 
-export const DEMO_CLIENT_CODE = 'DEMO-2026';
+export const DEMO_CLIENT_CODE = "DEMO-2026";
+
+export function normalizeProjectCategory(
+  value?: string | null,
+): ProjectCategory {
+  const normalized = value?.trim().toLowerCase();
+
+  switch (normalized) {
+    case "web-development":
+    case "web development":
+    case "website development":
+    case "website":
+    case "web application":
+      return "web-development";
+
+    case "redesign":
+    case "website redesign":
+    case "web redesign":
+      return "redesign";
+
+    case "saas":
+    case "saas platform":
+      return "saas";
+
+    case "ai-tool":
+    case "ai tool":
+    case "ai application":
+      return "ai-tool";
+
+    case "ai-automation":
+    case "ai automation":
+    case "automation":
+    case "ai workflow":
+      return "ai-automation";
+
+    default:
+      return "web-development";
+  }
+}

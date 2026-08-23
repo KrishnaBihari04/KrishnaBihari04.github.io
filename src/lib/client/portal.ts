@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+
 import { isDemoClientCode } from './auth';
 
 import type {
@@ -9,7 +10,24 @@ import type {
   TimelineRecord,
 } from './types';
 
-import { DEMO_CLIENT_CODE } from './types';
+import {
+  DEMO_CLIENT_CODE,
+  normalizeProjectCategory,
+} from './types';
+
+const fallbackProject: ProjectRecord = {
+  id: 'demo-project-id',
+  client_id: 'demo-client-id',
+  name: 'Website Redesign',
+  description:
+    'A sanitized project demonstration showing progress, milestones, and delivery status.',
+  type: 'Web Application',
+  category: 'web-development',
+  status: 'In Development',
+  phase: 'Development',
+  progress: 68,
+  expected_launch: '',
+};
 
 const fallbackPortalData: ClientPortalData = {
   client: {
@@ -19,18 +37,9 @@ const fallbackPortalData: ClientPortalData = {
     client_code: DEMO_CLIENT_CODE,
   },
 
-  project: {
-    id: 'demo-project-id',
-    client_id: 'demo-client-id',
-    name: 'Website Redesign',
-    description:
-      'A sanitized project demonstration showing progress, milestones, and delivery status.',
-    type: 'Web Application',
-    status: 'In Development',
-    phase: 'Development',
-    progress: 68,
-    expected_launch: '',
-  },
+  project: fallbackProject,
+
+  projects: [fallbackProject],
 
   timeline: [
     {
@@ -43,6 +52,7 @@ const fallbackPortalData: ClientPortalData = {
       date: '',
       order: 1,
     },
+
     {
       id: 'tl-2',
       project_id: 'demo-project-id',
@@ -53,6 +63,7 @@ const fallbackPortalData: ClientPortalData = {
       date: '',
       order: 2,
     },
+
     {
       id: 'tl-3',
       project_id: 'demo-project-id',
@@ -63,6 +74,7 @@ const fallbackPortalData: ClientPortalData = {
       date: '',
       order: 3,
     },
+
     {
       id: 'tl-4',
       project_id: 'demo-project-id',
@@ -73,6 +85,7 @@ const fallbackPortalData: ClientPortalData = {
       date: '',
       order: 4,
     },
+
     {
       id: 'tl-5',
       project_id: 'demo-project-id',
@@ -146,7 +159,12 @@ async function fetchProject(
     return null;
   }
 
-  return data as ProjectRecord;
+  const project = data as ProjectRecord;
+
+  return {
+    ...project,
+    category: normalizeProjectCategory(project.category),
+  };
 }
 
 function mapTimeline(
@@ -258,6 +276,7 @@ export async function fetchPortalDataByClientCode(
   return {
     client,
     project,
+    projects: [project],
     timeline,
     hours: hours ?? createDefaultHours(project.id),
   };
