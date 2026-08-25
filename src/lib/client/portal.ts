@@ -27,6 +27,7 @@ const fallbackProject: ProjectRecord = {
   phase: 'Development',
   progress: 68,
   expected_launch: '',
+  images: [],
 };
 
 const fallbackPortalData: ClientPortalData = {
@@ -164,6 +165,13 @@ async function fetchProject(
   return {
     ...project,
     category: normalizeProjectCategory(project.category),
+    images: Array.isArray(project.images)
+      ? project.images.filter(
+          (image): image is string =>
+            typeof image === 'string' &&
+            image.trim().length > 0,
+        )
+      : [],
   };
 }
 

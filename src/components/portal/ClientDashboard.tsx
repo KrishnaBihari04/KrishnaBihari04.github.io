@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import ProjectGallery from './ProjectGallery';
 import ProjectOverview from './ProjectOverview';
 import ProjectProgress from './ProjectProgress';
 import ProjectTimeline from './ProjectTimeline';
@@ -11,10 +12,13 @@ import {
 } from '../../lib/client/auth';
 
 import { fetchPortalDataByClientCode } from '../../lib/client/portal';
+
 import type { ClientPortalData } from '../../lib/client/types';
 
 export default function ClientDashboard() {
-  const [portalData, setPortalData] = useState<ClientPortalData | null>(null);
+  const [portalData, setPortalData] =
+    useState<ClientPortalData | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -29,7 +33,9 @@ export default function ClientDashboard() {
 
     const load = async () => {
       try {
-        const data = await fetchPortalDataByClientCode(session.clientCode);
+        const data = await fetchPortalDataByClientCode(
+          session.clientCode,
+        );
 
         if (!data) {
           setError(
@@ -244,6 +250,10 @@ export default function ClientDashboard() {
   const project = portalData.project;
   const hours = portalData.hours;
 
+  const projectImages = Array.isArray(project.images)
+    ? project.images
+    : [];
+
   return (
     <>
       <style>{`
@@ -344,6 +354,10 @@ export default function ClientDashboard() {
             minmax(260px, 0.8fr);
         }
 
+        .portal-dashboard__gallery {
+          margin-bottom: 1.25rem;
+        }
+
         @media (max-width: 920px) {
           .portal-dashboard__primary-grid,
           .portal-dashboard__secondary-grid {
@@ -373,6 +387,10 @@ export default function ClientDashboard() {
           .portal-dashboard__primary-grid,
           .portal-dashboard__secondary-grid {
             gap: 0.85rem;
+          }
+
+          .portal-dashboard__gallery {
+            margin-bottom: 0.85rem;
           }
         }
 
@@ -460,6 +478,15 @@ export default function ClientDashboard() {
               status={project.status}
             />
           </div>
+
+          {projectImages.length > 0 && (
+            <div className="portal-dashboard__gallery">
+              <ProjectGallery
+                images={projectImages}
+                projectName={project.name}
+              />
+            </div>
+          )}
 
           <div className="portal-dashboard__secondary-grid">
             <ProjectTimeline

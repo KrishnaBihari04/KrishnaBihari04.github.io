@@ -1,6 +1,12 @@
-export type ClientStatus = 'active' | 'paused' | 'completed';
+export type ClientStatus =
+  | 'active'
+  | 'paused'
+  | 'completed';
 
-export type TimelineStatus = 'completed' | 'active' | 'upcoming';
+export type TimelineStatus =
+  | 'completed'
+  | 'active'
+  | 'upcoming';
 
 export type ProjectCategory =
   | 'web-development'
@@ -29,6 +35,10 @@ export type ProjectRecord = {
   phase: string;
   progress: number;
   expected_launch: string;
+
+  // Client-visible project media.
+  images: string[];
+
   created_at?: string;
   updated_at?: string;
 };
@@ -42,6 +52,7 @@ export type TimelineRecord = {
   date: string;
   order: number;
   created_at?: string;
+  updated_at?: string;
 };
 
 export type ProjectHoursRecord = {
