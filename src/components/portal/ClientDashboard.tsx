@@ -11,7 +11,6 @@ import {
 } from '../../lib/client/auth';
 
 import { fetchPortalDataByClientCode } from '../../lib/client/portal';
-
 import type { ClientPortalData } from '../../lib/client/types';
 
 export default function ClientDashboard() {
@@ -251,7 +250,10 @@ export default function ClientDashboard() {
         .portal-dashboard {
           width: 100%;
           min-height: 100svh;
-          padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 1.25rem) 4rem;
+          padding:
+            clamp(1rem, 3vw, 2rem)
+            clamp(1rem, 3vw, 1.25rem)
+            4rem;
         }
 
         .portal-dashboard__container {
@@ -266,7 +268,9 @@ export default function ClientDashboard() {
           justify-content: space-between;
           gap: 1rem;
           margin-bottom: 1.25rem;
-          padding: clamp(1rem, 2.5vw, 1.2rem) clamp(1rem, 2.5vw, 1.25rem);
+          padding:
+            clamp(1rem, 2.5vw, 1.2rem)
+            clamp(1rem, 2.5vw, 1.25rem);
           border: 1px solid var(--border-mid);
           border-radius: 18px;
           background: rgba(10, 10, 10, 0.78);
@@ -328,12 +332,16 @@ export default function ClientDashboard() {
         }
 
         .portal-dashboard__primary-grid {
-          grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
+          grid-template-columns:
+            minmax(0, 1.4fr)
+            minmax(260px, 0.9fr);
           margin-bottom: 1.25rem;
         }
 
         .portal-dashboard__secondary-grid {
-          grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+          grid-template-columns:
+            minmax(0, 1.2fr)
+            minmax(260px, 0.8fr);
         }
 
         @media (max-width: 920px) {
@@ -436,6 +444,7 @@ export default function ClientDashboard() {
               project={{
                 name: project.name,
                 client: portalData.client.company,
+                category: project.category,
                 type: project.type,
                 status: project.status,
                 phase: project.phase,
