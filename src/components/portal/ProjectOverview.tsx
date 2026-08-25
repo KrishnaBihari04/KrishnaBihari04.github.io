@@ -1,7 +1,9 @@
+import type { ProjectCategory } from '../../lib/client/types';
+
 type ProjectOverviewItem = {
   readonly name: string;
   readonly client: string;
-  readonly category: string;
+  readonly category: ProjectCategory;
   readonly type: string;
   readonly status: string;
   readonly phase: string;
@@ -20,29 +22,33 @@ type CategoryConfig = {
   readonly description: string;
 };
 
-const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
+const CATEGORY_CONFIG: Record<ProjectCategory, CategoryConfig> = {
   'web-development': {
     label: 'Web Development',
     shortLabel: 'Web',
-    description: 'Custom website development and digital experiences.',
+    description:
+      'Custom website development and digital experiences.',
   },
 
-  'web-redesign': {
+  redesign: {
     label: 'Web Redesign',
     shortLabel: 'Redesign',
-    description: 'A visual and functional redesign of an existing website.',
+    description:
+      'A visual and functional redesign of an existing website.',
   },
 
   saas: {
     label: 'SaaS',
     shortLabel: 'SaaS',
-    description: 'A software product built for ongoing use and scalability.',
+    description:
+      'A software product built for ongoing use and scalability.',
   },
 
   'ai-tool': {
     label: 'AI Tool',
     shortLabel: 'AI Tool',
-    description: 'An AI-powered product or intelligent software experience.',
+    description:
+      'An AI-powered product or intelligent software experience.',
   },
 
   'ai-automation': {
@@ -53,24 +59,40 @@ const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
   },
 };
 
-const normalizeCategory = (category: string) =>
-  category
-    .trim()
-    .toLowerCase()
-    .replace(/_/g, '-')
-    .replace(/\s+/g, '-');
+const normalizeCategory = (
+  category: ProjectCategory,
+): ProjectCategory => {
+  switch (category) {
+    case 'web-development':
+      return 'web-development';
+
+    case 'redesign':
+      return 'redesign';
+
+    case 'saas':
+      return 'saas';
+
+    case 'ai-tool':
+      return 'ai-tool';
+
+    case 'ai-automation':
+      return 'ai-automation';
+
+    default:
+      return 'web-development';
+  }
+};
 
 export default function ProjectOverview({
   project,
 }: ProjectOverviewProps) {
   const categoryKey = normalizeCategory(project.category);
+  const category = CATEGORY_CONFIG[categoryKey];
 
-  const category =
-    CATEGORY_CONFIG[categoryKey] ?? {
-      label: project.category || 'Project',
-      shortLabel: project.category || 'Project',
-      description: 'Project workspace',
-    };
+  const progress = Math.min(
+    Math.max(project.progress, 0),
+    100,
+  );
 
   return (
     <section
@@ -111,7 +133,11 @@ export default function ProjectOverview({
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ minWidth: 0 }}>
+          <div
+            style={{
+              minWidth: 0,
+            }}
+          >
             <p
               style={{
                 fontSize: '0.68rem',
@@ -144,8 +170,10 @@ export default function ProjectOverview({
               gap: '0.55rem',
               padding: '0.5rem 0.75rem',
               borderRadius: '999px',
-              border: '1px solid rgba(200, 184, 154, 0.18)',
-              background: 'rgba(200, 184, 154, 0.06)',
+              border:
+                '1px solid rgba(200, 184, 154, 0.18)',
+              background:
+                'rgba(200, 184, 154, 0.06)',
               color: 'var(--sand-light)',
               fontSize: '0.68rem',
               letterSpacing: '0.08em',
@@ -160,7 +188,8 @@ export default function ProjectOverview({
                 height: '7px',
                 borderRadius: '50%',
                 background: 'var(--sand-light)',
-                boxShadow: '0 0 0 4px rgba(200, 184, 154, 0.08)',
+                boxShadow:
+                  '0 0 0 4px rgba(200, 184, 154, 0.08)',
               }}
             />
 
@@ -198,8 +227,10 @@ export default function ProjectOverview({
             <div
               key={item.label}
               style={{
-                border: '1px solid rgba(255,255,255,0.05)',
-                background: 'rgba(255,255,255,0.02)',
+                border:
+                  '1px solid rgba(255,255,255,0.05)',
+                background:
+                  'rgba(255,255,255,0.02)',
                 borderRadius: '12px',
                 padding: '0.85rem 1rem',
               }}
@@ -235,8 +266,10 @@ export default function ProjectOverview({
             marginBottom: '1.5rem',
             padding: '0.95rem 1rem',
             borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.05)',
-            background: 'rgba(255,255,255,0.018)',
+            border:
+              '1px solid rgba(255,255,255,0.05)',
+            background:
+              'rgba(255,255,255,0.018)',
           }}
         >
           <div
@@ -290,7 +323,7 @@ export default function ProjectOverview({
               fontFamily: 'var(--font-body)',
             }}
           >
-            {project.progress}%
+            {progress}%
           </div>
         </div>
 
@@ -306,10 +339,7 @@ export default function ProjectOverview({
         >
           <div
             style={{
-              width: `${Math.min(
-                Math.max(project.progress, 0),
-                100,
-              )}%`,
+              width: `${progress}%`,
               height: '100%',
               background:
                 'linear-gradient(90deg, var(--forest-bright), var(--sand-light))',
