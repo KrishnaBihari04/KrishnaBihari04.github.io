@@ -1,88 +1,42 @@
+import type { ProjectCategory } from '../../lib/client/types';
+import { PROJECT_CATEGORY_CONFIG } from './projectCategoryConfig';
+
 type ProjectProgressProps = {
   readonly progress: number;
   readonly phase: string;
   readonly status: string;
+  readonly category: ProjectCategory;
 };
-
-type ProgressStage = {
-  readonly key: string;
-  readonly label: string;
-};
-
-const DEFAULT_STAGES: ProgressStage[] = [
-  {
-    key: 'discovery',
-    label: 'Discovery',
-  },
-  {
-    key: 'design',
-    label: 'Design',
-  },
-  {
-    key: 'development',
-    label: 'Development',
-  },
-  {
-    key: 'testing',
-    label: 'Testing',
-  },
-  {
-    key: 'launch',
-    label: 'Launch',
-  },
-];
 
 const normalizePhase = (phase: string) =>
   phase.trim().toLowerCase();
 
 function getActiveStageIndex(
+  stages: readonly string[],
   phase: string,
 ): number {
-  const normalized = normalizePhase(phase);
+  const normalizedPhase = normalizePhase(phase);
 
-  const exactIndex = DEFAULT_STAGES.findIndex(
+  const exactIndex = stages.findIndex(
     (stage) =>
-      stage.key === normalized ||
-      stage.label.toLowerCase() === normalized,
+      normalizePhase(stage) === normalizedPhase,
   );
 
   if (exactIndex >= 0) {
     return exactIndex;
   }
 
-  if (
-    normalized.includes('discovery') ||
-    normalized.includes('planning')
-  ) {
-    return 0;
-  }
+  const keywordIndex = stages.findIndex((stage) => {
+    const normalizedStage = normalizePhase(stage);
 
-  if (normalized.includes('design')) {
-    return 1;
-  }
+    return (
+      normalizedPhase.includes(normalizedStage) ||
+      normalizedStage.includes(normalizedPhase)
+    );
+  });
 
-  if (
-    normalized.includes('development') ||
-    normalized.includes('build') ||
-    normalized.includes('implementation')
-  ) {
-    return 2;
-  }
-
-  if (
-    normalized.includes('test') ||
-    normalized.includes('qa') ||
-    normalized.includes('quality')
-  ) {
-    return 3;
-  }
-
-  if (
-    normalized.includes('launch') ||
-    normalized.includes('deployment') ||
-    normalized.includes('deployed')
-  ) {
-    return 4;
+  if (keywordIndex >= 0) {
+    return keywordIndex;
   }
 
   return 0;
@@ -92,18 +46,22 @@ export default function ProjectProgress({
   progress,
   phase,
   status,
+  category,
 }: ProjectProgressProps) {
   const normalizedProgress = Math.min(
     Math.max(progress, 0),
     100,
   );
 
-  const activeStageIndex = getActiveStageIndex(phase);
+  const categoryConfig =
+    PROJECT_CATEGORY_CONFIG[category];
 
-  const completedStages =
-    normalizedProgress >= 100
-      ? DEFAULT_STAGES.length
-      : activeStageIndex;
+  const stages = categoryConfig.stages;
+
+  const activeStageIndex = getActiveStageIndex(
+    stages,
+    phase,
+  );
 
   return (
     <section
@@ -115,7 +73,8 @@ export default function ProjectProgress({
         borderRadius: '18px',
         background: 'rgba(10, 10, 10, 0.78)',
         padding: '1.5rem',
-        boxShadow: '0 20px 45px rgba(0, 0, 0, 0.16)',
+        boxShadow:
+          '0 20px 45px rgba(0, 0, 0, 0.16)',
       }}
     >
       <div
@@ -158,11 +117,11 @@ export default function ProjectProgress({
 
             <div
               style={{
-                fontSize: '1rem',
                 color: 'var(--soft-white)',
+                fontSize: '1rem',
               }}
             >
-              Delivery progress
+              {categoryConfig.label}
             </div>
           </div>
 
@@ -278,7 +237,7 @@ export default function ProjectProgress({
               gap: '0.65rem',
             }}
           >
-            {DEFAULT_STAGES.map((stage, index) => {
+            {stages.map((stage, index) => {
               const isCompleted =
                 normalizedProgress >= 100 ||
                 index < activeStageIndex;
@@ -289,7 +248,7 @@ export default function ProjectProgress({
 
               return (
                 <div
-                  key={stage.key}
+                  key={stage}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -322,9 +281,7 @@ export default function ProjectProgress({
                       fontSize: '0.7rem',
                     }}
                   >
-                    {isCompleted
-                      ? '✓'
-                      : index + 1}
+                    {isCompleted ? '✓' : index + 1}
                   </div>
 
                   <div
@@ -339,13 +296,14 @@ export default function ProjectProgress({
                   >
                     <span
                       style={{
-                        color: isCompleted || isActive
-                          ? 'var(--soft-white)'
-                          : 'var(--muted)',
+                        color:
+                          isCompleted || isActive
+                            ? 'var(--soft-white)'
+                            : 'var(--muted)',
                         fontSize: '0.88rem',
                       }}
                     >
-                      {stage.label}
+                      {stage}
                     </span>
 
                     <span
