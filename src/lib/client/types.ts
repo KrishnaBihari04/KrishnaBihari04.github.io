@@ -35,6 +35,7 @@ export type ProjectRecord = {
   phase: string;
   progress: number;
   expected_launch: string;
+  live_demo_url?: string | null;
 
   // Client-visible project media.
   images: string[];

@@ -1,54 +1,44 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 
-import ProjectGallery from './ProjectGallery';
-import ProjectOverview from './ProjectOverview';
-import ProjectProgress from './ProjectProgress';
-import ProjectTimeline from './ProjectTimeline';
-import ProjectHours from './ProjectHours';
+import ProjectGallery from "./ProjectGallery";
+import ProjectOverview from "./ProjectOverview";
+import ProjectProgress from "./ProjectProgress";
+import ProjectTimeline from "./ProjectTimeline";
+import ProjectHours from "./ProjectHours";
 
-import {
-  clearClientSession,
-  getClientSession,
-} from '../../lib/client/auth';
+import { clearClientSession, getClientSession } from "../../lib/client/auth";
 
-import { fetchPortalDataByClientCode } from '../../lib/client/portal';
+import { fetchPortalDataByClientCode } from "../../lib/client/portal";
 
-import type { ClientPortalData } from '../../lib/client/types';
+import type { ClientPortalData } from "../../lib/client/types";
 
 export default function ClientDashboard() {
-  const [portalData, setPortalData] =
-    useState<ClientPortalData | null>(null);
+  const [portalData, setPortalData] = useState<ClientPortalData | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const session = getClientSession();
 
     if (!session) {
       setLoading(false);
-      setError('Your session expired. Please sign in again.');
+      setError("Your session expired. Please sign in again.");
       return;
     }
 
     const load = async () => {
       try {
-        const data = await fetchPortalDataByClientCode(
-          session.clientCode,
-        );
+        const data = await fetchPortalDataByClientCode(session.clientCode);
 
         if (!data) {
-          setError(
-            'We could not load your project information at the moment.',
-          );
+          setError("We could not load your project information at the moment.");
           return;
         }
 
         setPortalData(data);
       } catch {
-        setError(
-          'We could not load your project information at the moment.',
-        );
+        setError("We could not load your project information at the moment.");
       } finally {
         setLoading(false);
       }
@@ -59,21 +49,19 @@ export default function ClientDashboard() {
 
   const initials = useMemo(() => {
     if (!portalData) {
-      return 'DP';
+      return "DP";
     }
 
     const name =
-      portalData.client.name ||
-      portalData.client.company ||
-      'Client';
+      portalData.client.name || portalData.client.company || "Client";
 
     return (
       name
-        .split(' ')
+        .split(" ")
         .filter(Boolean)
         .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() ?? '')
-        .join('') || 'C'
+        .map((part) => part[0]?.toUpperCase() ?? "")
+        .join("") || "C"
     );
   }, [portalData]);
 
@@ -81,14 +69,14 @@ export default function ClientDashboard() {
     clearClientSession();
 
     try {
-      await fetch('/api/client/logout', {
-        method: 'POST',
+      await fetch("/api/client/logout", {
+        method: "POST",
       });
     } catch {
       // Ignore API errors; local session is already cleared.
     }
 
-    window.location.href = '/client';
+    window.location.href = "/client";
   };
 
   if (loading) {
@@ -231,14 +219,10 @@ export default function ClientDashboard() {
             </div>
 
             <div className="portal-error-copy">
-              {error ||
-                'Something went wrong while loading this project.'}
+              {error || "Something went wrong while loading this project."}
             </div>
 
-            <a
-              href="/client"
-              className="btn-secondary portal-error-action"
-            >
+            <a href="/client" className="btn-secondary portal-error-action">
               Back to client login
             </a>
           </div>
@@ -250,9 +234,7 @@ export default function ClientDashboard() {
   const project = portalData.project;
   const hours = portalData.hours;
 
-  const projectImages = Array.isArray(project.images)
-    ? project.images
-    : [];
+  const projectImages = Array.isArray(project.images) ? project.images : [];
 
   return (
     <>
@@ -423,14 +405,9 @@ export default function ClientDashboard() {
 
       <main className="portal-dashboard">
         <div className="portal-dashboard__container">
-          <header
-            data-reveal
-            className="portal-dashboard__header"
-          >
+          <header data-reveal className="portal-dashboard__header">
             <div className="portal-dashboard__identity">
-              <div className="portal-dashboard__avatar">
-                {initials}
-              </div>
+              <div className="portal-dashboard__avatar">{initials}</div>
 
               <div className="portal-dashboard__identity-copy">
                 <div className="portal-dashboard__eyebrow">
@@ -448,9 +425,9 @@ export default function ClientDashboard() {
               onClick={handleLogout}
               className="btn-secondary portal-dashboard__logout"
               style={{
-                background: 'transparent',
-                border: '1px solid var(--border-mid)',
-                color: 'var(--soft-white)',
+                background: "transparent",
+                border: "1px solid var(--border-mid)",
+                color: "var(--soft-white)",
               }}
             >
               Log out
@@ -469,6 +446,7 @@ export default function ClientDashboard() {
                 progress: project.progress,
                 expectedLaunch: project.expected_launch,
                 description: project.description,
+                liveDemoUrl: project.live_demo_url,
               }}
             />
 

@@ -10,6 +10,7 @@ type ProjectOverviewItem = {
   readonly progress: number;
   readonly expectedLaunch: string;
   readonly description: string;
+  readonly liveDemoUrl?: string | null;
 };
 
 type ProjectOverviewProps = {
