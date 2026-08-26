@@ -1,29 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import ProjectGallery from './ProjectGallery';
-import ProjectOverview from './ProjectOverview';
-import ProjectProgress from './ProjectProgress';
-import ProjectTimeline from './ProjectTimeline';
-import ProjectHours from './ProjectHours';
-import ProjectCategoryFocus from './ProjectCategoryFocus';
+import ProjectGallery from "./ProjectGallery";
+import ProjectOverview from "./ProjectOverview";
+import ProjectProgress from "./ProjectProgress";
+import ProjectTimeline from "./ProjectTimeline";
+import ProjectHours from "./ProjectHours";
+import ProjectCategoryFocus from "./ProjectCategoryFocus";
 
-import {
-  clearProjectSession,
-  getProjectSession,
-} from '../../lib/client/auth';
+import { clearProjectSession, getProjectSession } from "../../lib/client/auth";
 
-import {
-  fetchPortalDataByProjectCode,
-} from '../../lib/client/portal';
+import { fetchPortalDataByProjectCode } from "../../lib/client/portal";
 
-import type { ClientPortalData } from '../../lib/client/types';
+import type { ClientPortalData } from "../../lib/client/types";
 
 export default function ClientDashboard() {
-  const [portalData, setPortalData] =
-    useState<ClientPortalData | null>(null);
+  const [portalData, setPortalData] = useState<ClientPortalData | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
@@ -31,34 +25,25 @@ export default function ClientDashboard() {
 
     if (!session) {
       setLoading(false);
-      setError(
-        'Your project session has expired. Please sign in again.',
-      );
+      setError("Your project session has expired. Please sign in again.");
       return;
     }
 
     const load = async () => {
       setLoading(true);
-      setError('');
+      setError("");
 
       try {
-        const data =
-          await fetchPortalDataByProjectCode(
-            session.projectCode,
-          );
+        const data = await fetchPortalDataByProjectCode(session.projectCode);
 
         if (!data) {
-          setError(
-            'We could not load this project workspace at the moment.',
-          );
+          setError("We could not load this project workspace at the moment.");
           return;
         }
 
         setPortalData(data);
       } catch {
-        setError(
-          'We could not load this project workspace at the moment.',
-        );
+        setError("We could not load this project workspace at the moment.");
       } finally {
         setLoading(false);
       }
@@ -71,19 +56,19 @@ export default function ClientDashboard() {
     clearProjectSession();
 
     try {
-      await fetch('/api/client/logout', {
-        method: 'POST',
+      await fetch("/api/client/logout", {
+        method: "POST",
       });
     } catch {
       // Ignore API errors; local session is already cleared.
     }
 
-    window.location.href = '/client';
+    window.location.href = "/client";
   };
 
   const handleRetry = () => {
     setPortalData(null);
-    setError('');
+    setError("");
     setLoading(true);
     setRetryKey((value) => value + 1);
   };
@@ -165,9 +150,7 @@ export default function ClientDashboard() {
 
         <main className="portal-loading">
           <div className="portal-loading-card">
-            <div className="portal-loading-label">
-              Loading
-            </div>
+            <div className="portal-loading-label">Loading</div>
 
             <div className="portal-loading-track">
               <div className="portal-loading-fill" />
@@ -246,8 +229,7 @@ export default function ClientDashboard() {
             </div>
 
             <div className="portal-error-copy">
-              {error ||
-                'Something went wrong while loading this project.'}
+              {error || "Something went wrong while loading this project."}
             </div>
 
             <div className="portal-error-actions">
@@ -259,10 +241,7 @@ export default function ClientDashboard() {
                 Try again
               </button>
 
-              <a
-                href="/client"
-                className="btn-secondary portal-error-action"
-              >
+              <a href="/client" className="btn-secondary portal-error-action">
                 Back to project login
               </a>
             </div>
@@ -275,12 +254,9 @@ export default function ClientDashboard() {
   const project = portalData.project;
   const hours = portalData.hours;
 
-  const projectImages = Array.isArray(project.images)
-    ? project.images
-    : [];
+  const projectImages = Array.isArray(project.images) ? project.images : [];
 
-  const projectCode =
-    project.project_code?.trim() || 'Project';
+  const projectCode = project.project_code?.trim() || "Project";
 
   return (
     <>
@@ -475,23 +451,16 @@ export default function ClientDashboard() {
 
       <main className="portal-dashboard">
         <div className="portal-dashboard__container">
-          <header
-            data-reveal
-            className="portal-dashboard__header"
-          >
+          <header data-reveal className="portal-dashboard__header">
             <div className="portal-dashboard__identity">
-              <div className="portal-dashboard__avatar">
-                PW
-              </div>
+              <div className="portal-dashboard__avatar">PW</div>
 
               <div className="portal-dashboard__identity-copy">
                 <div className="portal-dashboard__eyebrow">
                   Project workspace
                 </div>
 
-                <h1 className="portal-dashboard__title">
-                  {project.name}
-                </h1>
+                <h1 className="portal-dashboard__title">{project.name}</h1>
 
                 <div className="portal-dashboard__project-code">
                   {projectCode}
@@ -504,9 +473,9 @@ export default function ClientDashboard() {
               onClick={handleLogout}
               className="btn-secondary portal-dashboard__logout"
               style={{
-                background: 'transparent',
-                border: '1px solid var(--border-mid)',
-                color: 'var(--soft-white)',
+                background: "transparent",
+                border: "1px solid var(--border-mid)",
+                color: "var(--soft-white)",
               }}
             >
               Log out
@@ -517,18 +486,14 @@ export default function ClientDashboard() {
             <ProjectOverview
               project={{
                 name: project.name,
-                client: '',
                 category: project.category,
                 type: project.type,
                 status: project.status,
                 phase: project.phase,
                 progress: project.progress,
-                expectedLaunch:
-                  project.expected_launch,
-                description:
-                  project.description,
-                liveDemoUrl:
-                  project.live_demo_url,
+                expectedLaunch: project.expected_launch,
+                description: project.description,
+                liveDemoUrl: project.live_demo_url,
               }}
             />
 
@@ -541,28 +506,21 @@ export default function ClientDashboard() {
           </div>
 
           <div className="portal-dashboard__gallery">
-            <ProjectGallery
-              images={projectImages}
-              projectName={project.name}
-            />
+            <ProjectGallery images={projectImages} projectName={project.name} />
           </div>
 
           <div className="portal-dashboard__category-focus">
-            <ProjectCategoryFocus
-              category={project.category}
-            />
+            <ProjectCategoryFocus category={project.category} />
           </div>
 
           <div className="portal-dashboard__secondary-grid">
             <ProjectTimeline
-              items={portalData.timeline.map(
-                (item) => ({
-                  title: item.title,
-                  description: item.description,
-                  status: item.status,
-                  date: item.date,
-                }),
-              )}
+              items={portalData.timeline.map((item) => ({
+                title: item.title,
+                description: item.description,
+                status: item.status,
+                date: item.date,
+              }))}
             />
 
             <ProjectHours
@@ -570,8 +528,7 @@ export default function ClientDashboard() {
                 used: hours.hours_used,
                 allocated: hours.hours_allocated,
                 remaining: Math.max(
-                  hours.hours_allocated -
-                    hours.hours_used,
+                  hours.hours_allocated - hours.hours_used,
                   0,
                 ),
               }}

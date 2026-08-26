@@ -2,7 +2,6 @@ import type { ProjectCategory } from '../../lib/client/types';
 
 type ProjectOverviewItem = {
   readonly name: string;
-  readonly client: string;
   readonly category: ProjectCategory;
   readonly type: string;
   readonly status: string;
@@ -121,13 +120,16 @@ export default function ProjectOverview({
   );
 
   const expectedLaunch =
-    project.expectedLaunch?.trim() || 'Not scheduled';
+    project.expectedLaunch?.trim() ||
+    'Not scheduled';
 
   const projectStatus =
-    project.status?.trim() || 'Status unavailable';
+    project.status?.trim() ||
+    'Status unavailable';
 
   const projectPhase =
-    project.phase?.trim() || 'Not specified';
+    project.phase?.trim() ||
+    'Not specified';
 
   const projectDescription =
     project.description?.trim() ||
