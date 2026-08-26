@@ -1,5 +1,5 @@
 import type { ProjectCategory } from '../../lib/client/types';
-import { PROJECT_CATEGORY_CONFIG } from './projectCategoryConfig';
+
 import { getProjectCategoryConfig } from './projectCategoryConfig';
 
 type ProjectProgressProps = {
@@ -54,8 +54,8 @@ export default function ProjectProgress({
     100,
   );
 
- const categoryConfig =
-  getProjectCategoryConfig(category);
+  const categoryConfig =
+    getProjectCategoryConfig(category);
 
   const stages = categoryConfig.stages;
 
@@ -64,21 +64,31 @@ export default function ProjectProgress({
     phase,
   );
 
+  const currentPhase =
+    phase?.trim() || 'Not specified';
+
+  const currentStatus =
+    status?.trim() || 'Status unavailable';
+
   return (
     <section
       data-reveal
+      className="project-progress"
       style={{
         position: 'relative',
         overflow: 'hidden',
+        width: '100%',
+        minWidth: 0,
         border: '1px solid var(--border-mid)',
         borderRadius: '18px',
         background: 'rgba(10, 10, 10, 0.78)',
-        padding: '1.5rem',
+        padding: 'clamp(1.1rem, 3vw, 1.5rem)',
         boxShadow:
           '0 20px 45px rgba(0, 0, 0, 0.16)',
       }}
     >
       <div
+        aria-hidden="true"
         style={{
           position: 'absolute',
           inset: 0,
@@ -92,9 +102,11 @@ export default function ProjectProgress({
         style={{
           position: 'relative',
           zIndex: 1,
+          minWidth: 0,
         }}
       >
         <div
+          className="project-progress__header"
           style={{
             display: 'flex',
             alignItems: 'flex-start',
@@ -103,7 +115,11 @@ export default function ProjectProgress({
             marginBottom: '1.5rem',
           }}
         >
-          <div>
+          <div
+            style={{
+              minWidth: 0,
+            }}
+          >
             <div
               style={{
                 marginBottom: '0.5rem',
@@ -120,6 +136,7 @@ export default function ProjectProgress({
               style={{
                 color: 'var(--soft-white)',
                 fontSize: '1rem',
+                overflowWrap: 'anywhere',
               }}
             >
               {categoryConfig.label}
@@ -128,10 +145,12 @@ export default function ProjectProgress({
 
           <div
             style={{
+              flex: '0 0 auto',
               fontSize: 'clamp(2rem, 5vw, 3rem)',
               lineHeight: 1,
               color: 'var(--soft-white)',
               fontFamily: 'var(--font-body)',
+              whiteSpace: 'nowrap',
             }}
           >
             {normalizedProgress}%
@@ -162,6 +181,7 @@ export default function ProjectProgress({
         </div>
 
         <div
+          className="project-progress__current"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -176,7 +196,11 @@ export default function ProjectProgress({
               'rgba(255,255,255,0.018)',
           }}
         >
-          <div>
+          <div
+            style={{
+              minWidth: 0,
+            }}
+          >
             <div
               style={{
                 marginBottom: '0.25rem',
@@ -193,14 +217,16 @@ export default function ProjectProgress({
               style={{
                 color: 'var(--soft-white)',
                 fontSize: '0.95rem',
+                overflowWrap: 'anywhere',
               }}
             >
-              {phase}
+              {currentPhase}
             </div>
           </div>
 
           <div
             style={{
+              flex: '0 0 auto',
               padding: '0.4rem 0.65rem',
               borderRadius: '999px',
               border:
@@ -214,7 +240,7 @@ export default function ProjectProgress({
               whiteSpace: 'nowrap',
             }}
           >
-            {status}
+            {currentStatus}
           </div>
         </div>
 
@@ -254,6 +280,7 @@ export default function ProjectProgress({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.8rem',
+                    minWidth: 0,
                   }}
                 >
                   <div
@@ -282,10 +309,13 @@ export default function ProjectProgress({
                       fontSize: '0.7rem',
                     }}
                   >
-                    {isCompleted ? '✓' : index + 1}
+                    {isCompleted
+                      ? '✓'
+                      : index + 1}
                   </div>
 
                   <div
+                    className="project-progress__stage-content"
                     style={{
                       flex: 1,
                       minWidth: 0,
@@ -297,11 +327,13 @@ export default function ProjectProgress({
                   >
                     <span
                       style={{
+                        minWidth: 0,
                         color:
                           isCompleted || isActive
                             ? 'var(--soft-white)'
                             : 'var(--muted)',
                         fontSize: '0.88rem',
+                        overflowWrap: 'anywhere',
                       }}
                     >
                       {stage}
@@ -309,6 +341,7 @@ export default function ProjectProgress({
 
                     <span
                       style={{
+                        flex: '0 0 auto',
                         fontSize: '0.58rem',
                         letterSpacing: '0.1em',
                         textTransform: 'uppercase',
@@ -317,6 +350,7 @@ export default function ProjectProgress({
                           : isActive
                             ? 'var(--sand-light)'
                             : 'var(--muted)',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {isCompleted
@@ -332,6 +366,30 @@ export default function ProjectProgress({
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 480px) {
+          .project-progress__header {
+            align-items: flex-end;
+          }
+
+          .project-progress__current {
+            align-items: flex-start;
+          }
+
+          .project-progress__stage-content {
+            align-items: flex-start !important;
+            flex-direction: column;
+            gap: 0.15rem !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .project-progress {
+            border-radius: 15px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

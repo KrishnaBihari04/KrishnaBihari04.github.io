@@ -23,7 +23,10 @@ type CategoryConfig = {
   readonly description: string;
 };
 
-const CATEGORY_CONFIG: Record<ProjectCategory, CategoryConfig> = {
+const CATEGORY_CONFIG: Record<
+  ProjectCategory,
+  CategoryConfig
+> = {
   'web-development': {
     label: 'Web Development',
     shortLabel: 'Web',
@@ -87,7 +90,10 @@ const normalizeCategory = (
 export default function ProjectOverview({
   project,
 }: ProjectOverviewProps) {
-  const categoryKey = normalizeCategory(project.category);
+  const categoryKey = normalizeCategory(
+    project.category,
+  );
+
   const category = CATEGORY_CONFIG[categoryKey];
 
   const progress = Math.min(
@@ -95,20 +101,36 @@ export default function ProjectOverview({
     100,
   );
 
+  const expectedLaunch =
+    project.expectedLaunch?.trim() || 'Not scheduled';
+
+  const projectStatus =
+    project.status?.trim() || 'Status unavailable';
+
+  const projectPhase =
+    project.phase?.trim() || 'Not specified';
+
+  const projectDescription =
+    project.description?.trim() ||
+    'Project information is currently unavailable.';
+
   return (
     <section
       data-reveal
+      className="project-overview"
       style={{
         position: 'relative',
         border: '1px solid var(--border-mid)',
         background: 'rgba(10, 10, 10, 0.78)',
         borderRadius: '18px',
-        padding: '1.5rem',
+        padding: 'clamp(1.1rem, 3vw, 1.5rem)',
         overflow: 'hidden',
-        boxShadow: '0 20px 45px rgba(0, 0, 0, 0.18)',
+        boxShadow:
+          '0 20px 45px rgba(0, 0, 0, 0.18)',
       }}
     >
       <div
+        aria-hidden="true"
         style={{
           position: 'absolute',
           inset: 0,
@@ -125,6 +147,7 @@ export default function ProjectOverview({
         }}
       >
         <div
+          className="project-overview__header"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -137,6 +160,7 @@ export default function ProjectOverview({
           <div
             style={{
               minWidth: 0,
+              flex: '1 1 260px',
             }}
           >
             <p
@@ -154,7 +178,8 @@ export default function ProjectOverview({
             <h3
               style={{
                 margin: 0,
-                fontSize: 'clamp(1.6rem, 3vw, 2.3rem)',
+                fontSize:
+                  'clamp(1.55rem, 3vw, 2.3rem)',
                 lineHeight: 1.1,
                 color: 'var(--soft-white)',
                 overflowWrap: 'anywhere',
@@ -180,6 +205,9 @@ export default function ProjectOverview({
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
               whiteSpace: 'nowrap',
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             <span
@@ -187,6 +215,7 @@ export default function ProjectOverview({
               style={{
                 width: '7px',
                 height: '7px',
+                flex: '0 0 7px',
                 borderRadius: '50%',
                 background: 'var(--sand-light)',
                 boxShadow:
@@ -194,19 +223,18 @@ export default function ProjectOverview({
               }}
             />
 
-            {category.label}
+            <span
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {category.label}
+            </span>
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns:
-              'repeat(2, minmax(0, 1fr))',
-            gap: '0.9rem',
-            marginBottom: '1.5rem',
-          }}
-        >
+        <div className="project-overview__meta-grid">
           {[
             {
               label: 'Category',
@@ -214,20 +242,21 @@ export default function ProjectOverview({
             },
             {
               label: 'Current phase',
-              value: project.phase,
+              value: projectPhase,
             },
             {
               label: 'Current status',
-              value: project.status,
+              value: projectStatus,
             },
             {
               label: 'Expected launch',
-              value: project.expectedLaunch,
+              value: expectedLaunch,
             },
           ].map((item) => (
             <div
               key={item.label}
               style={{
+                minWidth: 0,
                 border:
                   '1px solid rgba(255,255,255,0.05)',
                 background:
@@ -250,9 +279,9 @@ export default function ProjectOverview({
 
               <div
                 style={{
-                  fontSize: '0.98rem',
+                  fontSize: '0.96rem',
                   color: 'var(--soft-white)',
-                  lineHeight: 1.4,
+                  lineHeight: 1.45,
                   overflowWrap: 'anywhere',
                 }}
               >
@@ -297,13 +326,13 @@ export default function ProjectOverview({
         </div>
 
         <div
+          className="project-overview__progress-header"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: '1rem',
             marginBottom: '1rem',
-            flexWrap: 'wrap',
           }}
         >
           <div
@@ -322,6 +351,7 @@ export default function ProjectOverview({
               fontSize: '1.5rem',
               color: 'var(--soft-white)',
               fontFamily: 'var(--font-body)',
+              whiteSpace: 'nowrap',
             }}
           >
             {progress}%
@@ -333,7 +363,8 @@ export default function ProjectOverview({
             width: '100%',
             height: '10px',
             borderRadius: '999px',
-            background: 'rgba(255,255,255,0.05)',
+            background:
+              'rgba(255,255,255,0.05)',
             overflow: 'hidden',
             marginBottom: '1.1rem',
           }}
@@ -360,9 +391,88 @@ export default function ProjectOverview({
             maxWidth: '60ch',
           }}
         >
-          {project.description}
+          {projectDescription}
         </p>
+
+        {project.liveDemoUrl && (
+          <div
+            className="project-overview__actions"
+            style={{
+              marginTop: '1.5rem',
+              display: 'flex',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <a
+              href={project.liveDemoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                minHeight: '44px',
+              }}
+            >
+              View Live Demo
+              <span
+                aria-hidden="true"
+                style={{
+                  fontSize: '0.95rem',
+                }}
+              >
+                ↗
+              </span>
+            </a>
+          </div>
+        )}
       </div>
+
+      <style>{`
+        .project-overview__meta-grid {
+          display: grid;
+          grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+          gap: 0.9rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .project-overview__actions a {
+          text-decoration: none;
+        }
+
+        @media (max-width: 560px) {
+          .project-overview__meta-grid {
+            grid-template-columns: 1fr;
+            gap: 0.7rem;
+          }
+
+          .project-overview__header {
+            margin-bottom: 1.2rem !important;
+          }
+
+          .project-overview__progress-header {
+            align-items: flex-end !important;
+          }
+
+          .project-overview__actions {
+            width: 100%;
+          }
+
+          .project-overview__actions a {
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .project-overview {
+            border-radius: 15px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
