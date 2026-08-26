@@ -17,9 +17,7 @@ import {
 const fallbackProject: ProjectRecord = {
   id: 'demo-project-id',
   client_id: 'demo-client-id',
-
   project_code: DEMO_PROJECT_CODE,
-
   name: 'Website Redesign',
   description:
     'A sanitized project demonstration showing progress, milestones, and delivery status.',
@@ -34,23 +32,7 @@ const fallbackProject: ProjectRecord = {
 };
 
 const fallbackPortalData: ClientPortalData = {
-  /*
-   * Temporary compatibility object.
-   *
-   * The portal no longer uses client information for lookup
-   * or authentication. This object will be removed once
-   * ClientPortalData is fully project-only.
-   */
-  client: {
-    id: '',
-    name: 'Project Workspace',
-    company: 'Project Workspace',
-    client_code: DEMO_PROJECT_CODE,
-  },
-
   project: fallbackProject,
-
-  projects: [fallbackProject],
 
   timeline: [
     {
@@ -330,39 +312,11 @@ export async function fetchPortalDataByProjectCode(
   }
 
   return {
-    /*
-     * Temporary compatibility object.
-     * No client lookup or client data is required.
-     */
-    client: {
-      id: '',
-      name: 'Project Workspace',
-      company: 'Project Workspace',
-      client_code: normalized,
-    },
-
     project,
-
-    projects: [project],
-
     timeline,
-
     hours:
       hours ?? createDefaultHours(project.id),
   };
-}
-
-/*
- * Temporary compatibility alias.
- *
- * This allows the current ClientDashboard to keep working
- * while authentication and dashboard code migrate from
- * clientCode to projectCode.
- */
-export async function fetchPortalDataByClientCode(
-  clientCode: string,
-): Promise<ClientPortalData | null> {
-  return fetchPortalDataByProjectCode(clientCode);
 }
 
 export function getFallbackPortalData(): ClientPortalData {

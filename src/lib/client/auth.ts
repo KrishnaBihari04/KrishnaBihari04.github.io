@@ -6,12 +6,6 @@ import {
 const PROJECT_SESSION_KEY =
   'project_portal_session';
 
-/**
- * Returns the current project-based portal session.
- *
- * Session data is stored only in sessionStorage and expires
- * automatically when the configured expiration timestamp is reached.
- */
 export function getProjectSession(): ProjectSession | null {
   if (typeof window === 'undefined') {
     return null;
@@ -26,13 +20,18 @@ export function getProjectSession(): ProjectSession | null {
       return null;
     }
 
-    const parsed = JSON.parse(raw) as Partial<ProjectSession>;
+    const parsed =
+      JSON.parse(raw) as Partial<ProjectSession>;
 
     if (
-      !parsed?.projectCode ||
-      !parsed?.projectId ||
-      !parsed?.expiresAt
+      !parsed.projectCode ||
+      !parsed.projectId ||
+      !parsed.expiresAt
     ) {
+      window.sessionStorage.removeItem(
+        PROJECT_SESSION_KEY,
+      );
+
       return null;
     }
 
@@ -45,18 +44,21 @@ export function getProjectSession(): ProjectSession | null {
     }
 
     return {
-      projectCode: parsed.projectCode,
+      projectCode: parsed.projectCode
+        .trim()
+        .toUpperCase(),
       projectId: parsed.projectId,
       expiresAt: parsed.expiresAt,
     };
   } catch {
+    window.sessionStorage.removeItem(
+      PROJECT_SESSION_KEY,
+    );
+
     return null;
   }
 }
 
-/**
- * Saves a project-based portal session.
- */
 export function saveProjectSession(
   session: ProjectSession,
 ): void {
@@ -66,13 +68,16 @@ export function saveProjectSession(
 
   window.sessionStorage.setItem(
     PROJECT_SESSION_KEY,
-    JSON.stringify(session),
+    JSON.stringify({
+      projectCode: session.projectCode
+        .trim()
+        .toUpperCase(),
+      projectId: session.projectId,
+      expiresAt: session.expiresAt,
+    }),
   );
 }
 
-/**
- * Clears the current project portal session.
- */
 export function clearProjectSession(): void {
   if (typeof window === 'undefined') {
     return;
@@ -83,10 +88,6 @@ export function clearProjectSession(): void {
   );
 }
 
-/**
- * Checks whether the development-only demo project code
- * is allowed.
- */
 export function isDemoProjectCode(
   value: string,
 ): boolean {
@@ -101,38 +102,4 @@ export function isDemoProjectCode(
     demoEnabled &&
     normalized === DEMO_PROJECT_CODE
   );
-}
-
-/*
- * ---------------------------------------------------------
- * Temporary backwards compatibility
- * ---------------------------------------------------------
- *
- * These aliases allow the rest of the portal to migrate
- * incrementally without breaking the application.
- *
- * They should be removed once ClientLogin and
- * ClientDashboard have fully migrated to project sessions.
- */
-
-export type LegacyClientSession = ProjectSession;
-
-export function getClientSession(): ProjectSession | null {
-  return getProjectSession();
-}
-
-export function saveClientSession(
-  session: ProjectSession,
-): void {
-  saveProjectSession(session);
-}
-
-export function clearClientSession(): void {
-  clearProjectSession();
-}
-
-export function isDemoClientCode(
-  value: string,
-): boolean {
-  return isDemoProjectCode(value);
 }

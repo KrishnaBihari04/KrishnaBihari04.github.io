@@ -15,15 +15,6 @@ export type ProjectCategory =
   | 'ai-tool'
   | 'ai-automation';
 
-export type ClientRecord = {
-  id: string;
-  name: string;
-  company: string;
-  client_code: string;
-  created_at?: string;
-  updated_at?: string;
-};
-
 export type ProjectRecord = {
   id: string;
   client_id: string;
@@ -68,45 +59,20 @@ export type ProjectHoursRecord = {
   updated_at?: string;
 };
 
+/*
+ * Canonical project workspace data.
+ *
+ * The portal is project-code-first and does not require
+ * a client record to render a workspace.
+ */
 export type ClientPortalData = {
-  /*
-   * Temporary backwards compatibility.
-   * Phase 3 will remove the client-level dependency
-   * from the portal entirely.
-   */
-  client: ClientRecord;
-
-  /*
-   * Current primary project.
-   * Phase 3 will make this the canonical project workspace.
-   */
   project: ProjectRecord;
-
-  /*
-   * Kept temporarily for compatibility with the
-   * existing scalable project structure.
-   */
-  projects: ProjectRecord[];
-
   timeline: TimelineRecord[];
   hours: ProjectHoursRecord;
 };
 
 /*
- * Temporary legacy client session.
- * This will be replaced by ProjectSession in auth.ts.
- */
-export type ClientSession = {
-  clientCode: string;
-  clientId: string;
-  company: string;
-  expiresAt: number;
-};
-
-/*
- * New project-first portal session.
- *
- * This is the session model Phase 3 will use:
+ * Project-based browser session.
  *
  * PROJECT-2026-X7K9
  *       ↓
@@ -120,9 +86,8 @@ export type ProjectSession = {
   expiresAt: number;
 };
 
-export const DEMO_CLIENT_CODE = 'DEMO-2026';
-
-export const DEMO_PROJECT_CODE = 'PROJECT-2026-X7K9';
+export const DEMO_PROJECT_CODE =
+  'PROJECT-2026-X7K9';
 
 export function normalizeProjectCategory(
   value?: string | null,
