@@ -27,6 +27,10 @@ export type ClientRecord = {
 export type ProjectRecord = {
   id: string;
   client_id: string;
+
+  // Primary project identifier used by the portal.
+  project_code: string;
+
   name: string;
   description: string;
   type: string;
@@ -65,20 +69,33 @@ export type ProjectHoursRecord = {
 };
 
 export type ClientPortalData = {
+  /*
+   * Temporary backwards compatibility.
+   * Phase 3 will remove the client-level dependency
+   * from the portal entirely.
+   */
   client: ClientRecord;
 
-  // Backwards-compatible primary project.
-  // Phase 3 will remove the need for this field.
+  /*
+   * Current primary project.
+   * Phase 3 will make this the canonical project workspace.
+   */
   project: ProjectRecord;
 
-  // New scalable project collection.
+  /*
+   * Kept temporarily for compatibility with the
+   * existing scalable project structure.
+   */
   projects: ProjectRecord[];
 
   timeline: TimelineRecord[];
-
   hours: ProjectHoursRecord;
 };
 
+/*
+ * Temporary legacy client session.
+ * This will be replaced by ProjectSession in auth.ts.
+ */
 export type ClientSession = {
   clientCode: string;
   clientId: string;
@@ -86,7 +103,26 @@ export type ClientSession = {
   expiresAt: number;
 };
 
+/*
+ * New project-first portal session.
+ *
+ * This is the session model Phase 3 will use:
+ *
+ * PROJECT-2026-X7K9
+ *       ↓
+ * projectId
+ *       ↓
+ * secure session
+ */
+export type ProjectSession = {
+  projectCode: string;
+  projectId: string;
+  expiresAt: number;
+};
+
 export const DEMO_CLIENT_CODE = 'DEMO-2026';
+
+export const DEMO_PROJECT_CODE = 'PROJECT-2026-X7K9';
 
 export function normalizeProjectCategory(
   value?: string | null,

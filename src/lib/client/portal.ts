@@ -1,23 +1,25 @@
 import { supabase } from './supabase';
 
-import { isDemoClientCode } from './auth';
+import { isDemoProjectCode } from './auth';
 
 import type {
   ClientPortalData,
-  ClientRecord,
   ProjectHoursRecord,
   ProjectRecord,
   TimelineRecord,
 } from './types';
 
 import {
-  DEMO_CLIENT_CODE,
+  DEMO_PROJECT_CODE,
   normalizeProjectCategory,
 } from './types';
 
 const fallbackProject: ProjectRecord = {
   id: 'demo-project-id',
   client_id: 'demo-client-id',
+
+  project_code: DEMO_PROJECT_CODE,
+
   name: 'Website Redesign',
   description:
     'A sanitized project demonstration showing progress, milestones, and delivery status.',
@@ -32,11 +34,18 @@ const fallbackProject: ProjectRecord = {
 };
 
 const fallbackPortalData: ClientPortalData = {
+  /*
+   * Temporary compatibility object.
+   *
+   * The portal no longer uses client information for lookup
+   * or authentication. This object will be removed once
+   * ClientPortalData is fully project-only.
+   */
   client: {
-    id: 'demo-client-id',
-    name: 'Demo Project',
-    company: 'Demo Workspace',
-    client_code: DEMO_CLIENT_CODE,
+    id: '',
+    name: 'Project Workspace',
+    company: 'Project Workspace',
+    client_code: DEMO_PROJECT_CODE,
   },
 
   project: fallbackProject,
@@ -105,45 +114,26 @@ const fallbackPortalData: ClientPortalData = {
 };
 
 function isDemoFallbackAllowed(
-  clientCode: string,
+  projectCode: string,
 ): boolean {
   return (
     import.meta.env.DEV &&
-    import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== 'false' &&
-    isDemoClientCode(clientCode)
+    import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !==
+      'false' &&
+    isDemoProjectCode(projectCode)
   );
 }
 
 function getFallbackIfAllowed(
-  clientCode: string,
+  projectCode: string,
 ): ClientPortalData | null {
-  return isDemoFallbackAllowed(clientCode)
+  return isDemoFallbackAllowed(projectCode)
     ? fallbackPortalData
     : null;
 }
 
-async function fetchClient(
-  clientCode: string,
-): Promise<ClientRecord | null> {
-  if (!supabase) {
-    return null;
-  }
-
-  const { data, error } = await supabase
-    .from('clients')
-    .select('*')
-    .eq('client_code', clientCode)
-    .maybeSingle();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data as ClientRecord;
-}
-
-async function fetchProject(
-  clientId: string,
+async function fetchProjectByCode(
+  projectCode: string,
 ): Promise<ProjectRecord | null> {
   if (!supabase) {
     return null;
@@ -152,7 +142,7 @@ async function fetchProject(
   const { data, error } = await supabase
     .from('projects')
     .select('*')
-    .eq('client_id', clientId)
+    .eq('project_code', projectCode)
     .maybeSingle();
 
   if (error || !data) {
@@ -225,6 +215,11 @@ async function fetchProject(
       project.live_demo_url.trim().length > 0
         ? project.live_demo_url.trim()
         : null,
+
+    project_code:
+      typeof project.project_code === 'string'
+        ? project.project_code.trim().toUpperCase()
+        : projectCode,
   };
 }
 
@@ -302,10 +297,12 @@ function createDefaultHours(
   };
 }
 
-export async function fetchPortalDataByClientCode(
-  clientCode: string,
+export async function fetchPortalDataByProjectCode(
+  projectCode: string,
 ): Promise<ClientPortalData | null> {
-  const normalized = clientCode.trim().toUpperCase();
+  const normalized = projectCode
+    .trim()
+    .toUpperCase();
 
   if (!normalized) {
     return null;
@@ -315,13 +312,9 @@ export async function fetchPortalDataByClientCode(
     return getFallbackIfAllowed(normalized);
   }
 
-  const client = await fetchClient(normalized);
-
-  if (!client) {
-    return getFallbackIfAllowed(normalized);
-  }
-
-  const project = await fetchProject(client.id);
+  const project = await fetchProjectByCode(
+    normalized,
+  );
 
   if (!project) {
     return getFallbackIfAllowed(normalized);
@@ -337,13 +330,39 @@ export async function fetchPortalDataByClientCode(
   }
 
   return {
-    client,
+    /*
+     * Temporary compatibility object.
+     * No client lookup or client data is required.
+     */
+    client: {
+      id: '',
+      name: 'Project Workspace',
+      company: 'Project Workspace',
+      client_code: normalized,
+    },
+
     project,
+
     projects: [project],
+
     timeline,
+
     hours:
       hours ?? createDefaultHours(project.id),
   };
+}
+
+/*
+ * Temporary compatibility alias.
+ *
+ * This allows the current ClientDashboard to keep working
+ * while authentication and dashboard code migrate from
+ * clientCode to projectCode.
+ */
+export async function fetchPortalDataByClientCode(
+  clientCode: string,
+): Promise<ClientPortalData | null> {
+  return fetchPortalDataByProjectCode(clientCode);
 }
 
 export function getFallbackPortalData(): ClientPortalData {
