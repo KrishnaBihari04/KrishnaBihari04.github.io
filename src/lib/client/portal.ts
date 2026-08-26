@@ -1,6 +1,6 @@
-import { supabase } from "./supabase";
+import { supabase } from './supabase';
 
-import { isDemoClientCode } from "./auth";
+import { isDemoClientCode } from './auth';
 
 import type {
   ClientPortalData,
@@ -8,30 +8,34 @@ import type {
   ProjectHoursRecord,
   ProjectRecord,
   TimelineRecord,
-} from "./types";
+} from './types';
 
-import { DEMO_CLIENT_CODE, normalizeProjectCategory } from "./types";
+import {
+  DEMO_CLIENT_CODE,
+  normalizeProjectCategory,
+} from './types';
 
 const fallbackProject: ProjectRecord = {
-  id: "demo-project-id",
-  client_id: "demo-client-id",
-  name: "Website Redesign",
+  id: 'demo-project-id',
+  client_id: 'demo-client-id',
+  name: 'Website Redesign',
   description:
-    "A sanitized project demonstration showing progress, milestones, and delivery status.",
-  type: "Web Application",
-  category: "web-development",
-  status: "In Development",
-  phase: "Development",
+    'A sanitized project demonstration showing progress, milestones, and delivery status.',
+  type: 'Web Application',
+  category: 'web-development',
+  status: 'In Development',
+  phase: 'Development',
   progress: 68,
-  expected_launch: "",
+  expected_launch: '',
   images: [],
+  live_demo_url: null,
 };
 
 const fallbackPortalData: ClientPortalData = {
   client: {
-    id: "demo-client-id",
-    name: "Demo Project",
-    company: "Demo Workspace",
+    id: 'demo-client-id',
+    name: 'Demo Project',
+    company: 'Demo Workspace',
     client_code: DEMO_CLIENT_CODE,
   },
 
@@ -41,86 +45,94 @@ const fallbackPortalData: ClientPortalData = {
 
   timeline: [
     {
-      id: "tl-1",
-      project_id: "demo-project-id",
-      title: "Discovery",
-      description: "Project discovery, requirements and initial direction.",
-      status: "completed",
-      date: "",
+      id: 'tl-1',
+      project_id: 'demo-project-id',
+      title: 'Discovery',
+      description:
+        'Project discovery, requirements and initial direction.',
+      status: 'completed',
+      date: '',
       order: 1,
     },
-
     {
-      id: "tl-2",
-      project_id: "demo-project-id",
-      title: "Design",
-      description: "Visual direction, layout and interface design.",
-      status: "completed",
-      date: "",
+      id: 'tl-2',
+      project_id: 'demo-project-id',
+      title: 'Design',
+      description:
+        'Visual direction, layout and interface design.',
+      status: 'completed',
+      date: '',
       order: 2,
     },
-
     {
-      id: "tl-3",
-      project_id: "demo-project-id",
-      title: "Development",
+      id: 'tl-3',
+      project_id: 'demo-project-id',
+      title: 'Development',
       description:
-        "Implementation of the application and interactive experience.",
-      status: "active",
-      date: "",
+        'Implementation of the application and interactive experience.',
+      status: 'active',
+      date: '',
       order: 3,
     },
-
     {
-      id: "tl-4",
-      project_id: "demo-project-id",
-      title: "Testing",
-      description: "Final testing, refinement and responsive QA.",
-      status: "upcoming",
-      date: "",
+      id: 'tl-4',
+      project_id: 'demo-project-id',
+      title: 'Testing',
+      description:
+        'Final testing, refinement and responsive QA.',
+      status: 'upcoming',
+      date: '',
       order: 4,
     },
-
     {
-      id: "tl-5",
-      project_id: "demo-project-id",
-      title: "Launch",
-      description: "Production deployment and final delivery.",
-      status: "upcoming",
-      date: "",
+      id: 'tl-5',
+      project_id: 'demo-project-id',
+      title: 'Launch',
+      description:
+        'Production deployment and final delivery.',
+      status: 'upcoming',
+      date: '',
       order: 5,
     },
   ],
 
   hours: {
-    id: "hours-1",
-    project_id: "demo-project-id",
+    id: 'hours-1',
+    project_id: 'demo-project-id',
     hours_allocated: 0,
     hours_used: 0,
   },
 };
 
-function isDemoFallbackAllowed(clientCode: string): boolean {
+function isDemoFallbackAllowed(
+  clientCode: string,
+): boolean {
   return (
     import.meta.env.DEV &&
-    import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== "false" &&
+    import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== 'false' &&
     isDemoClientCode(clientCode)
   );
 }
 
-function getFallbackIfAllowed(clientCode: string): ClientPortalData | null {
-  return isDemoFallbackAllowed(clientCode) ? fallbackPortalData : null;
+function getFallbackIfAllowed(
+  clientCode: string,
+): ClientPortalData | null {
+  return isDemoFallbackAllowed(clientCode)
+    ? fallbackPortalData
+    : null;
 }
 
-async function fetchClient(clientCode: string): Promise<ClientRecord | null> {
+async function fetchClient(
+  clientCode: string,
+): Promise<ClientRecord | null> {
   if (!supabase) {
     return null;
   }
 
   const { data, error } = await supabase
-    .from("clients")
-    .select("*")
-    .eq("client_code", clientCode)
+    .from('clients')
+    .select('*')
+    .eq('client_code', clientCode)
     .maybeSingle();
 
   if (error || !data) {
@@ -130,15 +142,17 @@ async function fetchClient(clientCode: string): Promise<ClientRecord | null> {
   return data as ClientRecord;
 }
 
-async function fetchProject(clientId: string): Promise<ProjectRecord | null> {
+async function fetchProject(
+  clientId: string,
+): Promise<ProjectRecord | null> {
   if (!supabase) {
     return null;
   }
 
   const { data, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("client_id", clientId)
+    .from('projects')
+    .select('*')
+    .eq('client_id', clientId)
     .maybeSingle();
 
   if (error || !data) {
@@ -149,15 +163,65 @@ async function fetchProject(clientId: string): Promise<ProjectRecord | null> {
 
   return {
     ...project,
-    category: normalizeProjectCategory(project.category),
+
+    name:
+      typeof project.name === 'string' &&
+      project.name.trim().length > 0
+        ? project.name.trim()
+        : 'Project',
+
+    description:
+      typeof project.description === 'string'
+        ? project.description.trim()
+        : '',
+
+    type:
+      typeof project.type === 'string' &&
+      project.type.trim().length > 0
+        ? project.type.trim()
+        : 'Project',
+
+    category: normalizeProjectCategory(
+      project.category,
+    ),
+
+    status:
+      typeof project.status === 'string' &&
+      project.status.trim().length > 0
+        ? project.status.trim()
+        : 'Active',
+
+    phase:
+      typeof project.phase === 'string' &&
+      project.phase.trim().length > 0
+        ? project.phase.trim()
+        : 'Planning',
+
+    progress: Math.min(
+      Math.max(
+        typeof project.progress === 'number'
+          ? project.progress
+          : 0,
+        0,
+      ),
+      100,
+    ),
+
+    expected_launch:
+      typeof project.expected_launch === 'string'
+        ? project.expected_launch.trim()
+        : '',
+
     images: Array.isArray(project.images)
       ? project.images.filter(
           (image): image is string =>
-            typeof image === "string" && image.trim().length > 0,
+            typeof image === 'string' &&
+            image.trim().length > 0,
         )
       : [],
+
     live_demo_url:
-      typeof project.live_demo_url === "string" &&
+      typeof project.live_demo_url === 'string' &&
       project.live_demo_url.trim().length > 0
         ? project.live_demo_url.trim()
         : null,
@@ -170,7 +234,7 @@ function mapTimeline(
     project_id: string;
     title: string;
     description: string | null;
-    status: TimelineRecord["status"];
+    status: TimelineRecord['status'];
     timeline_date: string | null;
     sort_order: number;
   }>,
@@ -179,9 +243,9 @@ function mapTimeline(
     id: item.id,
     project_id: item.project_id,
     title: item.title,
-    description: item.description ?? "",
+    description: item.description ?? '',
     status: item.status,
-    date: item.timeline_date ?? "",
+    date: item.timeline_date ?? '',
     order: item.sort_order,
   }));
 }
@@ -194,10 +258,12 @@ async function fetchTimeline(
   }
 
   const { data, error } = await supabase
-    .from("project_timeline")
-    .select("*")
-    .eq("project_id", projectId)
-    .order("sort_order", { ascending: true });
+    .from('project_timeline')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('sort_order', {
+      ascending: true,
+    });
 
   if (error) {
     return null;
@@ -214,15 +280,20 @@ async function fetchHours(
   }
 
   const { data } = await supabase
-    .from("project_hours")
-    .select("*")
-    .eq("project_id", projectId)
+    .from('project_hours')
+    .select('*')
+    .eq('project_id', projectId)
     .maybeSingle();
 
-  return (data as ProjectHoursRecord | null) ?? null;
+  return (
+    (data as ProjectHoursRecord | null) ??
+    null
+  );
 }
 
-function createDefaultHours(projectId: string): ProjectHoursRecord {
+function createDefaultHours(
+  projectId: string,
+): ProjectHoursRecord {
   return {
     id: crypto.randomUUID(),
     project_id: projectId,
@@ -270,7 +341,8 @@ export async function fetchPortalDataByClientCode(
     project,
     projects: [project],
     timeline,
-    hours: hours ?? createDefaultHours(project.id),
+    hours:
+      hours ?? createDefaultHours(project.id),
   };
 }
 

@@ -87,6 +87,25 @@ const normalizeCategory = (
   }
 };
 
+const isValidDemoUrl = (
+  value?: string | null,
+): value is string => {
+  if (!value?.trim()) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value.trim());
+
+    return (
+      url.protocol === 'https:' ||
+      url.protocol === 'http:'
+    );
+  } catch {
+    return false;
+  }
+};
+
 export default function ProjectOverview({
   project,
 }: ProjectOverviewProps) {
@@ -114,12 +133,18 @@ export default function ProjectOverview({
     project.description?.trim() ||
     'Project information is currently unavailable.';
 
+  const showLiveDemo = isValidDemoUrl(
+    project.liveDemoUrl,
+  );
+
   return (
     <section
       data-reveal
       className="project-overview"
       style={{
         position: 'relative',
+        width: '100%',
+        minWidth: 0,
         border: '1px solid var(--border-mid)',
         background: 'rgba(10, 10, 10, 0.78)',
         borderRadius: '18px',
@@ -144,6 +169,7 @@ export default function ProjectOverview({
         style={{
           position: 'relative',
           zIndex: 1,
+          minWidth: 0,
         }}
       >
         <div
@@ -165,11 +191,11 @@ export default function ProjectOverview({
           >
             <p
               style={{
+                margin: '0 0 0.75rem',
                 fontSize: '0.68rem',
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
                 color: 'var(--sand)',
-                marginBottom: '0.75rem',
               }}
             >
               Project overview
@@ -267,11 +293,11 @@ export default function ProjectOverview({
             >
               <div
                 style={{
+                  marginBottom: '0.35rem',
                   fontSize: '0.64rem',
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
                   color: 'var(--muted-light)',
-                  marginBottom: '0.35rem',
                 }}
               >
                 {item.label}
@@ -304,11 +330,11 @@ export default function ProjectOverview({
         >
           <div
             style={{
+              marginBottom: '0.35rem',
               fontSize: '0.64rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               color: 'var(--muted-light)',
-              marginBottom: '0.35rem',
             }}
           >
             Project category
@@ -319,6 +345,7 @@ export default function ProjectOverview({
               color: 'var(--soft-white)',
               fontSize: '0.95rem',
               lineHeight: 1.6,
+              overflowWrap: 'anywhere',
             }}
           >
             {category.description}
@@ -359,6 +386,11 @@ export default function ProjectOverview({
         </div>
 
         <div
+          role="progressbar"
+          aria-label="Project progress"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
           style={{
             width: '100%',
             height: '10px',
@@ -389,12 +421,13 @@ export default function ProjectOverview({
             fontSize: '0.98rem',
             lineHeight: 1.8,
             maxWidth: '60ch',
+            overflowWrap: 'anywhere',
           }}
         >
           {projectDescription}
         </p>
 
-        {project.liveDemoUrl && (
+        {showLiveDemo && (
           <div
             className="project-overview__actions"
             style={{
@@ -409,15 +442,18 @@ export default function ProjectOverview({
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"
+              aria-label={`View live demo for ${project.name}`}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.5rem',
                 minHeight: '44px',
+                textDecoration: 'none',
               }}
             >
               View Live Demo
+
               <span
                 aria-hidden="true"
                 style={{
