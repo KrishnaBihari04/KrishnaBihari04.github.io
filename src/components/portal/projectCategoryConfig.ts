@@ -7,6 +7,25 @@ export type ProjectCategoryConfig = {
   readonly focusAreas: readonly string[];
 };
 
+export const DEFAULT_PROJECT_CATEGORY_CONFIG: ProjectCategoryConfig = {
+  label: 'Project',
+  description:
+    'Project workspace information and delivery progress.',
+  stages: [
+    'Planning',
+    'Design',
+    'Development',
+    'Testing',
+    'Launch',
+  ],
+  focusAreas: [
+    'Project direction',
+    'Development',
+    'Quality assurance',
+    'Delivery',
+  ],
+};
+
 export const PROJECT_CATEGORY_CONFIG: Record<
   ProjectCategory,
   ProjectCategoryConfig
@@ -106,3 +125,24 @@ export const PROJECT_CATEGORY_CONFIG: Record<
     ],
   },
 };
+
+export function getProjectCategoryConfig(
+  category?: string | null,
+): ProjectCategoryConfig {
+  if (!category) {
+    return DEFAULT_PROJECT_CATEGORY_CONFIG;
+  }
+
+  const normalized = category
+    .trim()
+    .toLowerCase()
+    .replace(/_/g, '-')
+    .replace(/\s+/g, '-');
+
+  const config =
+    PROJECT_CATEGORY_CONFIG[
+      normalized as ProjectCategory
+    ];
+
+  return config ?? DEFAULT_PROJECT_CATEGORY_CONFIG;
+}

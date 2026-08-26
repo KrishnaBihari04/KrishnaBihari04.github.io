@@ -1,5 +1,5 @@
+import { getProjectCategoryConfig } from './projectCategoryConfig';
 import type { ProjectCategory } from '../../lib/client/types';
-import { PROJECT_CATEGORY_CONFIG } from './projectCategoryConfig';
 
 type ProjectCategoryFocusProps = {
   readonly category: ProjectCategory;
@@ -8,7 +8,7 @@ type ProjectCategoryFocusProps = {
 export default function ProjectCategoryFocus({
   category,
 }: ProjectCategoryFocusProps) {
-  const config = PROJECT_CATEGORY_CONFIG[category];
+  const config = getProjectCategoryConfig(category);
 
   return (
     <section
@@ -18,7 +18,8 @@ export default function ProjectCategoryFocus({
         borderRadius: '18px',
         background: 'rgba(10, 10, 10, 0.78)',
         padding: '1.5rem',
-        boxShadow: '0 20px 45px rgba(0, 0, 0, 0.14)',
+        boxShadow:
+          '0 20px 45px rgba(0, 0, 0, 0.14)',
       }}
     >
       <div
@@ -86,7 +87,8 @@ export default function ProjectCategoryFocus({
       <style>{`
         .project-category-focus__grid {
           display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns:
+            repeat(2, minmax(0, 1fr));
           gap: 0.75rem;
         }
 

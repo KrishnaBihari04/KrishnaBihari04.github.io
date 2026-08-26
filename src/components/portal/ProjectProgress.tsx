@@ -1,5 +1,6 @@
 import type { ProjectCategory } from '../../lib/client/types';
 import { PROJECT_CATEGORY_CONFIG } from './projectCategoryConfig';
+import { getProjectCategoryConfig } from './projectCategoryConfig';
 
 type ProjectProgressProps = {
   readonly progress: number;
@@ -53,8 +54,8 @@ export default function ProjectProgress({
     100,
   );
 
-  const categoryConfig =
-    PROJECT_CATEGORY_CONFIG[category];
+ const categoryConfig =
+  getProjectCategoryConfig(category);
 
   const stages = categoryConfig.stages;
 

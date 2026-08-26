@@ -66,8 +66,55 @@ export default function ProjectGallery({
   }, [lightboxOpen, validImages.length]);
 
   if (validImages.length === 0) {
-    return null;
-  }
+  return (
+    <section
+      data-reveal
+      style={{
+        border: '1px solid var(--border-mid)',
+        borderRadius: '18px',
+        background: 'rgba(10, 10, 10, 0.78)',
+        padding: '1.5rem',
+        minHeight: '180px',
+        display: 'grid',
+        placeItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <div>
+        <div
+          style={{
+            marginBottom: '0.5rem',
+            fontSize: '0.65rem',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: 'var(--sand)',
+          }}
+        >
+          Project media
+        </div>
+
+        <div
+          style={{
+            color: 'var(--soft-white)',
+            marginBottom: '0.35rem',
+          }}
+        >
+          No project visuals yet
+        </div>
+
+        <div
+          style={{
+            color: 'var(--muted)',
+            fontSize: '0.85rem',
+            lineHeight: 1.6,
+          }}
+        >
+          Project screenshots will appear here when they are available.
+        </div>
+      </div>
+    </section>
+  );
+}
 
   const activeImage =
     validImages[

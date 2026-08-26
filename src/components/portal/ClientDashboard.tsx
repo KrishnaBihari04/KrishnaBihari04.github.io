@@ -22,6 +22,7 @@ export default function ClientDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const session = getClientSession();
@@ -33,6 +34,9 @@ export default function ClientDashboard() {
     }
 
     const load = async () => {
+      setLoading(true);
+      setError('');
+
       try {
         const data = await fetchPortalDataByClientCode(
           session.clientCode,
@@ -56,7 +60,7 @@ export default function ClientDashboard() {
     };
 
     void load();
-  }, []);
+  }, [retryKey]);
 
   const initials = useMemo(() => {
     if (!portalData) {
@@ -90,6 +94,13 @@ export default function ClientDashboard() {
     }
 
     window.location.href = '/client';
+  };
+
+  const handleRetry = () => {
+    setPortalData(null);
+    setError('');
+    setLoading(true);
+    setRetryKey((value) => value + 1);
   };
 
   if (loading) {
@@ -169,14 +180,17 @@ export default function ClientDashboard() {
 
         <main className="portal-loading">
           <div className="portal-loading-card">
-            <div className="portal-loading-label">Loading</div>
+            <div className="portal-loading-label">
+              Loading
+            </div>
 
             <div className="portal-loading-track">
               <div className="portal-loading-fill" />
             </div>
 
             <div className="portal-loading-copy">
-              Authenticating and loading your project workspace…
+              Authenticating and loading your project
+              workspace…
             </div>
           </div>
         </main>
@@ -216,12 +230,28 @@ export default function ClientDashboard() {
             line-height: 1.8;
           }
 
-          .portal-error-action {
+          .portal-error-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
             margin-top: 1.25rem;
-            display: inline-flex;
+          }
+
+          .portal-error-action {
             min-height: 44px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+          }
+
+          @media (max-width: 520px) {
+            .portal-error-actions {
+              flex-direction: column;
+            }
+
+            .portal-error-action {
+              width: 100%;
+            }
           }
         `}</style>
 
@@ -236,12 +266,22 @@ export default function ClientDashboard() {
                 'Something went wrong while loading this project.'}
             </div>
 
-            <a
-              href="/client"
-              className="btn-secondary portal-error-action"
-            >
-              Back to client login
-            </a>
+            <div className="portal-error-actions">
+              <button
+                type="button"
+                className="btn-secondary portal-error-action"
+                onClick={handleRetry}
+              >
+                Try again
+              </button>
+
+              <a
+                href="/client"
+                className="btn-secondary portal-error-action"
+              >
+                Back to client login
+              </a>
+            </div>
           </div>
         </main>
       </>
@@ -487,14 +527,12 @@ export default function ClientDashboard() {
             />
           </div>
 
-          {projectImages.length > 0 && (
-            <div className="portal-dashboard__gallery">
-              <ProjectGallery
-                images={projectImages}
-                projectName={project.name}
-              />
-            </div>
-          )}
+          <div className="portal-dashboard__gallery">
+            <ProjectGallery
+              images={projectImages}
+              projectName={project.name}
+            />
+          </div>
 
           <div className="portal-dashboard__category-focus">
             <ProjectCategoryFocus
@@ -517,7 +555,8 @@ export default function ClientDashboard() {
                 used: hours.hours_used,
                 allocated: hours.hours_allocated,
                 remaining: Math.max(
-                  hours.hours_allocated - hours.hours_used,
+                  hours.hours_allocated -
+                    hours.hours_used,
                   0,
                 ),
               }}
