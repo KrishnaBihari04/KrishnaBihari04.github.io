@@ -1,7 +1,3 @@
-import { supabase } from './supabase';
-
-import { isDemoProjectCode } from './auth';
-
 import type {
   ClientPortalData,
   ProjectHoursRecord,
@@ -9,15 +5,10 @@ import type {
   TimelineRecord,
 } from './types';
 
-import {
-  DEMO_PROJECT_CODE,
-  normalizeProjectCategory,
-} from './types';
-
 const fallbackProject: ProjectRecord = {
   id: 'demo-project-id',
   client_id: 'demo-client-id',
-  project_code: DEMO_PROJECT_CODE,
+  project_code: 'PROJECT-2026-X7K9',
   name: 'Website Redesign',
   description:
     'A sanitized project demonstration showing progress, milestones, and delivery status.',
@@ -95,44 +86,17 @@ const fallbackPortalData: ClientPortalData = {
   },
 };
 
-function isDemoFallbackAllowed(
-  projectCode: string,
-): boolean {
-  return (
+function getFallbackPortalData(): ClientPortalData | null {
+  const demoEnabled =
     import.meta.env.DEV &&
-    import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !==
-      'false' &&
-    isDemoProjectCode(projectCode)
-  );
+    import.meta.env.PUBLIC_ENABLE_DEMO_PORTAL !== 'false';
+
+  return demoEnabled ? fallbackPortalData : null;
 }
 
-function getFallbackIfAllowed(
-  projectCode: string,
-): ClientPortalData | null {
-  return isDemoFallbackAllowed(projectCode)
-    ? fallbackPortalData
-    : null;
-}
-
-async function fetchProjectByCode(
-  projectCode: string,
-): Promise<ProjectRecord | null> {
-  if (!supabase) {
-    return null;
-  }
-
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('project_code', projectCode)
-    .maybeSingle();
-
-  if (error || !data) {
-    return null;
-  }
-
-  const project = data as ProjectRecord;
-
+function normalizeProject(
+  project: ProjectRecord,
+): ProjectRecord {
   return {
     ...project,
 
@@ -152,10 +116,6 @@ async function fetchProjectByCode(
       project.type.trim().length > 0
         ? project.type.trim()
         : 'Project',
-
-    category: normalizeProjectCategory(
-      project.category,
-    ),
 
     status:
       typeof project.status === 'string' &&
@@ -201,7 +161,7 @@ async function fetchProjectByCode(
     project_code:
       typeof project.project_code === 'string'
         ? project.project_code.trim().toUpperCase()
-        : projectCode,
+        : '',
   };
 }
 
@@ -227,98 +187,98 @@ function mapTimeline(
   }));
 }
 
-async function fetchTimeline(
-  projectId: string,
-): Promise<TimelineRecord[] | null> {
-  if (!supabase) {
-    return null;
-  }
-
-  const { data, error } = await supabase
-    .from('project_timeline')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('sort_order', {
-      ascending: true,
-    });
-
-  if (error) {
-    return null;
-  }
-
-  return mapTimeline(data ?? []);
-}
-
-async function fetchHours(
-  projectId: string,
-): Promise<ProjectHoursRecord | null> {
-  if (!supabase) {
-    return null;
-  }
-
-  const { data } = await supabase
-    .from('project_hours')
-    .select('*')
-    .eq('project_id', projectId)
-    .maybeSingle();
-
-  return (
-    (data as ProjectHoursRecord | null) ??
-    null
-  );
-}
-
-function createDefaultHours(
-  projectId: string,
-): ProjectHoursRecord {
+function normalizePortalData(
+  data: ClientPortalData,
+): ClientPortalData {
   return {
-    id: crypto.randomUUID(),
-    project_id: projectId,
-    hours_allocated: 0,
-    hours_used: 0,
+    project: normalizeProject(data.project),
+
+    timeline: mapTimeline(
+      data.timeline.map((item) => ({
+        id: item.id,
+        project_id: item.project_id,
+        title: item.title,
+        description: item.description,
+        status: item.status,
+        timeline_date: item.date,
+        sort_order: item.order,
+      })),
+    ),
+
+    hours: {
+      id: data.hours.id,
+      project_id: data.hours.project_id,
+      hours_allocated:
+        typeof data.hours.hours_allocated === 'number'
+          ? Math.max(data.hours.hours_allocated, 0)
+          : 0,
+      hours_used:
+        typeof data.hours.hours_used === 'number'
+          ? Math.max(data.hours.hours_used, 0)
+          : 0,
+      updated_at: data.hours.updated_at,
+    },
   };
 }
 
-export async function fetchPortalDataByProjectCode(
-  projectCode: string,
-): Promise<ClientPortalData | null> {
-  const normalized = projectCode
-    .trim()
-    .toUpperCase();
+/**
+ * Loads the authenticated project's workspace.
+ *
+ * Authorization is NOT handled in the browser.
+ * The API route reads the signed httpOnly project session
+ * and determines which project may be returned.
+ */
+export async function fetchPortalDataByProjectSession(): Promise<ClientPortalData | null> {
+  try {
+    const response = await fetch(
+      '/api/client/project',
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+        },
+      },
+    );
 
-  if (!normalized) {
-    return null;
+    if (!response.ok) {
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        return null;
+      }
+
+      throw new Error(
+        `Project workspace request failed with status ${response.status}.`,
+      );
+    }
+
+    const data =
+      (await response.json()) as Partial<ClientPortalData>;
+
+    if (
+      !data?.project ||
+      !Array.isArray(data.timeline) ||
+      !data.hours
+    ) {
+      throw new Error(
+        'Invalid project workspace response.',
+      );
+    }
+
+    return normalizePortalData(
+      data as ClientPortalData,
+    );
+  } catch {
+    return getFallbackPortalData();
   }
-
-  if (!supabase) {
-    return getFallbackIfAllowed(normalized);
-  }
-
-  const project = await fetchProjectByCode(
-    normalized,
-  );
-
-  if (!project) {
-    return getFallbackIfAllowed(normalized);
-  }
-
-  const [timeline, hours] = await Promise.all([
-    fetchTimeline(project.id),
-    fetchHours(project.id),
-  ]);
-
-  if (!timeline) {
-    return getFallbackIfAllowed(normalized);
-  }
-
-  return {
-    project,
-    timeline,
-    hours:
-      hours ?? createDefaultHours(project.id),
-  };
 }
 
-export function getFallbackPortalData(): ClientPortalData {
-  return fallbackPortalData;
+/**
+ * Temporary fallback helper used by local development
+ * and components that need demo data.
+ */
+export function getFallbackPortalDataSafe(): ClientPortalData | null {
+  return getFallbackPortalData();
 }
