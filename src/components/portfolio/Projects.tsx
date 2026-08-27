@@ -25,7 +25,7 @@ type Project = {
   accent: string;
   live?: string;
   status: ProjectStatus;
-  images: string[];
+  images: string[] | 'empty';
 };
 
 const projects: Project[] = [
@@ -60,11 +60,7 @@ const projects: Project[] = [
     link: 'https://github.com/kasbihari/Budget-Buddy',
     accent: 'var(--sand-light)',
     status: 'done',
-    images: [
-      '/projects/budgetbuddy-1.png',
-      '/projects/budgetbuddy-2.png',
-      '/projects/budgetbuddy-3.png',
-    ],
+    images: 'empty',
   },
 
   {
@@ -96,11 +92,7 @@ const projects: Project[] = [
     link: 'https://github.com/kasbihari/SDG-Dashboard',
     accent: 'var(--forest-bright)',
     status: 'done',
-    images: [
-      '/projects/sdg-1.png',
-      '/projects/sdg-2.png',
-      '/projects/sdg-3.png',
-    ],
+    images: 'empty',
   },
 
   {
@@ -136,11 +128,7 @@ const projects: Project[] = [
     link: 'https://github.com/kasbihari/',
     accent: 'var(--muted-light)',
     status: 'in-progress',
-    images: [
-      '/projects/veyro-1.png',
-      '/projects/veyro-2.png',
-      '/projects/veyro-3.png',
-    ],
+    images: 'empty',
   },
 ];
 
@@ -201,7 +189,8 @@ export default function Projects() {
     null,
   );
 
-  const [filter, setFilter] = useState<FilterValue>('all');
+  const [filter, setFilter] =
+    useState<FilterValue>('all');
 
   const [slideIndexes, setSlideIndexes] = useState<
     Record<string, number>
@@ -210,20 +199,36 @@ export default function Projects() {
   const filtered =
     filter === 'all'
       ? projects
-      : projects.filter((project) => project.status === filter);
+      : projects.filter(
+          (project) =>
+            project.status === filter,
+        );
 
-  const nextSlide = (projectId: string, total: number) => {
-    setSlideIndexes((prev) => ({
-      ...prev,
-      [projectId]: ((prev[projectId] || 0) + 1) % total,
-    }));
-  };
+  const nextSlide = (
+    projectId: string,
+    total: number,
+  ) => {
+    if (total <= 0) return;
 
-  const prevSlide = (projectId: string, total: number) => {
     setSlideIndexes((prev) => ({
       ...prev,
       [projectId]:
-        ((prev[projectId] || 0) - 1 + total) % total,
+        ((prev[projectId] ?? 0) + 1) %
+        total,
+    }));
+  };
+
+  const prevSlide = (
+    projectId: string,
+    total: number,
+  ) => {
+    if (total <= 0) return;
+
+    setSlideIndexes((prev) => ({
+      ...prev,
+      [projectId]:
+        ((prev[projectId] ?? 0) - 1 + total) %
+        total,
     }));
   };
 
@@ -231,39 +236,52 @@ export default function Projects() {
     projectId: string,
     isOpen: boolean,
   ) => {
-    setActiveProject(isOpen ? null : projectId);
+    setActiveProject(
+      isOpen ? null : projectId,
+    );
   };
 
   return (
-    <section id="projects" className="section-padding">
+    <section
+      id="projects"
+      className="section-padding"
+    >
       <div className="container-main">
+
         {/* Header */}
         <div
           style={{
             marginBottom: '3rem',
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent:
+              'space-between',
             flexWrap: 'wrap',
             gap: '1rem',
           }}
         >
           <div>
-            <p className="section-label">Selected Work</p>
+            <p className="section-label">
+              Selected Work
+            </p>
 
             <h2
               style={{
-                fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+                fontSize:
+                  'clamp(2rem, 4vw, 3.5rem)',
                 fontWeight: 500,
-                color: 'var(--soft-white)',
+                color:
+                  'var(--soft-white)',
                 lineHeight: 1.05,
               }}
             >
               Products I've{' '}
               <span
                 style={{
-                  fontFamily: 'Playfair Display, serif',
+                  fontFamily:
+                    'Playfair Display, serif',
                   fontStyle: 'italic',
-                  color: 'var(--sand-light)',
+                  color:
+                    'var(--sand-light)',
                 }}
               >
                 built & shipped.
@@ -280,39 +298,46 @@ export default function Projects() {
               flexWrap: 'wrap',
             }}
           >
-            {FILTERS.map(({ label, value }) => {
-              const active = filter === value;
+            {FILTERS.map(
+              ({ label, value }) => {
+                const active =
+                  filter === value;
 
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => {
-                    setFilter(value);
-                    setActiveProject(null);
-                  }}
-                  style={{
-                    padding: '0.45rem 1rem',
-                    borderRadius: '999px',
-                    border: active
-                      ? '1px solid rgba(255,255,255,0.16)'
-                      : '1px solid rgba(255,255,255,0.06)',
-                    background: active
-                      ? 'rgba(255,255,255,0.08)'
-                      : 'transparent',
-                    color: active
-                      ? 'var(--soft-white)'
-                      : 'var(--muted)',
-                    cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => {
+                      setFilter(value);
+                      setActiveProject(null);
+                    }}
+                    style={{
+                      padding:
+                        '0.45rem 1rem',
+                      borderRadius:
+                        '999px',
+                      border: active
+                        ? '1px solid rgba(255,255,255,0.16)'
+                        : '1px solid rgba(255,255,255,0.06)',
+                      background: active
+                        ? 'rgba(255,255,255,0.08)'
+                        : 'transparent',
+                      color: active
+                        ? 'var(--soft-white)'
+                        : 'var(--muted)',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      textTransform:
+                        'uppercase',
+                      letterSpacing:
+                        '0.05em',
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              },
+            )}
           </div>
         </div>
 
@@ -320,34 +345,66 @@ export default function Projects() {
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection:
+              'column',
           }}
         >
           {filtered.map((project) => {
-            const isOpen = activeProject === project.id;
+            const isOpen =
+              activeProject ===
+              project.id;
+
+            /*
+             * Always turn the value into an array.
+             * This keeps TypeScript happy and makes
+             * the rest of the component much cleaner.
+             */
+            const images =
+              project.images === 'empty'
+                ? []
+                : project.images;
+
+            const hasImages =
+              images.length > 0;
 
             const currentSlide =
-              slideIndexes[project.id] || 0;
+              hasImages
+                ? Math.min(
+                    slideIndexes[
+                      project.id
+                    ] ?? 0,
+                    images.length - 1,
+                  )
+                : 0;
 
             return (
-              <div key={project.id}>
+              <div
+                key={project.id}
+              >
                 <div
                   style={{
                     height: '1px',
-                    background: 'rgba(255,255,255,0.06)',
+                    background:
+                      'rgba(255,255,255,0.06)',
                   }}
                 />
 
                 <div
                   role="button"
                   tabIndex={0}
-                  aria-expanded={isOpen}
+                  aria-expanded={
+                    isOpen
+                  }
                   onClick={() =>
-                    toggleProject(project.id, isOpen)
+                    toggleProject(
+                      project.id,
+                      isOpen,
+                    )
                   }
                   onKeyDown={(e) => {
                     if (
-                      e.key === 'Enter' ||
+                      e.key ===
+                        'Enter' ||
                       e.key === ' '
                     ) {
                       e.preventDefault();
@@ -362,274 +419,392 @@ export default function Projects() {
                     padding: '2rem 0',
                     cursor: 'pointer',
                     display: 'grid',
-                    gridTemplateColumns: '1fr auto',
+                    gridTemplateColumns:
+                      '1fr auto',
                     gap: '1rem',
                   }}
                 >
                   <div>
+
                     {/* Top */}
                     <div
                       style={{
                         display: 'flex',
-                        alignItems: 'center',
+                        alignItems:
+                          'center',
                         gap: '0.7rem',
-                        flexWrap: 'wrap',
-                        marginBottom: '0.5rem',
+                        flexWrap:
+                          'wrap',
+                        marginBottom:
+                          '0.5rem',
                       }}
                     >
                       <p
                         style={{
-                          fontSize: '0.7rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.1em',
-                          color: project.accent,
+                          fontSize:
+                            '0.7rem',
+                          textTransform:
+                            'uppercase',
+                          letterSpacing:
+                            '0.1em',
+                          color:
+                            project.accent,
                           margin: 0,
                         }}
                       >
-                        {project.category}
+                        {
+                          project.category
+                        }
                       </p>
 
                       <StatusBadge
-                        status={project.status}
+                        status={
+                          project.status
+                        }
                       />
                     </div>
 
                     {/* Title */}
                     <h3
                       style={{
-                        fontSize: 'clamp(1.4rem, 3vw, 2.2rem)',
-                        color: 'var(--soft-white)',
-                        marginBottom: '0.4rem',
-                        lineHeight: 1.1,
+                        fontSize:
+                          'clamp(1.4rem, 3vw, 2.2rem)',
+                        color:
+                          'var(--soft-white)',
+                        marginBottom:
+                          '0.4rem',
+                        lineHeight:
+                          1.1,
                       }}
                     >
-                      {project.title}
+                      {
+                        project.title
+                      }
                     </h3>
 
                     {/* Tagline */}
                     <p
                       style={{
-                        color: 'var(--muted-light)',
-                        maxWidth: '620px',
-                        lineHeight: 1.7,
+                        color:
+                          'var(--muted-light)',
+                        maxWidth:
+                          '620px',
+                        lineHeight:
+                          1.7,
                       }}
                     >
-                      {project.tagline}
+                      {
+                        project.tagline
+                      }
                     </p>
 
-                    {/* Expanded */}
+                    {/* Expanded content */}
                     <div
                       style={{
-                        overflow: 'hidden',
-                        maxHeight: isOpen
-                          ? '3000px'
-                          : '0',
-                        opacity: isOpen ? 1 : 0,
+                        overflow:
+                          'hidden',
+                        maxHeight:
+                          isOpen
+                            ? '3000px'
+                            : '0',
+                        opacity:
+                          isOpen
+                            ? 1
+                            : 0,
                         transition:
                           'all 0.6s cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
-                      <div style={{ paddingTop: '2rem' }}>
-                        {/* SLIDESHOW */}
-                        <div
-                          style={{
-                            position: 'relative',
-                            width: '100%',
-                            borderRadius: '18px',
-                            overflow: 'hidden',
-                            border:
-                              '1px solid rgba(255,255,255,0.08)',
-                            background:
-                              'rgba(255,255,255,0.03)',
-                            marginBottom: '2rem',
-                          }}
-                        >
-                          <img
-                            src={
-                              project.images[currentSlide]
-                            }
-                            alt={project.title}
-                            style={{
-                              width: '100%',
-                              height: '520px',
-                              objectFit: 'cover',
-                              display: 'block',
-                            }}
-                          />
+                      <div
+                        style={{
+                          paddingTop:
+                            '2rem',
+                        }}
+                      >
 
-                          {/* Prev */}
-                          <button
-                            type="button"
-                            aria-label="Previous image"
-                            onClick={(e) => {
-                              e.stopPropagation();
-
-                              prevSlide(
-                                project.id,
-                                project.images.length,
-                              );
-                            }}
-                            style={{
-                              position: 'absolute',
-                              top: '50%',
-                              left: '1rem',
-                              transform:
-                                'translateY(-50%)',
-                              width: '42px',
-                              height: '42px',
-                              borderRadius: '50%',
-                              border:
-                                '1px solid rgba(255,255,255,0.1)',
-                              background:
-                                'rgba(0,0,0,0.45)',
-                              color: 'white',
-                              cursor: 'pointer',
-                              backdropFilter:
-                                'blur(8px)',
-                              fontSize: '1rem',
-                            }}
-                          >
-                            ←
-                          </button>
-
-                          {/* Next */}
-                          <button
-                            type="button"
-                            aria-label="Next image"
-                            onClick={(e) => {
-                              e.stopPropagation();
-
-                              nextSlide(
-                                project.id,
-                                project.images.length,
-                              );
-                            }}
-                            style={{
-                              position: 'absolute',
-                              top: '50%',
-                              right: '1rem',
-                              transform:
-                                'translateY(-50%)',
-                              width: '42px',
-                              height: '42px',
-                              borderRadius: '50%',
-                              border:
-                                '1px solid rgba(255,255,255,0.1)',
-                              background:
-                                'rgba(0,0,0,0.45)',
-                              color: 'white',
-                              cursor: 'pointer',
-                              backdropFilter:
-                                'blur(8px)',
-                              fontSize: '1rem',
-                            }}
-                          >
-                            →
-                          </button>
-
-                          {/* Dots */}
+                        {/* Slideshow */}
+                        {hasImages && (
                           <div
                             style={{
-                              position: 'absolute',
-                              bottom: '1rem',
-                              left: '50%',
-                              transform:
-                                'translateX(-50%)',
-                              display: 'flex',
-                              gap: '0.5rem',
+                              position:
+                                'relative',
+                              width:
+                                '100%',
+                              borderRadius:
+                                '18px',
+                              overflow:
+                                'hidden',
+                              border:
+                                '1px solid rgba(255,255,255,0.08)',
+                              background:
+                                'rgba(255,255,255,0.03)',
+                              marginBottom:
+                                '2rem',
                             }}
                           >
-                            {project.images.map(
-                              (image, index) => (
-                                <button
-                                  key={`${project.id}-${image}`}
-                                  type="button"
-                                  aria-label={`Go to image ${
-                                    index + 1
-                                  }`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
+                            <img
+                              src={
+                                images[
+                                  currentSlide
+                                ]
+                              }
+                              alt={`${project.title} screenshot ${
+                                currentSlide + 1
+                              }`}
+                              style={{
+                                width:
+                                  '100%',
+                                height:
+                                  '520px',
+                                objectFit:
+                                  'cover',
+                                display:
+                                  'block',
+                              }}
+                            />
 
-                                    setSlideIndexes(
-                                      (prev) => ({
-                                        ...prev,
-                                        [project.id]:
-                                          index,
-                                      }),
-                                    );
-                                  }}
-                                  style={{
-                                    width: '8px',
-                                    height: '8px',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    background:
-                                      currentSlide ===
-                                      index
-                                        ? 'white'
-                                        : 'rgba(255,255,255,0.4)',
-                                  }}
-                                />
-                              ),
+                            {/* Previous button */}
+                            {images.length >
+                              1 && (
+                              <button
+                                type="button"
+                                aria-label="Previous image"
+                                onClick={(
+                                  e,
+                                ) => {
+                                  e.stopPropagation();
+
+                                  prevSlide(
+                                    project.id,
+                                    images.length,
+                                  );
+                                }}
+                                style={{
+                                  position:
+                                    'absolute',
+                                  top: '50%',
+                                  left: '1rem',
+                                  transform:
+                                    'translateY(-50%)',
+                                  width:
+                                    '42px',
+                                  height:
+                                    '42px',
+                                  borderRadius:
+                                    '50%',
+                                  border:
+                                    '1px solid rgba(255,255,255,0.1)',
+                                  background:
+                                    'rgba(0,0,0,0.45)',
+                                  color:
+                                    'white',
+                                  cursor:
+                                    'pointer',
+                                  backdropFilter:
+                                    'blur(8px)',
+                                  fontSize:
+                                    '1rem',
+                                }}
+                              >
+                                ←
+                              </button>
+                            )}
+
+                            {/* Next button */}
+                            {images.length >
+                              1 && (
+                              <button
+                                type="button"
+                                aria-label="Next image"
+                                onClick={(
+                                  e,
+                                ) => {
+                                  e.stopPropagation();
+
+                                  nextSlide(
+                                    project.id,
+                                    images.length,
+                                  );
+                                }}
+                                style={{
+                                  position:
+                                    'absolute',
+                                  top: '50%',
+                                  right: '1rem',
+                                  transform:
+                                    'translateY(-50%)',
+                                  width:
+                                    '42px',
+                                  height:
+                                    '42px',
+                                  borderRadius:
+                                    '50%',
+                                  border:
+                                    '1px solid rgba(255,255,255,0.1)',
+                                  background:
+                                    'rgba(0,0,0,0.45)',
+                                  color:
+                                    'white',
+                                  cursor:
+                                    'pointer',
+                                  backdropFilter:
+                                    'blur(8px)',
+                                  fontSize:
+                                    '1rem',
+                                }}
+                              >
+                                →
+                              </button>
+                            )}
+
+                            {/* Dots */}
+                            {images.length >
+                              1 && (
+                              <div
+                                style={{
+                                  position:
+                                    'absolute',
+                                  bottom:
+                                    '1rem',
+                                  left:
+                                    '50%',
+                                  transform:
+                                    'translateX(-50%)',
+                                  display:
+                                    'flex',
+                                  gap:
+                                    '0.5rem',
+                                }}
+                              >
+                                {images.map(
+                                  (
+                                    image,
+                                    index,
+                                  ) => (
+                                    <button
+                                      key={`${project.id}-${image}`}
+                                      type="button"
+                                      aria-label={`Go to image ${
+                                        index +
+                                        1
+                                      }`}
+                                      onClick={(
+                                        e,
+                                      ) => {
+                                        e.stopPropagation();
+
+                                        setSlideIndexes(
+                                          (
+                                            prev,
+                                          ) => ({
+                                            ...prev,
+                                            [project.id]:
+                                              index,
+                                          }),
+                                        );
+                                      }}
+                                      style={{
+                                        width:
+                                          '8px',
+                                        height:
+                                          '8px',
+                                        padding:
+                                          0,
+                                        borderRadius:
+                                          '50%',
+                                        border:
+                                          'none',
+                                        cursor:
+                                          'pointer',
+                                        background:
+                                          currentSlide ===
+                                          index
+                                            ? 'white'
+                                            : 'rgba(255,255,255,0.4)',
+                                      }}
+                                    />
+                                  ),
+                                )}
+                              </div>
                             )}
                           </div>
-                        </div>
+                        )}
 
                         {/* Description */}
                         <p
                           style={{
-                            color: 'var(--muted-light)',
-                            lineHeight: 1.8,
-                            marginBottom: '1.5rem',
+                            color:
+                              'var(--muted-light)',
+                            lineHeight:
+                              1.8,
+                            marginBottom:
+                              '1.5rem',
                           }}
                         >
-                          {project.description}
+                          {
+                            project.description
+                          }
                         </p>
 
                         {/* Stack */}
                         <div
                           style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
+                            display:
+                              'flex',
+                            flexWrap:
+                              'wrap',
                             gap: '0.5rem',
-                            marginBottom: '2rem',
+                            marginBottom:
+                              '2rem',
                           }}
                         >
-                          {project.stack.map((tech) => (
-                            <span
-                              key={tech}
-                              style={{
-                                padding:
-                                  '0.3rem 0.7rem',
-                                border:
-                                  '1px solid rgba(255,255,255,0.08)',
-                                borderRadius: '5px',
-                                fontSize: '0.75rem',
-                                color:
-                                  'var(--muted-light)',
-                                fontFamily:
-                                  'JetBrains Mono, monospace',
-                              }}
-                            >
-                              {tech}
-                            </span>
-                          ))}
+                          {project.stack.map(
+                            (tech) => (
+                              <span
+                                key={
+                                  tech
+                                }
+                                style={{
+                                  padding:
+                                    '0.3rem 0.7rem',
+                                  border:
+                                    '1px solid rgba(255,255,255,0.08)',
+                                  borderRadius:
+                                    '5px',
+                                  fontSize:
+                                    '0.75rem',
+                                  color:
+                                    'var(--muted-light)',
+                                  fontFamily:
+                                    'JetBrains Mono, monospace',
+                                }}
+                              >
+                                {tech}
+                              </span>
+                            ),
+                          )}
                         </div>
 
                         {/* Buttons */}
                         <div
                           style={{
-                            display: 'flex',
-                            gap: '0.8rem',
-                            flexWrap: 'wrap',
+                            display:
+                              'flex',
+                            gap:
+                              '0.8rem',
+                            flexWrap:
+                              'wrap',
                           }}
                         >
                           <a
-                            href={project.link}
+                            href={
+                              project.link
+                            }
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={(e) =>
+                            onClick={(
+                              e,
+                            ) =>
                               e.stopPropagation()
                             }
                             className="btn-secondary"
@@ -639,10 +814,14 @@ export default function Projects() {
 
                           {project.live && (
                             <a
-                              href={project.live}
+                              href={
+                                project.live
+                              }
                               target="_blank"
                               rel="noopener noreferrer"
-                              onClick={(e) =>
+                              onClick={(
+                                e,
+                              ) =>
                                 e.stopPropagation()
                               }
                               className="btn-primary"
@@ -655,14 +834,17 @@ export default function Projects() {
                     </div>
                   </div>
 
-                  {/* Plus Icon */}
+                  {/* Plus icon */}
                   <div
                     style={{
-                      transform: isOpen
-                        ? 'rotate(45deg)'
-                        : 'rotate(0deg)',
-                      transition: '0.3s',
-                      color: 'var(--muted)',
+                      transform:
+                        isOpen
+                          ? 'rotate(45deg)'
+                          : 'rotate(0deg)',
+                      transition:
+                        '0.3s',
+                      color:
+                        'var(--muted)',
                     }}
                   >
                     <svg

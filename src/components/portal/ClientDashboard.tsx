@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import DemoWorkspace from './DemoWorkspace';
 import ProjectGallery from './ProjectGallery';
 import ProjectOverview from './ProjectOverview';
 import ProjectProgress from './ProjectProgress';
@@ -42,12 +43,6 @@ export default function ClientDashboard() {
       setError('');
 
       try {
-        /*
-         * Authorization is handled server-side.
-         *
-         * The browser does not send projectCode or projectId.
-         * The API reads the signed httpOnly project session.
-         */
         const data =
           await fetchPortalDataByProjectSession();
 
@@ -279,14 +274,15 @@ export default function ClientDashboard() {
   const project = portalData.project;
   const hours = portalData.hours;
 
-  const projectImages = Array.isArray(
-    project.images,
-  )
+  const projectImages = Array.isArray(project.images)
     ? project.images
     : [];
 
   const projectCode =
     project.project_code?.trim() || 'Project';
+
+  const isDemoProject =
+    project.category === 'demo';
 
   return (
     <>
@@ -487,12 +483,14 @@ export default function ClientDashboard() {
           >
             <div className="portal-dashboard__identity">
               <div className="portal-dashboard__avatar">
-                PW
+                {isDemoProject ? 'DM' : 'PW'}
               </div>
 
               <div className="portal-dashboard__identity-copy">
                 <div className="portal-dashboard__eyebrow">
-                  Project workspace
+                  {isDemoProject
+                    ? 'Demo workspace'
+                    : 'Project workspace'}
                 </div>
 
                 <h1 className="portal-dashboard__title">
@@ -520,70 +518,79 @@ export default function ClientDashboard() {
             </button>
           </header>
 
-          <div className="portal-dashboard__primary-grid">
-            <ProjectOverview
-              project={{
-                name: project.name,
-                category: project.category,
-                type: project.type,
-                status: project.status,
-                phase: project.phase,
-                progress: project.progress,
-                expectedLaunch:
-                  project.expected_launch,
-                description:
-                  project.description,
-                liveDemoUrl:
-                  project.live_demo_url,
-              }}
-            />
+          {isDemoProject ? (
+            <DemoWorkspace project={project} />
+          ) : (
+            <>
+              <div className="portal-dashboard__primary-grid">
+                <ProjectOverview
+                  project={{
+                    name: project.name,
+                    category: project.category,
+                    type: project.type,
+                    status: project.status,
+                    phase: project.phase,
+                    progress: project.progress,
+                    expectedLaunch:
+                      project.expected_launch,
+                    description:
+                      project.description,
+                    liveDemoUrl:
+                      project.live_demo_url,
+                  }}
+                />
 
-            <ProjectProgress
-              progress={project.progress}
-              phase={project.phase}
-              status={project.status}
-              category={project.category}
-            />
-          </div>
+                <ProjectProgress
+                  progress={project.progress}
+                  phase={project.phase}
+                  status={project.status}
+                  category={project.category}
+                />
+              </div>
 
-          <div className="portal-dashboard__gallery">
-            <ProjectGallery
-              images={projectImages}
-              projectName={project.name}
-            />
-          </div>
-
-          <div className="portal-dashboard__category-focus">
-            <ProjectCategoryFocus
-              category={project.category}
-            />
-          </div>
-
-          <div className="portal-dashboard__secondary-grid">
-            <ProjectTimeline
-              items={portalData.timeline.map(
-                (item) => ({
-                  title: item.title,
-                  description: item.description,
-                  status: item.status,
-                  date: item.date,
-                }),
+              {projectImages.length > 0 && (
+                <div className="portal-dashboard__gallery">
+                  <ProjectGallery
+                    images={projectImages}
+                    projectName={project.name}
+                  />
+                </div>
               )}
-            />
 
-            <ProjectHours
-              hours={{
-                used: hours.hours_used,
-                allocated:
-                  hours.hours_allocated,
-                remaining: Math.max(
-                  hours.hours_allocated -
-                    hours.hours_used,
-                  0,
-                ),
-              }}
-            />
-          </div>
+              <div className="portal-dashboard__category-focus">
+                <ProjectCategoryFocus
+                  category={project.category}
+                />
+              </div>
+
+              <div className="portal-dashboard__secondary-grid">
+                <ProjectTimeline
+                  items={portalData.timeline.map(
+                    (item) => ({
+                      title: item.title,
+                      description:
+                        item.description,
+                      status: item.status,
+                      date: item.date,
+                    }),
+                  )}
+                />
+
+                <ProjectHours
+                  hours={{
+                    used: hours.hours_used,
+                    allocated:
+                      hours.hours_allocated,
+                    remaining: Math.max(
+                      hours.hours_allocated -
+                        hours.hours_used,
+                      0,
+                    ),
+                  }}
+                />
+              </div>
+            </>
+          )}
         </div>
       </main>
     </>

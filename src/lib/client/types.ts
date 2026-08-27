@@ -13,7 +13,8 @@ export type ProjectCategory =
   | 'redesign'
   | 'saas'
   | 'ai-tool'
-  | 'ai-automation';
+  | 'ai-automation'
+  | 'demo';
 
 export type ProjectRecord = {
   id: string;
