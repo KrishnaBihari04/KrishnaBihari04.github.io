@@ -49,6 +49,42 @@ type HoursRow = {
   updated_at?: string;
 };
 
+type ProjectUpdateRow = {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string | null;
+  update_type: string | null;
+  published: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+type ProjectMilestoneRow = {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string | null;
+  status:
+    | 'completed'
+    | 'active'
+    | 'upcoming';
+  milestone_date: string | null;
+  sort_order: number;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+type ProjectProgressHistoryRow = {
+  id: string;
+  project_id: string;
+  progress: number;
+  phase: string | null;
+  note: string | null;
+  recorded_at: string;
+  created_at: string | null;
+};
+
 function json(
   body: unknown,
   status = 200,
@@ -76,6 +112,33 @@ function normalizeImages(
     (image): image is string =>
       typeof image === 'string' &&
       image.trim().length > 0,
+  );
+}
+
+function normalizeUpdateType(
+  value: string | null,
+): string {
+  if (
+    typeof value !== 'string' ||
+    value.trim().length === 0
+  ) {
+    return 'progress';
+  }
+
+  return value.trim();
+}
+
+function normalizeProgress(
+  value: number | null,
+): number {
+  return Math.min(
+    Math.max(
+      typeof value === 'number'
+        ? value
+        : 0,
+      0,
+    ),
+    100,
   );
 }
 
@@ -108,12 +171,12 @@ export const GET: APIRoute = async ({
   }
 
   try {
-    /*
+    /**
      * The project ID comes from the signed,
      * httpOnly server session.
      *
      * The project code must match the same session.
-     * Both values are therefore server-controlled.
+     * Both values are server-controlled.
      */
     const {
       data: projectData,
@@ -139,14 +202,20 @@ export const GET: APIRoute = async ({
           'updated_at',
         ].join(', '),
       )
-      .eq('id', session.projectId)
+      .eq(
+        'id',
+        session.projectId,
+      )
       .eq(
         'project_code',
         session.projectCode,
       )
       .maybeSingle();
 
-    if (projectError || !projectData) {
+    if (
+      projectError ||
+      !projectData
+    ) {
       return json(
         {
           success: false,
@@ -160,13 +229,17 @@ export const GET: APIRoute = async ({
     const project =
       projectData as unknown as ProjectRow;
 
-    /*
-     * Timeline and hours are also scoped to the
-     * exact project authorized by the session.
+    /**
+     * Timeline, hours, updates, milestones
+     * and progress history are all scoped to
+     * the exact project authorized by the session.
      */
     const [
       timelineResult,
       hoursResult,
+      updatesResult,
+      milestonesResult,
+      progressHistoryResult,
     ] = await Promise.all([
       supabaseAdmin
         .from('project_timeline')
@@ -207,6 +280,85 @@ export const GET: APIRoute = async ({
           project.id,
         )
         .maybeSingle(),
+
+      supabaseAdmin
+        .from('project_updates')
+        .select(
+          [
+            'id',
+            'project_id',
+            'title',
+            'description',
+            'update_type',
+            'published',
+            'created_at',
+            'updated_at',
+          ].join(', '),
+        )
+        .eq(
+          'project_id',
+          project.id,
+        )
+        .eq(
+          'published',
+          true,
+        )
+        .order(
+          'created_at',
+          {
+            ascending: false,
+          },
+        ),
+
+      supabaseAdmin
+        .from('project_milestones')
+        .select(
+          [
+            'id',
+            'project_id',
+            'title',
+            'description',
+            'status',
+            'milestone_date',
+            'sort_order',
+            'created_at',
+            'updated_at',
+          ].join(', '),
+        )
+        .eq(
+          'project_id',
+          project.id,
+        )
+        .order(
+          'sort_order',
+          {
+            ascending: true,
+          },
+        ),
+
+      supabaseAdmin
+        .from('project_progress_history')
+        .select(
+          [
+            'id',
+            'project_id',
+            'progress',
+            'phase',
+            'note',
+            'recorded_at',
+            'created_at',
+          ].join(', '),
+        )
+        .eq(
+          'project_id',
+          project.id,
+        )
+        .order(
+          'recorded_at',
+          {
+            ascending: true,
+          },
+        ),
     ]);
 
     if (timelineResult.error) {
@@ -231,21 +383,66 @@ export const GET: APIRoute = async ({
       );
     }
 
+    if (updatesResult.error) {
+      return json(
+        {
+          success: false,
+          message:
+            'Unable to load project updates.',
+        },
+        500,
+      );
+    }
+
+    if (milestonesResult.error) {
+      return json(
+        {
+          success: false,
+          message:
+            'Unable to load project milestones.',
+        },
+        500,
+      );
+    }
+
+    if (
+      progressHistoryResult.error
+    ) {
+      return json(
+        {
+          success: false,
+          message:
+            'Unable to load project progress history.',
+        },
+        500,
+      );
+    }
+
     const timeline =
-      (timelineResult.data ?? []) as unknown as TimelineRow[];
+      (timelineResult.data ??
+        []) as unknown as TimelineRow[];
 
     const hours =
-      hoursResult.data as unknown as HoursRow | null;
+      hoursResult.data as unknown as
+        | HoursRow
+        | null;
 
-    const progress = Math.min(
-      Math.max(
-        typeof project.progress === 'number'
-          ? project.progress
-          : 0,
-        0,
-      ),
-      100,
-    );
+    const updates =
+      (updatesResult.data ??
+        []) as unknown as ProjectUpdateRow[];
+
+    const milestones =
+      (milestonesResult.data ??
+        []) as unknown as ProjectMilestoneRow[];
+
+    const progressHistory =
+      (progressHistoryResult.data ??
+        []) as unknown as ProjectProgressHistoryRow[];
+
+    const progress =
+      normalizeProgress(
+        project.progress,
+      );
 
     return json({
       success: true,
@@ -253,11 +450,13 @@ export const GET: APIRoute = async ({
       project: {
         id: project.id,
 
-        /*
-         * Kept in the database response for compatibility,
-         * but it is not exposed as client-facing identity.
+        /**
+         * Kept in the database response for
+         * compatibility with the existing client
+         * data contract.
          */
-        client_id: project.client_id,
+        client_id:
+          project.client_id,
 
         project_code:
           project.project_code
@@ -265,93 +464,254 @@ export const GET: APIRoute = async ({
             .toUpperCase(),
 
         name:
-          typeof project.name === 'string' &&
-          project.name.trim().length > 0
+          typeof project.name ===
+            'string' &&
+          project.name.trim()
+            .length > 0
             ? project.name.trim()
             : 'Project',
 
         description:
-          typeof project.description === 'string'
+          typeof project.description ===
+            'string'
             ? project.description.trim()
             : '',
 
         type:
-          typeof project.type === 'string' &&
-          project.type.trim().length > 0
+          typeof project.type ===
+            'string' &&
+          project.type.trim()
+            .length > 0
             ? project.type.trim()
             : 'Project',
 
         category:
-          typeof project.category === 'string'
-            ? project.category
+          typeof project.category ===
+            'string' &&
+          project.category.trim()
+            .length > 0
+            ? project.category.trim()
             : 'web-development',
 
         status:
-          typeof project.status === 'string' &&
-          project.status.trim().length > 0
+          typeof project.status ===
+            'string' &&
+          project.status.trim()
+            .length > 0
             ? project.status.trim()
             : 'Active',
 
         phase:
-          typeof project.phase === 'string' &&
-          project.phase.trim().length > 0
+          typeof project.phase ===
+            'string' &&
+          project.phase.trim()
+            .length > 0
             ? project.phase.trim()
             : 'Planning',
 
         progress,
 
         expected_launch:
-          typeof project.expected_launch === 'string'
+          typeof project.expected_launch ===
+            'string'
             ? project.expected_launch.trim()
             : '',
 
         live_demo_url:
-          typeof project.live_demo_url === 'string' &&
-          project.live_demo_url.trim().length > 0
+          typeof project.live_demo_url ===
+            'string' &&
+          project.live_demo_url.trim()
+            .length > 0
             ? project.live_demo_url.trim()
             : null,
 
-        images: normalizeImages(
-          project.images,
-        ),
+        images:
+          normalizeImages(
+            project.images,
+          ),
 
-        created_at: project.created_at,
-        updated_at: project.updated_at,
+        created_at:
+          project.created_at,
+
+        updated_at:
+          project.updated_at,
       },
 
-      timeline: timeline.map((item) => ({
-        id: item.id,
-        project_id: item.project_id,
-        title: item.title,
-        description:
-          item.description ?? '',
-        status: item.status,
-        date:
-          item.timeline_date ?? '',
-        order: item.sort_order,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-      })),
+      timeline: timeline
+        .filter(
+          (item) =>
+            typeof item.title ===
+              'string' &&
+            item.title.trim()
+              .length > 0,
+        )
+        .map((item) => ({
+          id: item.id,
+          project_id:
+            item.project_id,
+
+          title:
+            item.title.trim(),
+
+          description:
+            item.description
+              ?.trim() ?? '',
+
+          status:
+            item.status,
+
+          date:
+            item.timeline_date ??
+            '',
+
+          order:
+            item.sort_order,
+
+          created_at:
+            item.created_at,
+
+          updated_at:
+            item.updated_at,
+        })),
 
       hours: {
         id:
           hours?.id ??
           `hours-${project.id}`,
 
-        project_id: project.id,
+        project_id:
+          project.id,
 
-        hours_allocated: Math.max(
-          hours?.hours_allocated ?? 0,
-          0,
-        ),
+        hours_allocated:
+          Math.max(
+            hours?.hours_allocated ??
+              0,
+            0,
+          ),
 
-        hours_used: Math.max(
-          hours?.hours_used ?? 0,
-          0,
-        ),
+        hours_used:
+          Math.max(
+            hours?.hours_used ??
+              0,
+            0,
+          ),
 
-        updated_at: hours?.updated_at,
+        updated_at:
+          hours?.updated_at,
       },
+
+      updates: updates
+        .filter(
+          (item) =>
+            item.published !== false &&
+            typeof item.title ===
+              'string' &&
+            item.title.trim()
+              .length > 0,
+        )
+        .map((item) => ({
+          id: item.id,
+          project_id:
+            item.project_id,
+
+          title:
+            item.title.trim(),
+
+          description:
+            item.description
+              ?.trim() ?? '',
+
+          update_type:
+            normalizeUpdateType(
+              item.update_type,
+            ),
+
+          published: true,
+
+          created_at:
+            item.created_at,
+
+          updated_at:
+            item.updated_at,
+        })),
+
+      milestones: milestones
+        .filter(
+          (item) =>
+            typeof item.title ===
+              'string' &&
+            item.title.trim()
+              .length > 0,
+        )
+        .map((item) => ({
+          id: item.id,
+          project_id:
+            item.project_id,
+
+          title:
+            item.title.trim(),
+
+          description:
+            item.description
+              ?.trim() ?? '',
+
+          status:
+            item.status,
+
+          date:
+            item.milestone_date ??
+            '',
+
+          order:
+            item.sort_order,
+
+          created_at:
+            item.created_at,
+
+          updated_at:
+            item.updated_at,
+        })),
+
+      progressHistory:
+        progressHistory
+          .filter(
+            (item) =>
+              Number.isFinite(
+                item.progress,
+              ) &&
+              typeof item.recorded_at ===
+                'string' &&
+              item.recorded_at.trim()
+                .length > 0,
+          )
+          .map((item) => ({
+            id: item.id,
+            project_id:
+              item.project_id,
+
+            progress:
+              Math.min(
+                Math.max(
+                  item.progress,
+                  0,
+                ),
+                100,
+              ),
+
+            phase:
+              item.phase?.trim() ||
+              'Project',
+
+            note:
+              item.note?.trim() ||
+              '',
+
+            recorded_at:
+              item.recorded_at,
+
+            created_at:
+              item.created_at,
+          })),
     });
   } catch {
     return json(

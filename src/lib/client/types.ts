@@ -10,7 +10,7 @@ export type TimelineStatus =
 
 export type ProjectCategory =
   | 'web-development'
-  | 'redesign'
+  | 'web-redesign'
   | 'saas'
   | 'ai-tool'
   | 'ai-automation'
@@ -31,6 +31,7 @@ export type ProjectRecord = {
   phase: string;
   progress: number;
   expected_launch: string;
+
   live_demo_url?: string | null;
 
   // Client-visible project media.
@@ -60,7 +61,45 @@ export type ProjectHoursRecord = {
   updated_at?: string;
 };
 
-/*
+export type ProjectUpdateRecord = {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string;
+  update_type: string;
+  published: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ProjectMilestoneStatus =
+  | 'completed'
+  | 'active'
+  | 'upcoming';
+
+export type ProjectMilestoneRecord = {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string;
+  status: ProjectMilestoneStatus;
+  date: string;
+  order: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ProjectProgressHistoryRecord = {
+  id: string;
+  project_id: string;
+  progress: number;
+  phase: string;
+  note: string;
+  recorded_at: string;
+  created_at?: string;
+};
+
+/**
  * Canonical project workspace data.
  *
  * The portal is project-code-first and does not require
@@ -70,9 +109,12 @@ export type ClientPortalData = {
   project: ProjectRecord;
   timeline: TimelineRecord[];
   hours: ProjectHoursRecord;
+  updates: ProjectUpdateRecord[];
+  milestones: ProjectMilestoneRecord[];
+  progressHistory: ProjectProgressHistoryRecord[];
 };
 
-/*
+/**
  * Project-based browser session.
  *
  * PROJECT-2026-X7K9
@@ -93,7 +135,9 @@ export const DEMO_PROJECT_CODE =
 export function normalizeProjectCategory(
   value?: string | null,
 ): ProjectCategory {
-  const normalized = value?.trim().toLowerCase();
+  const normalized = value
+    ?.trim()
+    .toLowerCase();
 
   switch (normalized) {
     case 'web-development':
@@ -103,10 +147,11 @@ export function normalizeProjectCategory(
     case 'web application':
       return 'web-development';
 
+    case 'web-redesign':
     case 'redesign':
     case 'website redesign':
     case 'web redesign':
-      return 'redesign';
+      return 'web-redesign';
 
     case 'saas':
     case 'saas platform':
@@ -122,6 +167,10 @@ export function normalizeProjectCategory(
     case 'automation':
     case 'ai workflow':
       return 'ai-automation';
+
+    case 'demo':
+    case 'demo workspace':
+      return 'demo';
 
     default:
       return 'web-development';

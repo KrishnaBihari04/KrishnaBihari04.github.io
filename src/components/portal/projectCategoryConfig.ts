@@ -49,7 +49,7 @@ export const PROJECT_CATEGORY_CONFIG: Record<
     ],
   },
 
-  redesign: {
+  'web-redesign': {
     label: 'Web Redesign',
     description:
       'A redesigned digital experience focused on clarity, performance, and conversion.',
@@ -124,13 +124,32 @@ export const PROJECT_CATEGORY_CONFIG: Record<
       'Monitoring & reliability',
     ],
   },
+
+  demo: {
+    label: 'Demo Workspace',
+    description:
+      'A demonstration project workspace used for testing, preview, and portal development.',
+    stages: [
+      'Discovery',
+      'Design',
+      'Development',
+      'Testing',
+      'Launch',
+    ],
+    focusAreas: [
+      'Workspace preview',
+      'Portal functionality',
+      'Project progress',
+      'Client experience',
+    ],
+  },
 };
 
-export function getProjectCategoryConfig(
+function normalizeCategoryKey(
   category?: string | null,
-): ProjectCategoryConfig {
-  if (!category) {
-    return DEFAULT_PROJECT_CATEGORY_CONFIG;
+): ProjectCategory | null {
+  if (!category?.trim()) {
+    return null;
   }
 
   const normalized = category
@@ -139,10 +158,57 @@ export function getProjectCategoryConfig(
     .replace(/_/g, '-')
     .replace(/\s+/g, '-');
 
-  const config =
-    PROJECT_CATEGORY_CONFIG[
-      normalized as ProjectCategory
-    ];
+  switch (normalized) {
+    case 'web-development':
+    case 'webdevelopment':
+    case 'website-development':
+    case 'website':
+    case 'web-application':
+      return 'web-development';
 
-  return config ?? DEFAULT_PROJECT_CATEGORY_CONFIG;
+    case 'web-redesign':
+    case 'redesign':
+    case 'website-redesign':
+    case 'web-redesign-project':
+      return 'web-redesign';
+
+    case 'saas':
+    case 'saas-platform':
+      return 'saas';
+
+    case 'ai-tool':
+    case 'aitool':
+    case 'ai-application':
+    case 'ai-product':
+      return 'ai-tool';
+
+    case 'ai-automation':
+    case 'aiautomation':
+    case 'automation':
+    case 'ai-workflow':
+      return 'ai-automation';
+
+    case 'demo':
+    case 'demo-workspace':
+      return 'demo';
+
+    default:
+      return null;
+  }
+}
+
+export function getProjectCategoryConfig(
+  category?: string | null,
+): ProjectCategoryConfig {
+  const normalizedCategory =
+    normalizeCategoryKey(category);
+
+  if (!normalizedCategory) {
+    return DEFAULT_PROJECT_CATEGORY_CONFIG;
+  }
+
+  return (
+    PROJECT_CATEGORY_CONFIG[normalizedCategory] ??
+    DEFAULT_PROJECT_CATEGORY_CONFIG
+  );
 }

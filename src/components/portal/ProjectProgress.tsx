@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 import type { ProjectCategory } from '../../lib/client/types';
 
 import { getProjectCategoryConfig } from './projectCategoryConfig';
@@ -9,32 +11,49 @@ type ProjectProgressProps = {
   readonly category: ProjectCategory;
 };
 
-const normalizePhase = (phase: string) =>
-  phase.trim().toLowerCase();
+const ease = [
+  0.16,
+  1,
+  0.3,
+  1,
+] as const;
+
+const normalizePhase = (
+  phase: string,
+) => phase.trim().toLowerCase();
 
 function getActiveStageIndex(
   stages: readonly string[],
   phase: string,
 ): number {
-  const normalizedPhase = normalizePhase(phase);
+  const normalizedPhase =
+    normalizePhase(phase);
 
-  const exactIndex = stages.findIndex(
-    (stage) =>
-      normalizePhase(stage) === normalizedPhase,
-  );
+  const exactIndex =
+    stages.findIndex(
+      (stage) =>
+        normalizePhase(stage) ===
+        normalizedPhase,
+    );
 
   if (exactIndex >= 0) {
     return exactIndex;
   }
 
-  const keywordIndex = stages.findIndex((stage) => {
-    const normalizedStage = normalizePhase(stage);
+  const keywordIndex =
+    stages.findIndex((stage) => {
+      const normalizedStage =
+        normalizePhase(stage);
 
-    return (
-      normalizedPhase.includes(normalizedStage) ||
-      normalizedStage.includes(normalizedPhase)
-    );
-  });
+      return (
+        normalizedPhase.includes(
+          normalizedStage,
+        ) ||
+        normalizedStage.includes(
+          normalizedPhase,
+        )
+      );
+    });
 
   if (keywordIndex >= 0) {
     return keywordIndex;
@@ -57,38 +76,74 @@ export default function ProjectProgress({
   const categoryConfig =
     getProjectCategoryConfig(category);
 
-  const stages = categoryConfig.stages;
+  const stages =
+    categoryConfig.stages;
 
-  const activeStageIndex = getActiveStageIndex(
-    stages,
-    phase,
-  );
+  const activeStageIndex =
+    getActiveStageIndex(
+      stages,
+      phase,
+    );
 
   const currentPhase =
-    phase?.trim() || 'Not specified';
+    phase?.trim() ||
+    'Not specified';
 
   const currentStatus =
-    status?.trim() || 'Status unavailable';
+    status?.trim() ||
+    'Status unavailable';
 
   return (
-    <section
-      data-reveal
-      className="project-progress"
+    <motion.section
+      className="project-progress portal-card-hover"
+      initial={{
+        opacity: 0,
+        y: 14,
+      }}
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+      viewport={{
+        once: true,
+        amount: 0.12,
+      }}
+      transition={{
+        duration: 0.55,
+        ease,
+      }}
       style={{
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
         minWidth: 0,
-        border: '1px solid var(--border-mid)',
+        border:
+          '1px solid var(--border-mid)',
         borderRadius: '18px',
-        background: 'rgba(10, 10, 10, 0.78)',
-        padding: 'clamp(1.1rem, 3vw, 1.5rem)',
+        background:
+          'rgba(10, 10, 10, 0.78)',
+        padding:
+          'clamp(1.1rem, 3vw, 1.5rem)',
         boxShadow:
           '0 20px 45px rgba(0, 0, 0, 0.16)',
       }}
     >
-      <div
+      {/* Ambient glow */}
+      <motion.div
         aria-hidden="true"
+        initial={{
+          opacity: 0,
+        }}
+        whileInView={{
+          opacity: 1,
+        }}
+        viewport={{
+          once: true,
+        }}
+        transition={{
+          duration: 0.9,
+          ease,
+        }}
         style={{
           position: 'absolute',
           inset: 0,
@@ -105,8 +160,25 @@ export default function ProjectProgress({
           minWidth: 0,
         }}
       >
-        <div
+        {/* Header */}
+        <motion.div
           className="project-progress__header"
+          initial={{
+            opacity: 0,
+            y: 8,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+          }}
+          transition={{
+            duration: 0.4,
+            ease,
+            delay: 0.08,
+          }}
           style={{
             display: 'flex',
             alignItems: 'flex-start',
@@ -143,52 +215,113 @@ export default function ProjectProgress({
             </div>
           </div>
 
-          <div
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 7,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+            }}
+            transition={{
+              duration: 0.45,
+              ease,
+              delay: 0.14,
+            }}
             style={{
               flex: '0 0 auto',
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
+              fontSize:
+                'clamp(2rem, 5vw, 3rem)',
               lineHeight: 1,
-              color: 'var(--soft-white)',
-              fontFamily: 'var(--font-body)',
+              color:
+                'var(--soft-white)',
+              fontFamily:
+                'var(--font-body)',
               whiteSpace: 'nowrap',
             }}
           >
             {normalizedProgress}%
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
+        {/* Progress bar */}
         <div
+          role="progressbar"
+          aria-label="Project progress"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={
+            normalizedProgress
+          }
           style={{
             width: '100%',
             height: '10px',
             overflow: 'hidden',
             borderRadius: '999px',
-            background: 'rgba(255,255,255,0.06)',
+            background:
+              'rgba(255,255,255,0.06)',
             marginBottom: '1.5rem',
           }}
         >
-          <div
-            style={{
+          <motion.div
+            initial={{
+              width: '0%',
+            }}
+            whileInView={{
               width: `${normalizedProgress}%`,
+            }}
+            viewport={{
+              once: true,
+              amount: 0.2,
+            }}
+            transition={{
+              duration: 1.05,
+              ease,
+              delay: 0.16,
+            }}
+            style={{
               height: '100%',
               borderRadius: 'inherit',
               background:
                 'linear-gradient(90deg, var(--forest-bright), var(--sand-light))',
-              transition:
-                'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           />
         </div>
 
-        <div
-          className="project-progress__current"
+        {/* Current phase */}
+        <motion.div
+          className="project-progress__current portal-hover-item"
+          initial={{
+            opacity: 0,
+            y: 8,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+          }}
+          whileHover={{
+            y: -2,
+          }}
+          transition={{
+            duration: 0.4,
+            ease,
+            delay: 0.24,
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '0.75rem',
             marginBottom: '1.5rem',
-            padding: '0.85rem 1rem',
+            padding:
+              '0.85rem 1rem',
             borderRadius: '12px',
             border:
               '1px solid rgba(255,255,255,0.05)',
@@ -203,11 +336,15 @@ export default function ProjectProgress({
           >
             <div
               style={{
-                marginBottom: '0.25rem',
+                marginBottom:
+                  '0.25rem',
                 fontSize: '0.62rem',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'var(--muted-light)',
+                letterSpacing:
+                  '0.12em',
+                textTransform:
+                  'uppercase',
+                color:
+                  'var(--muted-light)',
               }}
             >
               Current phase
@@ -215,181 +352,403 @@ export default function ProjectProgress({
 
             <div
               style={{
-                color: 'var(--soft-white)',
+                color:
+                  'var(--soft-white)',
                 fontSize: '0.95rem',
-                overflowWrap: 'anywhere',
+                overflowWrap:
+                  'anywhere',
               }}
             >
               {currentPhase}
             </div>
           </div>
 
-          <div
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.96,
+            }}
+            whileInView={{
+              opacity: 1,
+              scale: 1,
+            }}
+            viewport={{
+              once: true,
+            }}
+            transition={{
+              duration: 0.35,
+              ease,
+              delay: 0.3,
+            }}
             style={{
               flex: '0 0 auto',
-              padding: '0.4rem 0.65rem',
+              padding:
+                '0.4rem 0.65rem',
               borderRadius: '999px',
               border:
                 '1px solid rgba(200,184,154,0.15)',
               background:
                 'rgba(200,184,154,0.05)',
-              color: 'var(--sand-light)',
+              color:
+                'var(--sand-light)',
               fontSize: '0.62rem',
               letterSpacing: '0.08em',
-              textTransform: 'uppercase',
+              textTransform:
+                'uppercase',
               whiteSpace: 'nowrap',
             }}
           >
             {currentStatus}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
+        {/* Delivery stages */}
         <div>
-          <div
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 6,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+            }}
+            transition={{
+              duration: 0.4,
+              ease,
+              delay: 0.3,
+            }}
             style={{
               marginBottom: '0.8rem',
               fontSize: '0.65rem',
               letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'var(--muted-light)',
+              textTransform:
+                'uppercase',
+              color:
+                'var(--muted-light)',
             }}
           >
             Delivery stages
-          </div>
+          </motion.div>
 
-          <div
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{
+              once: true,
+              amount: 0.12,
+            }}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.07,
+                  delayChildren: 0.34,
+                },
+              },
+            }}
             style={{
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection:
+                'column',
               gap: '0.65rem',
             }}
           >
-            {stages.map((stage, index) => {
-              const isCompleted =
-                normalizedProgress >= 100 ||
-                index < activeStageIndex;
+            {stages.map(
+              (stage, index) => {
+                const isCompleted =
+                  normalizedProgress >=
+                    100 ||
+                  index <
+                    activeStageIndex;
 
-              const isActive =
-                !isCompleted &&
-                index === activeStageIndex;
+                const isActive =
+                  !isCompleted &&
+                  index ===
+                    activeStageIndex;
 
-              return (
-                <div
-                  key={stage}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.8rem',
-                    minWidth: 0,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '28px',
-                      height: '28px',
-                      flex: '0 0 28px',
-                      display: 'grid',
-                      placeItems: 'center',
-                      borderRadius: '50%',
-                      border: isCompleted
-                        ? '1px solid var(--forest-bright)'
-                        : isActive
-                          ? '1px solid var(--sand-light)'
-                          : '1px solid rgba(255,255,255,0.08)',
-                      background: isCompleted
-                        ? 'rgba(80,160,110,0.10)'
-                        : isActive
-                          ? 'rgba(200,184,154,0.08)'
-                          : 'rgba(255,255,255,0.025)',
-                      color: isCompleted
-                        ? 'var(--forest-bright)'
-                        : isActive
-                          ? 'var(--sand-light)'
-                          : 'var(--muted)',
-                      fontSize: '0.7rem',
+                return (
+                  <motion.div
+                    key={stage}
+                    variants={{
+                      hidden: {
+                        opacity: 0,
+                        x: -8,
+                      },
+                      visible: {
+                        opacity: 1,
+                        x: 0,
+                        transition: {
+                          duration: 0.4,
+                          ease,
+                        },
+                      },
                     }}
-                  >
-                    {isCompleted
-                      ? '✓'
-                      : index + 1}
-                  </div>
-
-                  <div
-                    className="project-progress__stage-content"
+                    whileHover={{
+                      x: isActive
+                        ? 3
+                        : 1,
+                    }}
+                    className={
+                      isActive
+                        ? 'portal-hover-item'
+                        : undefined
+                    }
                     style={{
-                      flex: 1,
-                      minWidth: 0,
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '1rem',
+                      alignItems:
+                        'center',
+                      gap: '0.8rem',
+                      minWidth: 0,
+                      borderRadius: '10px',
+                      padding:
+                        '0.15rem 0',
                     }}
                   >
-                    <span
+                    {/* Stage indicator */}
+                    <motion.div
+                      initial={{
+                        scale: 0.82,
+                        opacity: 0,
+                      }}
+                      whileInView={{
+                        scale: 1,
+                        opacity: 1,
+                      }}
+                      viewport={{
+                        once: true,
+                      }}
+                      transition={{
+                        duration: 0.35,
+                        ease,
+                        delay:
+                          0.38 +
+                          index *
+                            0.07,
+                      }}
+                      animate={
+                        isActive
+                          ? {
+                              boxShadow: [
+                                '0 0 0 0 rgba(200,184,154,0)',
+                                '0 0 0 6px rgba(200,184,154,0.05)',
+                                '0 0 0 0 rgba(200,184,154,0)',
+                              ],
+                            }
+                          : undefined
+                      }
                       style={{
-                        minWidth: 0,
+                        width: '28px',
+                        height: '28px',
+                        flex:
+                          '0 0 28px',
+                        display: 'grid',
+                        placeItems:
+                          'center',
+                        borderRadius:
+                          '50%',
+                        border:
+                          isCompleted
+                            ? '1px solid var(--forest-bright)'
+                            : isActive
+                              ? '1px solid var(--sand-light)'
+                              : '1px solid rgba(255,255,255,0.08)',
+                        background:
+                          isCompleted
+                            ? 'rgba(80,160,110,0.10)'
+                            : isActive
+                              ? 'rgba(200,184,154,0.08)'
+                              : 'rgba(255,255,255,0.025)',
                         color:
-                          isCompleted || isActive
-                            ? 'var(--soft-white)'
-                            : 'var(--muted)',
-                        fontSize: '0.88rem',
-                        overflowWrap: 'anywhere',
+                          isCompleted
+                            ? 'var(--forest-bright)'
+                            : isActive
+                              ? 'var(--sand-light)'
+                              : 'var(--muted)',
+                        fontSize:
+                          '0.7rem',
                       }}
-                    >
-                      {stage}
-                    </span>
-
-                    <span
-                      style={{
-                        flex: '0 0 auto',
-                        fontSize: '0.58rem',
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        color: isCompleted
-                          ? 'var(--forest-bright)'
-                          : isActive
-                            ? 'var(--sand-light)'
-                            : 'var(--muted)',
-                        whiteSpace: 'nowrap',
-                      }}
+                      {...(isActive
+                        ? {
+                            transition: {
+                              boxShadow: {
+                                duration: 2.4,
+                                repeat:
+                                  Infinity,
+                                ease: 'easeInOut',
+                              },
+                            },
+                          }
+                        : {})}
                     >
                       {isCompleted
-                        ? 'Complete'
-                        : isActive
-                          ? 'Current'
-                          : 'Upcoming'}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                        ? '✓'
+                        : index + 1}
+                    </motion.div>
+
+                    {/* Stage content */}
+                    <div
+                      className="project-progress__stage-content"
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        display:
+                          'flex',
+                        alignItems:
+                          'center',
+                        justifyContent:
+                          'space-between',
+                        gap: '1rem',
+                      }}
+                    >
+                      <span
+                        style={{
+                          minWidth: 0,
+                          color:
+                            isCompleted ||
+                            isActive
+                              ? 'var(--soft-white)'
+                              : 'var(--muted)',
+                          fontSize:
+                            '0.88rem',
+                          overflowWrap:
+                            'anywhere',
+                        }}
+                      >
+                        {stage}
+                      </span>
+
+                      <span
+                        style={{
+                          flex:
+                            '0 0 auto',
+                          fontSize:
+                            '0.58rem',
+                          letterSpacing:
+                            '0.1em',
+                          textTransform:
+                            'uppercase',
+                          color:
+                            isCompleted
+                              ? 'var(--forest-bright)'
+                              : isActive
+                                ? 'var(--sand-light)'
+                                : 'var(--muted)',
+                          whiteSpace:
+                            'nowrap',
+                        }}
+                      >
+                        {isCompleted
+                          ? 'Complete'
+                          : isActive
+                            ? 'Current'
+                            : 'Upcoming'}
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              },
+            )}
+          </motion.div>
         </div>
       </div>
 
       <style>{`
+        .project-progress {
+          transition:
+            border-color 280ms ease,
+            box-shadow 280ms
+              cubic-bezier(
+                0.16,
+                1,
+                0.3,
+                1
+              );
+        }
+
+        .project-progress:hover {
+          border-color:
+            rgba(
+              255,
+              255,
+              255,
+              0.10
+            ) !important;
+
+          box-shadow:
+            0 28px 60px
+            rgba(
+              0,
+              0,
+              0,
+              0.2
+            ) !important;
+        }
+
+        .project-progress__current {
+          transition:
+            border-color 220ms ease,
+            background-color 220ms ease;
+        }
+
+        .project-progress__current:hover {
+          border-color:
+            rgba(
+              255,
+              255,
+              255,
+              0.09
+            ) !important;
+
+          background:
+            rgba(
+              255,
+              255,
+              255,
+              0.026
+            ) !important;
+        }
+
         @media (max-width: 480px) {
           .project-progress__header {
-            align-items: flex-end;
+            align-items:
+              flex-end;
           }
 
           .project-progress__current {
-            align-items: flex-start;
+            align-items:
+              flex-start;
           }
 
           .project-progress__stage-content {
-            align-items: flex-start !important;
-            flex-direction: column;
-            gap: 0.15rem !important;
+            align-items:
+              flex-start !important;
+
+            flex-direction:
+              column;
+
+            gap:
+              0.15rem !important;
           }
         }
 
         @media (max-width: 380px) {
           .project-progress {
-            border-radius: 15px !important;
+            border-radius:
+              15px !important;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .project-progress,
+          .project-progress__current {
+            transition: none !important;
           }
         }
       `}</style>
-    </section>
+    </motion.section>
   );
 }

@@ -21,28 +21,69 @@ const canonicalURL = new URL(
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
 
-    <meta name="description" content={description} />
-    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="description"
+      content={description}
+    />
 
-    <link rel="canonical" href={canonicalURL} />
+    <meta
+      name="robots"
+      content="noindex, nofollow"
+    />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <link
+      rel="canonical"
+      href={canonicalURL}
+    />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta
+      property="og:type"
+      content="website"
+    />
+
+    <meta
+      property="og:url"
+      content={canonicalURL}
+    />
+
+    <meta
+      property="og:title"
+      content={title}
+    />
+
+    <meta
+      property="og:description"
+      content={description}
+    />
+
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content={title}
+    />
+
+    <meta
+      name="twitter:description"
+      content={description}
+    />
 
     <title>{title}</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+
     <link
       rel="preconnect"
       href="https://fonts.gstatic.com"
@@ -57,27 +98,49 @@ const canonicalURL = new URL(
     <style>
       @font-face {
         font-family: 'AmsterdamFour';
-        src: url('/fonts/Amsterdam.ttf') format('truetype');
+
+        src: url('/fonts/Amsterdam.ttf')
+          format('truetype');
+
         font-weight: normal;
         font-style: normal;
         font-display: swap;
       }
 
       :root {
-        --font-display: 'Playfair Display', Georgia, serif;
-        --font-body: 'Mukta', 'Helvetica Neue', Arial, sans-serif;
-        --font-name: 'AmsterdamFour', 'Playfair Display', Georgia, serif;
-        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        --font-display:
+          'Playfair Display',
+          Georgia,
+          serif;
+
+        --font-body:
+          'Mukta',
+          'Helvetica Neue',
+          Arial,
+          sans-serif;
+
+        --font-name:
+          'AmsterdamFour',
+          'Playfair Display',
+          Georgia,
+          serif;
+
+        --font-mono:
+          'JetBrains Mono',
+          'Fira Code',
+          monospace;
       }
 
       html {
-        background: #0a0a0a;
         min-height: 100%;
+        background: #0a0a0a;
       }
 
       body {
         margin: 0;
         min-height: 100vh;
+        overflow-x: hidden;
+
         background:
           radial-gradient(
             circle at top,
@@ -85,9 +148,11 @@ const canonicalURL = new URL(
             transparent 38%
           ),
           #0a0a0a;
+
         color: #f8f5f0;
-        font-family: var(--font-body);
-        overflow-x: hidden;
+
+        font-family:
+          var(--font-body);
       }
 
       #client-portal-root {
@@ -96,14 +161,389 @@ const canonicalURL = new URL(
       }
 
       /*
-       * The public portfolio uses the cinematic reveal system.
-       * The client portal is a separate application surface, so
-       * its content should not depend on portfolio reveal JavaScript.
+       * =========================================================
+       * PORTAL MOTION SYSTEM
+       * =========================================================
+       *
+       * The public portfolio uses [data-reveal].
+       * The client portal uses [data-portal-reveal].
+       *
+       * Keeping these systems separate prevents the portal from
+       * depending on the public portfolio animation observer.
        */
-      [data-reveal] {
-        opacity: 1 !important;
-        transform: none !important;
+
+      #client-portal-root [data-reveal] {
+        opacity: 1;
+        transform: none;
+        filter: none;
       }
+
+      #client-portal-root [data-portal-reveal] {
+        opacity: 0;
+
+        transform:
+          translate3d(
+            0,
+            28px,
+            0
+          )
+          scale(0.985);
+
+        filter: blur(4px);
+
+        transition:
+          opacity 850ms
+            cubic-bezier(
+              0.16,
+              1,
+              0.3,
+              1
+            ),
+          transform 950ms
+            cubic-bezier(
+              0.16,
+              1,
+              0.3,
+              1
+            ),
+          filter 950ms
+            cubic-bezier(
+              0.16,
+              1,
+              0.3,
+              1
+            );
+
+        will-change:
+          opacity,
+          transform,
+          filter;
+      }
+
+      #client-portal-root
+      [data-portal-reveal].is-visible {
+        opacity: 1;
+
+        transform:
+          translate3d(
+            0,
+            0,
+            0
+          )
+          scale(1);
+
+        filter: blur(0);
+      }
+
+      /*
+       * Larger workspace sections can opt into a slower reveal.
+       */
+
+      #client-portal-root
+      .portal-motion-slow[data-portal-reveal] {
+        transition-duration: 1100ms;
+      }
+
+      /*
+       * =========================================================
+       * LOADING
+       * =========================================================
+       */
+
+      #client-portal-root
+      .portal-loading-card {
+        animation:
+          portal-card-in
+          900ms
+          cubic-bezier(
+            0.16,
+            1,
+            0.3,
+            1
+          )
+          both;
+      }
+
+      #client-portal-root
+      .portal-loading-fill {
+        transform-origin:
+          left center;
+
+        animation:
+          portal-loading-pulse
+          1.5s
+          ease-in-out
+          infinite;
+      }
+
+      /*
+       * =========================================================
+       * DASHBOARD INTERACTIONS
+       * =========================================================
+       */
+
+      #client-portal-root
+      .portal-dashboard__header {
+        transition:
+          border-color 300ms ease,
+          box-shadow 300ms ease,
+          transform 300ms
+            cubic-bezier(
+              0.16,
+              1,
+              0.3,
+              1
+            );
+      }
+
+      #client-portal-root
+      .portal-dashboard__header:hover {
+        border-color:
+          rgba(
+            200,
+            184,
+            154,
+            0.18
+          );
+
+        box-shadow:
+          0 24px 60px
+          rgba(
+            0,
+            0,
+            0,
+            0.2
+          );
+
+        transform:
+          translateY(-2px);
+      }
+
+      #client-portal-root
+      .portal-dashboard__logout {
+        transition:
+          transform 250ms
+            cubic-bezier(
+              0.16,
+              1,
+              0.3,
+              1
+            ),
+          background 250ms ease,
+          border-color 250ms ease;
+      }
+
+      #client-portal-root
+      .portal-dashboard__logout:hover {
+        transform:
+          translateY(-2px);
+
+        background:
+          rgba(
+            255,
+            255,
+            255,
+            0.04
+          ) !important;
+
+        border-color:
+          rgba(
+            255,
+            255,
+            255,
+            0.14
+          ) !important;
+      }
+
+      /*
+       * =========================================================
+       * KEYFRAMES
+       * =========================================================
+       */
+
+      @keyframes portal-card-in {
+        from {
+          opacity: 0;
+
+          transform:
+            translate3d(
+              0,
+              18px,
+              0
+            )
+            scale(0.985);
+        }
+
+        to {
+          opacity: 1;
+
+          transform:
+            translate3d(
+              0,
+              0,
+              0
+            )
+            scale(1);
+        }
+      }
+
+      @keyframes portal-loading-pulse {
+        0% {
+          transform:
+            translateX(-8%)
+            scaleX(0.72);
+
+          opacity: 0.65;
+        }
+
+        50% {
+          transform:
+            translateX(12%)
+            scaleX(0.9);
+
+          opacity: 1;
+        }
+
+        100% {
+          transform:
+            translateX(55%)
+            scaleX(0.72);
+
+          opacity: 0.65;
+        }
+      }
+
+      /*
+       * =========================================================
+       * ACCESSIBILITY
+       * =========================================================
+       */
+
+      @media (
+        prefers-reduced-motion: reduce
+      ) {
+        #client-portal-root
+        [data-portal-reveal] {
+          opacity: 1;
+          transform: none;
+          filter: none;
+          transition: none;
+        }
+
+        #client-portal-root
+        .portal-loading-card,
+
+        #client-portal-root
+        .portal-loading-fill {
+          animation: none;
+        }
+
+        #client-portal-root
+        .portal-dashboard__header,
+
+        #client-portal-root
+        .portal-dashboard__logout {
+          transition: none;
+        }
+      }
+
+      /* =========================================================
+ * PORTAL CARD HOVER
+ * ========================================================= */
+
+#client-portal-root .portal-card-hover {
+  transition:
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 280ms ease,
+    box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    background 280ms ease;
+}
+
+#client-portal-root .portal-card-hover:hover {
+  transform: translateY(-3px);
+
+  border-color:
+    rgba(200, 184, 154, 0.16) !important;
+
+  background:
+    rgba(12, 12, 12, 0.84);
+
+  box-shadow:
+    0 24px 60px
+    rgba(0, 0, 0, 0.18);
+}
+
+#client-portal-root .portal-card-hover::after {
+  content: '';
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      80% 80% at 0% 0%,
+      rgba(200, 184, 154, 0.035),
+      transparent 70%
+    );
+
+  opacity: 0;
+
+  transition:
+    opacity 320ms ease;
+}
+
+#client-portal-root .portal-card-hover:hover::after {
+  opacity: 1;
+}
+
+/* Inner metric / list items */
+
+#client-portal-root
+.portal-card-hover .portal-hover-item {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+#client-portal-root
+.portal-card-hover .portal-hover-item:hover {
+  transform: translateY(-1px);
+
+  border-color:
+    rgba(200, 184, 154, 0.12) !important;
+
+  background:
+    rgba(255, 255, 255, 0.035) !important;
+}
+
+/* Keep mobile calm */
+
+@media (max-width: 640px) {
+  #client-portal-root .portal-card-hover:hover {
+    transform: none;
+  }
+
+  #client-portal-root
+  .portal-card-hover .portal-hover-item:hover {
+    transform: none;
+  }
+}
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+  #client-portal-root .portal-card-hover,
+  #client-portal-root .portal-card-hover::after,
+  #client-portal-root
+  .portal-card-hover .portal-hover-item {
+    transition: none;
+  }
+}
     </style>
   </head>
 
@@ -111,5 +551,226 @@ const canonicalURL = new URL(
     <div id="client-portal-root">
       <slot />
     </div>
+
+ <script>
+  document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+      const root =
+        document.getElementById(
+          'client-portal-root',
+        );
+
+      if (!root) {
+        return;
+      }
+
+      const reducedMotion =
+        window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
+
+      const revealElement = (
+        element: HTMLElement,
+      ) => {
+        if (
+          element.dataset.revealReady ===
+          'true'
+        ) {
+          return;
+        }
+
+        element.dataset.revealReady =
+          'true';
+
+        if (reducedMotion) {
+          element.classList.add(
+            'is-visible',
+          );
+
+          return;
+        }
+
+        const rawDelay =
+          element.dataset.delay ?? '0';
+
+        const parsedDelay =
+          Number.parseInt(
+            rawDelay,
+            10,
+          );
+
+        const delay =
+          Number.isFinite(parsedDelay)
+            ? Math.max(
+                parsedDelay,
+                0,
+              )
+            : 0;
+
+        window.setTimeout(
+          () => {
+            element.classList.add(
+              'is-visible',
+            );
+          },
+          delay,
+        );
+      };
+
+      const revealVisibleElements = () => {
+        root
+          .querySelectorAll<HTMLElement>(
+            '[data-portal-reveal]',
+          )
+          .forEach(
+            (element) => {
+              const rect =
+                element.getBoundingClientRect();
+
+              const isVisible =
+                rect.top <
+                  window.innerHeight *
+                    0.88 &&
+                rect.bottom > 0;
+
+              if (isVisible) {
+                revealElement(element);
+              }
+            },
+          );
+      };
+
+      if (reducedMotion) {
+        root
+          .querySelectorAll<HTMLElement>(
+            '[data-portal-reveal]',
+          )
+          .forEach(
+            (element) => {
+              revealElement(element);
+            },
+          );
+
+        return;
+      }
+
+      if (
+        typeof IntersectionObserver !==
+        'undefined'
+      ) {
+        const observer =
+          new IntersectionObserver(
+            (entries) => {
+              entries.forEach(
+                (entry) => {
+                  if (
+                    !entry.isIntersecting
+                  ) {
+                    return;
+                  }
+
+                  revealElement(
+                    entry.target as HTMLElement,
+                  );
+
+                  observer.unobserve(
+                    entry.target,
+                  );
+                },
+              );
+            },
+            {
+              threshold: 0.12,
+              rootMargin:
+                '0px 0px -40px 0px',
+            },
+          );
+
+        const observeElements = () => {
+          root
+            .querySelectorAll<HTMLElement>(
+              '[data-portal-reveal]',
+            )
+            .forEach(
+              (element) => {
+                if (
+                  element.dataset
+                    .revealReady ===
+                  'true'
+                ) {
+                  return;
+                }
+
+                observer.observe(
+                  element,
+                );
+              },
+            );
+        };
+
+        observeElements();
+
+        const mutationObserver =
+          new MutationObserver(() => {
+            observeElements();
+          });
+
+        mutationObserver.observe(
+          root,
+          {
+            childList: true,
+            subtree: true,
+          },
+        );
+
+        /*
+         * Catch elements added during
+         * React hydration immediately.
+         */
+        window.setTimeout(
+          revealVisibleElements,
+          100,
+        );
+
+        return;
+      }
+
+      /*
+       * IntersectionObserver fallback.
+       */
+      const mutationObserver =
+        new MutationObserver(() => {
+          root
+            .querySelectorAll<HTMLElement>(
+              '[data-portal-reveal]',
+            )
+            .forEach(
+              (element) => {
+                revealElement(element);
+              },
+            );
+        });
+
+      mutationObserver.observe(
+        root,
+        {
+          childList: true,
+          subtree: true,
+        },
+      );
+
+      root
+        .querySelectorAll<HTMLElement>(
+          '[data-portal-reveal]',
+        )
+        .forEach(
+          (element) => {
+            revealElement(element);
+          },
+        );
+    },
+  );
+</script>
   </body>
 </html>

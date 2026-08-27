@@ -1,7 +1,10 @@
 import type {
   ClientPortalData,
   ProjectHoursRecord,
+  ProjectMilestoneRecord,
+  ProjectProgressHistoryRecord,
   ProjectRecord,
+  ProjectUpdateRecord,
   TimelineRecord,
 } from './types';
 
@@ -84,6 +87,96 @@ const fallbackPortalData: ClientPortalData = {
     hours_allocated: 0,
     hours_used: 0,
   },
+
+  updates: [
+    {
+      id: 'update-1',
+      project_id: 'demo-project-id',
+      title: 'Development is underway',
+      description:
+        'The core project structure and initial implementation are now in place.',
+      update_type: 'progress',
+      published: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ],
+
+  milestones: [
+    {
+      id: 'milestone-1',
+      project_id: 'demo-project-id',
+      title: 'Project discovery completed',
+      description:
+        'Requirements, scope and initial project direction have been confirmed.',
+      status: 'completed',
+      date: '',
+      order: 1,
+    },
+    {
+      id: 'milestone-2',
+      project_id: 'demo-project-id',
+      title: 'Core development underway',
+      description:
+        'The main application structure and core functionality are currently being implemented.',
+      status: 'active',
+      date: '',
+      order: 2,
+    },
+    {
+      id: 'milestone-3',
+      project_id: 'demo-project-id',
+      title: 'Production launch',
+      description:
+        'Final QA, deployment and production handover.',
+      status: 'upcoming',
+      date: '',
+      order: 3,
+    },
+  ],
+
+  progressHistory: [
+    {
+      id: 'progress-1',
+      project_id: 'demo-project-id',
+      progress: 12,
+      phase: 'Discovery',
+      note: 'Project direction established.',
+      recorded_at: '2026-06-04T00:00:00.000Z',
+    },
+    {
+      id: 'progress-2',
+      project_id: 'demo-project-id',
+      progress: 28,
+      phase: 'Design',
+      note: 'Visual direction and core layouts completed.',
+      recorded_at: '2026-06-14T00:00:00.000Z',
+    },
+    {
+      id: 'progress-3',
+      project_id: 'demo-project-id',
+      progress: 46,
+      phase: 'Development',
+      note: 'Core implementation underway.',
+      recorded_at: '2026-07-02T00:00:00.000Z',
+    },
+    {
+      id: 'progress-4',
+      project_id: 'demo-project-id',
+      progress: 61,
+      phase: 'Development',
+      note: 'Primary project functionality connected.',
+      recorded_at: '2026-07-28T00:00:00.000Z',
+    },
+    {
+      id: 'progress-5',
+      project_id: 'demo-project-id',
+      progress: 68,
+      phase: 'Development',
+      note: 'Current project progress.',
+      recorded_at: '2026-08-27T00:00:00.000Z',
+    },
+  ],
 };
 
 function getFallbackPortalData(): ClientPortalData | null {
@@ -179,12 +272,115 @@ function mapTimeline(
   return timelineData.map((item) => ({
     id: item.id,
     project_id: item.project_id,
-    title: item.title,
-    description: item.description ?? '',
+    title: item.title.trim(),
+    description: item.description?.trim() ?? '',
     status: item.status,
     date: item.timeline_date ?? '',
     order: item.sort_order,
   }));
+}
+
+function mapUpdates(
+  updateData: Array<{
+    id: string;
+    project_id: string;
+    title: string;
+    description: string | null;
+    update_type: string | null;
+    published: boolean | null;
+    created_at: string | null;
+    updated_at: string | null;
+  }>,
+): ProjectUpdateRecord[] {
+  return updateData
+    .filter(
+      (item) =>
+        item.published !== false &&
+        typeof item.title === 'string' &&
+        item.title.trim().length > 0,
+    )
+    .map((item) => ({
+      id: item.id,
+      project_id: item.project_id,
+      title: item.title.trim(),
+      description: item.description?.trim() ?? '',
+      update_type:
+        item.update_type?.trim() || 'progress',
+      published: true,
+      created_at: item.created_at ?? undefined,
+      updated_at: item.updated_at ?? undefined,
+    }));
+}
+
+function mapMilestones(
+  milestoneData: Array<{
+    id: string;
+    project_id: string;
+    title: string;
+    description: string | null;
+    status: ProjectMilestoneRecord['status'];
+    milestone_date: string | null;
+    sort_order: number;
+    created_at: string | null;
+    updated_at: string | null;
+  }>,
+): ProjectMilestoneRecord[] {
+  return milestoneData
+    .filter(
+      (item) =>
+        typeof item.title === 'string' &&
+        item.title.trim().length > 0,
+    )
+    .map((item) => ({
+      id: item.id,
+      project_id: item.project_id,
+      title: item.title.trim(),
+      description:
+        item.description?.trim() ?? '',
+      status: item.status,
+      date: item.milestone_date ?? '',
+      order: item.sort_order,
+      created_at:
+        item.created_at ?? undefined,
+      updated_at:
+        item.updated_at ?? undefined,
+    }));
+}
+
+function mapProgressHistory(
+  progressData: Array<{
+    id: string;
+    project_id: string;
+    progress: number;
+    phase: string | null;
+    note: string | null;
+    recorded_at: string;
+    created_at: string | null;
+  }>,
+): ProjectProgressHistoryRecord[] {
+  return [...progressData]
+    .sort(
+      (a, b) =>
+        new Date(a.recorded_at).getTime() -
+        new Date(b.recorded_at).getTime(),
+    )
+    .filter(
+      (item) =>
+        Number.isFinite(item.progress),
+    )
+    .map((item) => ({
+      id: item.id,
+      project_id: item.project_id,
+      progress: Math.min(
+        Math.max(item.progress, 0),
+        100,
+      ),
+      phase: item.phase?.trim() || 'Project',
+      note: item.note?.trim() ?? '',
+      recorded_at: item.recorded_at,
+      created_at:
+        item.created_at ?? undefined,
+    }));
 }
 
 function normalizePortalData(
@@ -210,24 +406,91 @@ function normalizePortalData(
       project_id: data.hours.project_id,
       hours_allocated:
         typeof data.hours.hours_allocated === 'number'
-          ? Math.max(data.hours.hours_allocated, 0)
+          ? Math.max(
+              data.hours.hours_allocated,
+              0,
+            )
           : 0,
       hours_used:
         typeof data.hours.hours_used === 'number'
-          ? Math.max(data.hours.hours_used, 0)
+          ? Math.max(
+              data.hours.hours_used,
+              0,
+            )
           : 0,
       updated_at: data.hours.updated_at,
     },
+
+    updates: Array.isArray(data.updates)
+      ? mapUpdates(
+          data.updates.map((update) => ({
+            id: update.id,
+            project_id: update.project_id,
+            title: update.title,
+            description: update.description,
+            update_type: update.update_type,
+            published: update.published,
+            created_at:
+              update.created_at ?? null,
+            updated_at:
+              update.updated_at ?? null,
+          })),
+        )
+      : [],
+
+    milestones: Array.isArray(
+      data.milestones,
+    )
+      ? mapMilestones(
+          data.milestones.map(
+            (milestone) => ({
+              id: milestone.id,
+              project_id:
+                milestone.project_id,
+              title: milestone.title,
+              description:
+                milestone.description,
+              status: milestone.status,
+              milestone_date:
+                milestone.date || null,
+              sort_order:
+                milestone.order,
+              created_at:
+                milestone.created_at ??
+                null,
+              updated_at:
+                milestone.updated_at ??
+                null,
+            }),
+          ),
+        )
+      : [],
+
+    progressHistory: Array.isArray(
+      data.progressHistory,
+    )
+      ? mapProgressHistory(
+          data.progressHistory.map(
+            (item) => ({
+              id: item.id,
+              project_id:
+                item.project_id,
+              progress:
+                item.progress,
+              phase: item.phase,
+              note: item.note,
+              recorded_at:
+                item.recorded_at,
+              created_at:
+                item.created_at ??
+                null,
+            }),
+          ),
+        )
+      : [],
   };
 }
 
-/**
- * Loads the authenticated project's workspace.
- *
- * Authorization is NOT handled in the browser.
- * The API route reads the signed httpOnly project session
- * and determines which project may be returned.
- */
 export async function fetchPortalDataByProjectSession(): Promise<ClientPortalData | null> {
   try {
     const response = await fetch(
@@ -267,18 +530,27 @@ export async function fetchPortalDataByProjectSession(): Promise<ClientPortalDat
       );
     }
 
-    return normalizePortalData(
-      data as ClientPortalData,
-    );
+    return normalizePortalData({
+      ...(data as ClientPortalData),
+      updates: Array.isArray(data.updates)
+        ? data.updates
+        : [],
+      milestones: Array.isArray(
+        data.milestones,
+      )
+        ? data.milestones
+        : [],
+      progressHistory: Array.isArray(
+        data.progressHistory,
+      )
+        ? data.progressHistory
+        : [],
+    });
   } catch {
     return getFallbackPortalData();
   }
 }
 
-/**
- * Temporary fallback helper used by local development
- * and components that need demo data.
- */
 export function getFallbackPortalDataSafe(): ClientPortalData | null {
   return getFallbackPortalData();
 }

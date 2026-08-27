@@ -33,7 +33,7 @@ const CATEGORY_CONFIG: Record<
       'Custom website development and digital experiences.',
   },
 
-  redesign: {
+  'web-redesign': {
     label: 'Web Redesign',
     shortLabel: 'Redesign',
     description:
@@ -60,6 +60,13 @@ const CATEGORY_CONFIG: Record<
     description:
       'An automated workflow designed to reduce manual processes.',
   },
+
+  demo: {
+    label: 'Demo Workspace',
+    shortLabel: 'Demo',
+    description:
+      'A demonstration project workspace used for testing and preview purposes.',
+  },
 };
 
 const normalizeCategory = (
@@ -69,8 +76,8 @@ const normalizeCategory = (
     case 'web-development':
       return 'web-development';
 
-    case 'redesign':
-      return 'redesign';
+    case 'web-redesign':
+      return 'web-redesign';
 
     case 'saas':
       return 'saas';
@@ -80,6 +87,9 @@ const normalizeCategory = (
 
     case 'ai-automation':
       return 'ai-automation';
+
+    case 'demo':
+      return 'demo';
 
     default:
       return 'web-development';
@@ -112,7 +122,8 @@ export default function ProjectOverview({
     project.category,
   );
 
-  const category = CATEGORY_CONFIG[categoryKey];
+  const category =
+    CATEGORY_CONFIG[categoryKey];
 
   const progress = Math.min(
     Math.max(project.progress, 0),
@@ -135,254 +146,95 @@ export default function ProjectOverview({
     project.description?.trim() ||
     'Project information is currently unavailable.';
 
-  const showLiveDemo = isValidDemoUrl(
-    project.liveDemoUrl,
-  );
+  const showLiveDemo =
+    isValidDemoUrl(project.liveDemoUrl);
+
+  const metaItems = [
+    {
+      label: 'Category',
+      value: category.label,
+    },
+    {
+      label: 'Current phase',
+      value: projectPhase,
+    },
+    {
+      label: 'Current status',
+      value: projectStatus,
+    },
+    {
+      label: 'Expected launch',
+      value: expectedLaunch,
+    },
+  ];
 
   return (
     <section
-      data-reveal
+      data-portal-reveal
       className="project-overview"
-      style={{
-        position: 'relative',
-        width: '100%',
-        minWidth: 0,
-        border: '1px solid var(--border-mid)',
-        background: 'rgba(10, 10, 10, 0.78)',
-        borderRadius: '18px',
-        padding: 'clamp(1.1rem, 3vw, 1.5rem)',
-        overflow: 'hidden',
-        boxShadow:
-          '0 20px 45px rgba(0, 0, 0, 0.18)',
-      }}
     >
       <div
+        className="project-overview__glow"
         aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          background:
-            'radial-gradient(120% 100% at 0% 0%, rgba(200, 184, 154, 0.08), transparent 58%)',
-        }}
       />
 
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          minWidth: 0,
-        }}
-      >
-        <div
-          className="project-overview__header"
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            gap: '1rem',
-            marginBottom: '1.5rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          <div
-            style={{
-              minWidth: 0,
-              flex: '1 1 260px',
-            }}
-          >
-            <p
-              style={{
-                margin: '0 0 0.75rem',
-                fontSize: '0.68rem',
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'var(--sand)',
-              }}
-            >
+      <div className="project-overview__content">
+        <div className="project-overview__header">
+          <div className="project-overview__identity">
+            <p className="project-overview__eyebrow">
               Project overview
             </p>
 
-            <h3
-              style={{
-                margin: 0,
-                fontSize:
-                  'clamp(1.55rem, 3vw, 2.3rem)',
-                lineHeight: 1.1,
-                color: 'var(--soft-white)',
-                overflowWrap: 'anywhere',
-              }}
-            >
+            <h3 className="project-overview__title">
               {project.name}
             </h3>
           </div>
 
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.55rem',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '999px',
-              border:
-                '1px solid rgba(200, 184, 154, 0.18)',
-              background:
-                'rgba(200, 184, 154, 0.06)',
-              color: 'var(--sand-light)',
-              fontSize: '0.68rem',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              whiteSpace: 'nowrap',
-              maxWidth: '100%',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
+          <div className="project-overview__badge">
             <span
               aria-hidden="true"
-              style={{
-                width: '7px',
-                height: '7px',
-                flex: '0 0 7px',
-                borderRadius: '50%',
-                background: 'var(--sand-light)',
-                boxShadow:
-                  '0 0 0 4px rgba(200, 184, 154, 0.08)',
-              }}
+              className="project-overview__badge-dot"
             />
 
-            <span
-              style={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
+            <span>
               {category.label}
             </span>
           </div>
         </div>
 
         <div className="project-overview__meta-grid">
-          {[
-            {
-              label: 'Category',
-              value: category.label,
-            },
-            {
-              label: 'Current phase',
-              value: projectPhase,
-            },
-            {
-              label: 'Current status',
-              value: projectStatus,
-            },
-            {
-              label: 'Expected launch',
-              value: expectedLaunch,
-            },
-          ].map((item) => (
+          {metaItems.map((item) => (
             <div
               key={item.label}
-              style={{
-                minWidth: 0,
-                border:
-                  '1px solid rgba(255,255,255,0.05)',
-                background:
-                  'rgba(255,255,255,0.02)',
-                borderRadius: '12px',
-                padding: '0.85rem 1rem',
-              }}
+              className="project-overview__meta-item"
             >
-              <div
-                style={{
-                  marginBottom: '0.35rem',
-                  fontSize: '0.64rem',
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: 'var(--muted-light)',
-                }}
-              >
+              <div className="project-overview__meta-label">
                 {item.label}
               </div>
 
-              <div
-                style={{
-                  fontSize: '0.96rem',
-                  color: 'var(--soft-white)',
-                  lineHeight: 1.45,
-                  overflowWrap: 'anywhere',
-                }}
-              >
+              <div className="project-overview__meta-value">
                 {item.value}
               </div>
             </div>
           ))}
         </div>
 
-        <div
-          style={{
-            marginBottom: '1.5rem',
-            padding: '0.95rem 1rem',
-            borderRadius: '12px',
-            border:
-              '1px solid rgba(255,255,255,0.05)',
-            background:
-              'rgba(255,255,255,0.018)',
-          }}
-        >
-          <div
-            style={{
-              marginBottom: '0.35rem',
-              fontSize: '0.64rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'var(--muted-light)',
-            }}
-          >
+        <div className="project-overview__category">
+          <div className="project-overview__category-label">
             Project category
           </div>
 
-          <div
-            style={{
-              color: 'var(--soft-white)',
-              fontSize: '0.95rem',
-              lineHeight: 1.6,
-              overflowWrap: 'anywhere',
-            }}
-          >
+          <div className="project-overview__category-description">
             {category.description}
           </div>
         </div>
 
-        <div
-          className="project-overview__progress-header"
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '1rem',
-            marginBottom: '1rem',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '0.7rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'var(--muted-light)',
-            }}
-          >
+        <div className="project-overview__progress-header">
+          <div className="project-overview__progress-label">
             Overall progress
           </div>
 
-          <div
-            style={{
-              fontSize: '1.5rem',
-              color: 'var(--soft-white)',
-              fontFamily: 'var(--font-body)',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <div className="project-overview__progress-value">
             {progress}%
           </div>
         </div>
@@ -393,74 +245,38 @@ export default function ProjectOverview({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progress}
-          style={{
-            width: '100%',
-            height: '10px',
-            borderRadius: '999px',
-            background:
-              'rgba(255,255,255,0.05)',
-            overflow: 'hidden',
-            marginBottom: '1.1rem',
-          }}
+          className="project-overview__progress-track"
         >
           <div
-            style={{
-              width: `${progress}%`,
-              height: '100%',
-              background:
-                'linear-gradient(90deg, var(--forest-bright), var(--sand-light))',
-              borderRadius: 'inherit',
-              transition:
-                'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
+            className="project-overview__progress-fill"
+            style={
+              {
+                '--progress-width': `${progress}%`,
+              } as React.CSSProperties
+            }
           />
         </div>
 
-        <p
-          style={{
-            margin: 0,
-            color: 'var(--muted)',
-            fontSize: '0.98rem',
-            lineHeight: 1.8,
-            maxWidth: '60ch',
-            overflowWrap: 'anywhere',
-          }}
-        >
+        <p className="project-overview__description">
           {projectDescription}
         </p>
 
         {showLiveDemo && (
-          <div
-            className="project-overview__actions"
-            style={{
-              marginTop: '1.5rem',
-              display: 'flex',
-              gap: '0.75rem',
-              flexWrap: 'wrap',
-            }}
-          >
+          <div className="project-overview__actions">
             <a
               href={project.liveDemoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-primary"
+              className="project-overview__demo-button btn-primary"
               aria-label={`View live demo for ${project.name}`}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                minHeight: '44px',
-                textDecoration: 'none',
-              }}
             >
-              View Live Demo
+              <span>
+                View Live Demo
+              </span>
 
               <span
                 aria-hidden="true"
-                style={{
-                  fontSize: '0.95rem',
-                }}
+                className="project-overview__demo-icon"
               >
                 ↗
               </span>
@@ -470,44 +286,551 @@ export default function ProjectOverview({
       </div>
 
       <style>{`
+        /*
+         * Main container
+         *
+         * IMPORTANT:
+         * No transform on hover.
+         * The entire card stays completely still.
+         */
+        .project-overview {
+          position: relative;
+          width: 100%;
+          min-width: 0;
+          overflow: hidden;
+          border:
+            1px solid
+            var(--border-mid);
+          border-radius: 18px;
+          background:
+            rgba(10, 10, 10, 0.78);
+          box-shadow:
+            0 20px 45px
+            rgba(0, 0, 0, 0.18);
+        }
+
+        /*
+         * Ambient glow remains static.
+         */
+        .project-overview__glow {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background:
+            radial-gradient(
+              120% 100% at 0% 0%,
+              rgba(
+                200,
+                184,
+                154,
+                0.08
+              ),
+              transparent 58%
+            );
+          opacity: 0.75;
+          transition:
+            opacity 350ms ease;
+        }
+
+        /*
+         * Only the glow reacts to interaction.
+         * The card itself does not move.
+         */
+        .project-overview:hover
+        .project-overview__glow {
+          opacity: 1;
+        }
+
+        .project-overview__content {
+          position: relative;
+          z-index: 1;
+          padding:
+            clamp(
+              1.1rem,
+              3vw,
+              1.5rem
+            );
+        }
+
+        .project-overview__header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+          flex-wrap: wrap;
+        }
+
+        .project-overview__identity {
+          min-width: 0;
+          flex: 1 1 260px;
+        }
+
+        .project-overview__eyebrow {
+          margin: 0 0 0.75rem;
+          font-size: 0.68rem;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--sand);
+        }
+
+        .project-overview__title {
+          margin: 0;
+          font-size:
+            clamp(
+              1.55rem,
+              3vw,
+              2.3rem
+            );
+          line-height: 1.1;
+          color: var(--soft-white);
+          overflow-wrap: anywhere;
+        }
+
+        /*
+         * Badge
+         *
+         * No movement.
+         * Only color/background changes.
+         */
+        .project-overview__badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          padding:
+            0.5rem
+            0.75rem;
+          border:
+            1px solid
+            rgba(
+              200,
+              184,
+              154,
+              0.18
+            );
+          border-radius: 999px;
+          background:
+            rgba(
+              200,
+              184,
+              154,
+              0.06
+            );
+          color: var(--sand-light);
+          font-size: 0.68rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          transition:
+            background-color 220ms ease,
+            border-color 220ms ease;
+        }
+
+        .project-overview__badge:hover {
+          background:
+            rgba(
+              200,
+              184,
+              154,
+              0.09
+            );
+
+          border-color:
+            rgba(
+              200,
+              184,
+              154,
+              0.25
+            );
+        }
+
+        .project-overview__badge-dot {
+          width: 7px;
+          height: 7px;
+          flex: 0 0 7px;
+          border-radius: 50%;
+          background:
+            var(--sand-light);
+          box-shadow:
+            0 0 0 4px
+            rgba(
+              200,
+              184,
+              154,
+              0.08
+            );
+          animation:
+            project-overview-pulse
+            2.8s
+            ease-in-out
+            infinite;
+        }
+
+        /*
+         * Meta cards
+         *
+         * Slight lift is allowed here,
+         * but NOT on the main container.
+         */
         .project-overview__meta-grid {
           display: grid;
           grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+            repeat(
+              2,
+              minmax(0, 1fr)
+            );
           gap: 0.9rem;
           margin-bottom: 1.5rem;
         }
 
-        .project-overview__actions a {
+        .project-overview__meta-item {
+          min-width: 0;
+          padding:
+            0.85rem
+            1rem;
+          border:
+            1px solid
+            rgba(
+              255,
+              255,
+              255,
+              0.05
+            );
+          border-radius: 12px;
+          background:
+            rgba(
+              255,
+              255,
+              255,
+              0.02
+            );
+          transition:
+            transform 200ms
+              cubic-bezier(
+                0.16,
+                1,
+                0.3,
+                1
+              ),
+            border-color 200ms ease,
+            background-color 200ms ease;
+        }
+
+        .project-overview__meta-item:hover {
+          transform:
+            translateY(-2px);
+
+          border-color:
+            rgba(
+              255,
+              255,
+              255,
+              0.09
+            );
+
+          background:
+            rgba(
+              255,
+              255,
+              255,
+              0.028
+            );
+        }
+
+        .project-overview__meta-label {
+          margin-bottom: 0.35rem;
+          font-size: 0.64rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--muted-light);
+        }
+
+        .project-overview__meta-value {
+          font-size: 0.96rem;
+          line-height: 1.45;
+          color: var(--soft-white);
+          overflow-wrap: anywhere;
+        }
+
+        /*
+         * Category information
+         *
+         * Again: no movement on the outer card.
+         */
+        .project-overview__category {
+          margin-bottom: 1.5rem;
+          padding:
+            0.95rem
+            1rem;
+          border:
+            1px solid
+            rgba(
+              255,
+              255,
+              255,
+              0.05
+            );
+          border-radius: 12px;
+          background:
+            rgba(
+              255,
+              255,
+              255,
+              0.018
+            );
+          transition:
+            border-color 220ms ease,
+            background-color 220ms ease;
+        }
+
+        .project-overview__category:hover {
+          border-color:
+            rgba(
+              255,
+              255,
+              255,
+              0.08
+            );
+
+          background:
+            rgba(
+              255,
+              255,
+              255,
+              0.025
+            );
+        }
+
+        .project-overview__category-label {
+          margin-bottom: 0.35rem;
+          font-size: 0.64rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--muted-light);
+        }
+
+        .project-overview__category-description {
+          color: var(--soft-white);
+          font-size: 0.95rem;
+          line-height: 1.6;
+          overflow-wrap: anywhere;
+        }
+
+        .project-overview__progress-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .project-overview__progress-label {
+          font-size: 0.7rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--muted-light);
+        }
+
+        .project-overview__progress-value {
+          font-size: 1.5rem;
+          color: var(--soft-white);
+          font-family:
+            var(--font-body);
+          white-space: nowrap;
+        }
+
+        .project-overview__progress-track {
+          width: 100%;
+          height: 10px;
+          margin-bottom: 1.1rem;
+          border-radius: 999px;
+          background:
+            rgba(
+              255,
+              255,
+              255,
+              0.05
+            );
+          overflow: hidden;
+        }
+
+        .project-overview__progress-fill {
+          width:
+            var(--progress-width);
+          height: 100%;
+          transform-origin:
+            left center;
+          border-radius: inherit;
+          background:
+            linear-gradient(
+              90deg,
+              var(--forest-bright),
+              var(--sand-light)
+            );
+          animation:
+            project-overview-progress
+            900ms
+            cubic-bezier(
+              0.16,
+              1,
+              0.3,
+              1
+            )
+            250ms
+            both;
+        }
+
+        .project-overview__description {
+          margin: 0;
+          max-width: 60ch;
+          color: var(--muted);
+          font-size: 0.98rem;
+          line-height: 1.8;
+          overflow-wrap: anywhere;
+        }
+
+        .project-overview__actions {
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+          margin-top: 1.5rem;
+        }
+
+        .project-overview__demo-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          min-height: 44px;
           text-decoration: none;
+          transition:
+            transform 220ms
+              cubic-bezier(
+                0.16,
+                1,
+                0.3,
+                1
+              ),
+            box-shadow 220ms ease;
+        }
+
+        .project-overview__demo-button:hover {
+          transform:
+            translateY(-2px);
+        }
+
+        .project-overview__demo-icon {
+          display: inline-block;
+          transition:
+            transform 220ms
+              cubic-bezier(
+                0.16,
+                1,
+                0.3,
+                1
+              );
+        }
+
+        .project-overview__demo-button:hover
+        .project-overview__demo-icon {
+          transform:
+            translate3d(
+              2px,
+              -2px,
+              0
+            );
+        }
+
+        @keyframes project-overview-progress {
+          from {
+            transform:
+              scaleX(0);
+          }
+
+          to {
+            transform:
+              scaleX(1);
+          }
+        }
+
+        @keyframes project-overview-pulse {
+          0%,
+          100% {
+            opacity: 0.75;
+
+            box-shadow:
+              0 0 0 4px
+              rgba(
+                200,
+                184,
+                154,
+                0.08
+              );
+          }
+
+          50% {
+            opacity: 1;
+
+            box-shadow:
+              0 0 0 6px
+              rgba(
+                200,
+                184,
+                154,
+                0.04
+              );
+          }
         }
 
         @media (max-width: 560px) {
           .project-overview__meta-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns:
+              1fr;
+
             gap: 0.7rem;
           }
 
           .project-overview__header {
-            margin-bottom: 1.2rem !important;
+            margin-bottom:
+              1.2rem;
           }
 
           .project-overview__progress-header {
-            align-items: flex-end !important;
+            align-items:
+              flex-end;
           }
 
           .project-overview__actions {
             width: 100%;
           }
 
-          .project-overview__actions a {
+          .project-overview__demo-button {
             width: 100%;
           }
         }
 
         @media (max-width: 380px) {
           .project-overview {
-            border-radius: 15px !important;
+            border-radius:
+              15px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .project-overview__badge,
+          .project-overview__meta-item,
+          .project-overview__category,
+          .project-overview__demo-button,
+          .project-overview__demo-icon {
+            transition: none !important;
+          }
+
+          .project-overview__badge-dot,
+          .project-overview__progress-fill {
+            animation: none !important;
           }
         }
       `}</style>
