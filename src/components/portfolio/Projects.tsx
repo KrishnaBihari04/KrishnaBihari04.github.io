@@ -95,41 +95,41 @@ const projects: Project[] = [
     images: 'empty',
   },
 
-  {
-    id: '03',
-    category: 'AI Automation',
-    projectCategory: 'ai-automation',
-    title: 'Veyro Agent',
-    tagline:
-      'AI-powered voice automation for inbound, outbound, and customer communication personalised at scale.',
-    description:
-      'Node.js and React platform for building AI-powered business receptionists and voice automations. Handles inbound and outbound calls through Twilio and ElevenLabs with configurable conversation flows, dynamic customer context, appointment scheduling, SMS actions, human handoff, call routing, and real-time monitoring. Designed as a reusable automation platform that can adapt to different businesses, workflows, and communication requirements.',
-    outcome:
-      'AI receptionist platform automating inbound and outbound business communication with real-time voice interaction, scheduling, customer actions, and workflow automation — active development.',
-    architecture: [
-      'Node.js',
-      'React',
-      'Twilio Voice API',
-      'ElevenLabs Conversational AI',
-      'WebSocket',
-      'PostgreSQL',
-      'Prisma ORM',
-      'REST API',
-    ],
-    stack: [
-      'Node.js',
-      'React',
-      'TypeScript',
-      'Twilio',
-      'ElevenLabs',
-      'PostgreSQL',
-      'Prisma',
-    ],
-    link: 'https://github.com/kasbihari/',
-    accent: 'var(--muted-light)',
-    status: 'in-progress',
-    images: 'empty',
-  },
+  // {
+  //   id: '03',
+  //   category: 'AI Automation',
+  //   projectCategory: 'ai-automation',
+  //   title: 'Veyro Agent',
+  //   tagline:
+  //     'AI-powered voice automation for inbound, outbound, and customer communication personalised at scale.',
+  //   description:
+  //     'Node.js and React platform for building AI-powered business receptionists and voice automations. Handles inbound and outbound calls through Twilio and ElevenLabs with configurable conversation flows, dynamic customer context, appointment scheduling, SMS actions, human handoff, call routing, and real-time monitoring. Designed as a reusable automation platform that can adapt to different businesses, workflows, and communication requirements.',
+  //   outcome:
+  //     'AI receptionist platform automating inbound and outbound business communication with real-time voice interaction, scheduling, customer actions, and workflow automation — active development.',
+  //   architecture: [
+  //     'Node.js',
+  //     'React',
+  //     'Twilio Voice API',
+  //     'ElevenLabs Conversational AI',
+  //     'WebSocket',
+  //     'PostgreSQL',
+  //     'Prisma ORM',
+  //     'REST API',
+  //   ],
+  //   stack: [
+  //     'Node.js',
+  //     'React',
+  //     'TypeScript',
+  //     'Twilio',
+  //     'ElevenLabs',
+  //     'PostgreSQL',
+  //     'Prisma',
+  //   ],
+  //   link: 'https://github.com/kasbihari/Veyro-Agent',
+  //   accent: 'var(--muted-light)',
+  //   status: 'in-progress',
+  //   images: 'empty',
+  // },
 ];
 
 const FILTERS: { label: string; value: FilterValue }[] = [
@@ -349,6 +349,19 @@ export default function Projects() {
               'column',
           }}
         >
+          {filtered.length === 0 && (
+            <div
+              style={{
+                padding: '3rem 0',
+                textAlign: 'center',
+                color: 'var(--muted-light)',
+                fontSize: '0.9rem',
+              }}
+            >
+              Nothing visible at the moment :)
+            </div>
+          )}
+
           {filtered.map((project) => {
             const isOpen =
               activeProject ===
